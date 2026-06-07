@@ -59,8 +59,11 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 iris-fhir-template/
 ├── docker-compose.yml
 ├── .env                          ← your secrets (never commit)
-├── .env.example                  ← template for new contributors
-├── Dockerfile
+├── Dockerfile                    ← iris 
+├── Dockerfile.api                ← application
+├── iris.script                   ← Setup the FHIR server
+├── merge.cpf                     ← iris
+├── module.xml                    ← ZPM 
 │
 ├── src/python/
 │   ├── api/
@@ -84,16 +87,7 @@ iris-fhir-template/
 │
 └── data/
     ├── fhir/
-    │   ├── patient_01.json       ← James Anderson — CAD + Warfarin + Aspirin allergy
-    │   ├── patient_02.json       ← Sarah Thompson — T2DM complex
-    │   ├── patient_03.json       ← Michael Williams — HFrEF + Digoxin danger
-    │   ├── patient_04.json       ← Emily Johnson — Asthma + NSAID allergy
-    │   ├── patient_05.json       ← Robert Davis — T2DM + SGLT2 + retinopathy
-    │   ├── patient_06.json       ← Linda Martinez — Stroke + AFib + sub-therapeutic INR
-    │   ├── patient_07.json       ← Charles Wilson — CKD3b + NSAID AKI history
-    │   ├── patient_08.json       ← Patricia Taylor — HFrEF EF28% + BNP 845
-    │   ├── patient_09.json       ← Kevin Garcia — Sepsis + T1DM (ICU demo)
-    │   └── patient_10.json       ← Margaret Young — HFrEF + T2DM + CKD + 7 meds
+    │   ├── demo_patients.json    ← FHIR Synthetic Data
     │
     └── guidelines/
         └── clinical_rag_guidelines.csv   ← 50 guidelines for RAG
@@ -142,7 +136,7 @@ This starts two containers:
 - `fhir-template` — InterSystems IRIS for Health on ports `32782 / 32783 / 32784`
 - `fhir-triage-api` — FastAPI application on port `8000`
 
-First startup takes 3–5 minutes while IRIS initialises and the RAG knowledge base embeds 50 guidelines into IRIS Vector Search. Watch the logs:
+First startup takes some time while IRIS initialises and the RAG knowledge base embeds 50 guidelines into IRIS Vector Search. Watch the logs:
 
 ```bash
 docker logs fhir-triage-api --tail=50 -f
@@ -157,19 +151,16 @@ RAG: Initialisation complete — 50 new guidelines embedded and stored
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### 4. Load demo patient data
+### 4. Demo patient data
 
-```bash
-docker exec fhir-template bash -c "cd /home/irisowner/irisdev && iris session iris < load_patients.sh"
-```
+Synthetic FHIR data is loaded during container build from the data/fhir/demo_patients.json file.
 
-Or load each FHIR bundle manually via the FHIR REST API:
-
+The data can also be loaded using the following cURL command:
 ```bash
 curl -X POST http://localhost:32783/fhir/r4 \
   -H "Content-Type: application/fhir+json" \
   -u _SYSTEM:SYS \
-  -d @data/fhir/patient_01.json
+  -d @data/fhir/demo_patients.json
 ```
 
 ### 5. Open the application
@@ -187,15 +178,13 @@ curl -X POST http://localhost:32783/fhir/r4 \
 
 ### Triage Chat — try these patients
 
-| Patient ID | Name | Best demo |
-|---|---|---|
-| `pt-001` | James Anderson | CAD + Warfarin + **Aspirin allergy** → Pharmacy agent flags conflict |
-| `pt-003` | Michael Williams | HFrEF + K⁺ 3.4 LOW + **Digoxin** → dangerous interaction |
-| `pt-008` | Patricia Taylor | HFrEF EF28% + BNP 845 → **EMERGENCY** escalation |
-| `pt-009` | Kevin Garcia | Sepsis + BP 88/54 + lactate 4.2 → **ICU** assessment |
-| `pt-010` | Margaret Young | HFrEF + T2DM + CKD + HTN + 7 meds → all three agents |
+| Patient ID | Name | Condition | Key Demo |
+|------------|------|-----------|----------|
+| `demo-001` | Sarah Rahman | T2DM · Hypertension · Hypothyroidism | Specialist — HbA1c 8.2% above target, Metformin + Lisinopril interaction with Potassium supplements |
+| `demo-002` | Ahmed Khan | CAD · Asthma · Atrial Fibrillation | Pharmacy — Warfarin + Aspirin HIGH RISK bleeding combo. Sub-therapeutic INR 1.6 flagged |
+| `demo-003` | Mohammed Al-Farsi | HFrEF · CKD Stage 3 | Emergency — BNP 845, creatinine 2.1, weight +4kg. Digoxin toxicity risk with worsening CKD |
 
-Type `My patient ID is pt-009` to start.
+Type `My patient ID is pt-001` to start.
 
 ### Live Vitals Monitor
 
@@ -252,30 +241,6 @@ The same IRIS instance that stores FHIR patient data also stores the clinical gu
 
 ---
 
-## Docker Commands
-
-```bash
-# Start everything
-docker-compose up -d --build
-
-# Rebuild API container only (after code changes)
-docker-compose stop api && docker-compose rm -f api && docker-compose up -d --build api
-
-# View API logs
-docker logs fhir-triage-api --tail=50 -f
-
-# View IRIS logs
-docker logs fhir-template --tail=30
-
-# Stop everything
-docker-compose down
-
-# Full reset (removes volumes — clears all FHIR data and RAG embeddings)
-docker-compose down -v
-```
-
----
-
 ## Environment Variables
 
 | Variable | Default | Description |
@@ -295,46 +260,10 @@ docker-compose down -v
 
 ---
 
-## Troubleshooting
-
-**RAG re-embeds every restart**
-The IRIS container was reset. Embeddings are stored in IRIS — a `docker-compose down -v` clears them. Normal behaviour on first start; subsequent restarts skip embedding.
-
-**`Failed to fetch` on FHIR Capability tab**
-The `/fhir/metadata` proxy route in `main.py` is not reachable. Run `docker logs fhir-triage-api` and check for startup errors. Verify IRIS is healthy: `http://localhost:32783/fhir/r4/metadata`
-
-**`ModuleNotFoundError: No module named 'config'`**
-`config.py` is not in the `/app/agent/` directory inside the container. Verify the Dockerfile COPY path includes `src/python/agent/`.
-
-**AI Chat not responding**
-Check `docker logs fhir-triage-api` for the error. Most common causes: missing `OPENAI_API_KEY` in `.env`, or the API container was not rebuilt after a code change.
-
-**IRIS shows `Status: Error` in sidebar**
-IRIS takes 2–3 minutes to fully initialise after `docker-compose up`. Wait and refresh. Check with: `docker logs fhir-template --tail=20`
-
----
-
-## Contest Information
-
-**Contest:** [InterSystems Programming Contest: AI Agents + FHIR](https://community.intersystems.com/post/intersystems-programming-contest-ai-agents-fhir)
-
-**Submission:** [Open Exchange — IRIS FHIR Agents](https://openexchange.intersystems.com)
-
-**Key contest criteria addressed:**
-
-- ✅ Uses InterSystems IRIS for Health as the primary data store
-- ✅ Full FHIR R4 compliance — reads and writes via REST API
-- ✅ AI Agents — four LangChain agents with tool use and memory
-- ✅ IRIS-native Vector Search for RAG (not a third-party vector DB)
-- ✅ Real clinical value — triage, specialist, pharmacy, and FHIR exploration
-- ✅ Docker Compose deployment — one command to run
-
----
-
 ## License
 
 MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
-*Built with InterSystems IRIS for Health · LangChain · FastAPI · GPT-4o-mini*
+Thanks
