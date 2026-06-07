@@ -1,244 +1,864 @@
-[
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-001","name": [{"use": "official","family": "Anderson","given": ["James","Robert"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1958-03-15","telecom": [{"system": "phone","value": "555-101-0001","use": "home"}],"address": [{"line": ["123 Oak Street"],"city": "Boston","state": "MA","postalCode": "02101"}]},"request": {"method": "PUT","url": "Patient/pt-001"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt001-1","subject": {"reference": "Patient/pt-001"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "53741008","display": "Coronary artery disease"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2018-05-10"},"request": {"method": "PUT","url": "Condition/cond-pt001-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt001-2","subject": {"reference": "Patient/pt-001"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2015-02-20"},"request": {"method": "PUT","url": "Condition/cond-pt001-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt001-1","patient": {"reference": "Patient/pt-001"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Aspirin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "230145002","display": "Difficulty breathing"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt001-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt001-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-001"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "855288","display": "Warfarin 5mg"}]},"dosageInstruction": [{"text": "5mg once daily"}],"reasonCode": [{"text": "Coronary artery disease - anticoagulation"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt001-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt001-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-001"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 10mg"}]},"dosageInstruction": [{"text": "10mg once daily"}],"reasonCode": [{"text": "Hypertension"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt001-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-002","name": [{"use": "official","family": "Thompson","given": ["Sarah","Elizabeth"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1965-07-22","telecom": [{"system": "phone","value": "555-101-0002","use": "home"}],"address": [{"line": ["456 Maple Avenue"],"city": "Chicago","state": "IL","postalCode": "60601"}]},"request": {"method": "PUT","url": "Patient/pt-002"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt002-1","subject": {"reference": "Patient/pt-002"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2012-09-14"},"request": {"method": "PUT","url": "Condition/cond-pt002-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt002-2","subject": {"reference": "Patient/pt-002"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2014-03-08"},"request": {"method": "PUT","url": "Condition/cond-pt002-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt002-3","subject": {"reference": "Patient/pt-002"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "414916001","display": "Obesity"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2010-01-15"},"request": {"method": "PUT","url": "Condition/cond-pt002-3"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt002-1","patient": {"reference": "Patient/pt-002"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt002-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt002-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-002"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 1000mg"}]},"dosageInstruction": [{"text": "1000mg twice daily with meals"}],"reasonCode": [{"text": "Type 2 diabetes mellitus"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt002-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt002-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-002"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "83367","display": "Atorvastatin 40mg"}]},"dosageInstruction": [{"text": "40mg once daily at bedtime"}],"reasonCode": [{"text": "Hyperlipidemia"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt002-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-003","name": [{"use": "official","family": "Williams","given": ["Michael","John"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1945-11-30","telecom": [{"system": "phone","value": "555-101-0003","use": "home"}],"address": [{"line": ["789 Pine Road"],"city": "Houston","state": "TX","postalCode": "77001"}]},"request": {"method": "PUT","url": "Patient/pt-003"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt003-1","subject": {"reference": "Patient/pt-003"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2019-08-22"},"request": {"method": "PUT","url": "Condition/cond-pt003-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt003-2","subject": {"reference": "Patient/pt-003"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2017-04-10"},"request": {"method": "PUT","url": "Condition/cond-pt003-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt003-3","subject": {"reference": "Patient/pt-003"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2008-06-15"},"request": {"method": "PUT","url": "Condition/cond-pt003-3"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt003-1","patient": {"reference": "Patient/pt-003"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "704","display": "Sulfonamide"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Stevens-Johnson syndrome"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt003-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt003-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-003"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 40mg"}]},"dosageInstruction": [{"text": "40mg once daily"}],"reasonCode": [{"text": "Heart failure - fluid management"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt003-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt003-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-003"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "197604","display": "Digoxin 0.125mg"}]},"dosageInstruction": [{"text": "0.125mg once daily"}],"reasonCode": [{"text": "Heart failure - cardiac output"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt003-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-004","name": [{"use": "official","family": "Johnson","given": ["Emily","Grace"],"prefix": ["Ms."]}],"gender": "female","birthDate": "1992-04-18","telecom": [{"system": "phone","value": "555-101-0004","use": "home"}],"address": [{"line": ["321 Elm Street"],"city": "Phoenix","state": "AZ","postalCode": "85001"}]},"request": {"method": "PUT","url": "Patient/pt-004"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt004-1","subject": {"reference": "Patient/pt-004"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "195967001","display": "Asthma"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2005-09-01"},"request": {"method": "PUT","url": "Condition/cond-pt004-1"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt004-1","patient": {"reference": "Patient/pt-004"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Ibuprofen"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "230145002","display": "Bronchospasm"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt004-1"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt004-2","patient": {"reference": "Patient/pt-004"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "moderate","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Skin rash"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt004-2"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt004-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-004"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745679","display": "Fluticasone inhaler 250mcg"}]},"dosageInstruction": [{"text": "2 puffs twice daily"}],"reasonCode": [{"text": "Asthma - controller therapy"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt004-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt004-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-004"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745678","display": "Albuterol inhaler 90mcg"}]},"dosageInstruction": [{"text": "2 puffs every 4-6 hours as needed"}],"reasonCode": [{"text": "Asthma - rescue inhaler"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt004-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-005","name": [{"use": "official","family": "Davis","given": ["Robert","Allen"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1970-09-05","telecom": [{"system": "phone","value": "555-101-0005","use": "home"}],"address": [{"line": ["654 Cedar Lane"],"city": "Philadelphia","state": "PA","postalCode": "19101"}]},"request": {"method": "PUT","url": "Patient/pt-005"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt005-1","subject": {"reference": "Patient/pt-005"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2016-03-20"},"request": {"method": "PUT","url": "Condition/cond-pt005-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt005-2","subject": {"reference": "Patient/pt-005"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2014-11-05"},"request": {"method": "PUT","url": "Condition/cond-pt005-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt005-1","patient": {"reference": "Patient/pt-005"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt005-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt005-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-005"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 500mg"}]},"dosageInstruction": [{"text": "500mg twice daily with meals"}],"reasonCode": [{"text": "Type 2 diabetes mellitus"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt005-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt005-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-005"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 20mg"}]},"dosageInstruction": [{"text": "20mg once daily"}],"reasonCode": [{"text": "Hypertension and diabetic nephropathy protection"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt005-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-006","name": [{"use": "official","family": "Martinez","given": ["Linda","Marie"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1978-12-10","telecom": [{"system": "phone","value": "555-101-0006","use": "home"}],"address": [{"line": ["987 Birch Blvd"],"city": "San Antonio","state": "TX","postalCode": "78201"}]},"request": {"method": "PUT","url": "Patient/pt-006"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt006-1","subject": {"reference": "Patient/pt-006"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "230690007","display": "Stroke"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2021-02-14"},"request": {"method": "PUT","url": "Condition/cond-pt006-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt006-2","subject": {"reference": "Patient/pt-006"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "49436004","display": "Atrial fibrillation"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2020-08-30"},"request": {"method": "PUT","url": "Condition/cond-pt006-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt006-1","patient": {"reference": "Patient/pt-006"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Aspirin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "moderate","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "422587007","display": "Nausea"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt006-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt006-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-006"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "855288","display": "Warfarin 3mg"}]},"dosageInstruction": [{"text": "3mg once daily - INR monitoring required"}],"reasonCode": [{"text": "Atrial fibrillation - stroke prevention"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt006-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt006-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-006"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "83367","display": "Atorvastatin 80mg"}]},"dosageInstruction": [{"text": "80mg once daily at bedtime"}],"reasonCode": [{"text": "Stroke prevention - lipid management"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt006-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-007","name": [{"use": "official","family": "Wilson","given": ["Charles","Edward"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1955-06-28","telecom": [{"system": "phone","value": "555-101-0007","use": "home"}],"address": [{"line": ["147 Walnut Way"],"city": "Dallas","state": "TX","postalCode": "75201"}]},"request": {"method": "PUT","url": "Patient/pt-007"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt007-1","subject": {"reference": "Patient/pt-007"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease stage 3"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2016-10-05"},"request": {"method": "PUT","url": "Condition/cond-pt007-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt007-2","subject": {"reference": "Patient/pt-007"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2010-03-12"},"request": {"method": "PUT","url": "Condition/cond-pt007-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt007-1","patient": {"reference": "Patient/pt-007"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "NSAIDs"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "36402006","display": "Acute kidney injury"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt007-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt007-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-007"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 5mg"}]},"dosageInstruction": [{"text": "5mg once daily - reduced dose for CKD"}],"reasonCode": [{"text": "CKD - proteinuria reduction and BP control"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt007-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-008","name": [{"use": "official","family": "Taylor","given": ["Patricia","Anne"],"prefix": ["Dr."]}],"gender": "female","birthDate": "1968-02-14","telecom": [{"system": "phone","value": "555-101-0008","use": "home"}],"address": [{"line": ["258 Spruce Street"],"city": "San Diego","state": "CA","postalCode": "92101"}]},"request": {"method": "PUT","url": "Patient/pt-008"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt008-1","subject": {"reference": "Patient/pt-008"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure with reduced ejection fraction"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2020-11-18"},"request": {"method": "PUT","url": "Condition/cond-pt008-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt008-2","subject": {"reference": "Patient/pt-008"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2012-07-22"},"request": {"method": "PUT","url": "Condition/cond-pt008-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt008-1","patient": {"reference": "Patient/pt-008"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Ibuprofen"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Worsening heart failure"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt008-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt008-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-008"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 80mg"}]},"dosageInstruction": [{"text": "80mg once daily"}],"reasonCode": [{"text": "Heart failure - diuresis"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt008-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt008-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-008"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "200031","display": "Carvedilol 12.5mg"}]},"dosageInstruction": [{"text": "12.5mg twice daily with food"}],"reasonCode": [{"text": "Heart failure - beta blockade"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt008-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-009","name": [{"use": "official","family": "Garcia","given": ["Kevin","Luis"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1985-08-19","telecom": [{"system": "phone","value": "555-101-0009","use": "home"}],"address": [{"line": ["369 Ash Avenue"],"city": "Austin","state": "TX","postalCode": "73301"}]},"request": {"method": "PUT","url": "Patient/pt-009"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt009-1","subject": {"reference": "Patient/pt-009"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "91302008","display": "Sepsis"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2023-01-08"},"request": {"method": "PUT","url": "Condition/cond-pt009-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt009-2","subject": {"reference": "Patient/pt-009"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "73211009","display": "Type 1 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2000-05-15"},"request": {"method": "PUT","url": "Condition/cond-pt009-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt009-1","patient": {"reference": "Patient/pt-009"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt009-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt009-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-009"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "253182","display": "Insulin glargine 100 units/mL"}]},"dosageInstruction": [{"text": "20 units subcutaneously at bedtime"}],"reasonCode": [{"text": "Type 1 diabetes mellitus - basal insulin"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt009-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-010","name": [{"use": "official","family": "Brown","given": ["Nancy","Jean"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1950-01-25","telecom": [{"system": "phone","value": "555-101-0010","use": "home"}],"address": [{"line": ["741 Hickory Drive"],"city": "Jacksonville","state": "FL","postalCode": "32099"}]},"request": {"method": "PUT","url": "Patient/pt-010"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt010-1","subject": {"reference": "Patient/pt-010"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "414916001","display": "Obesity"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2005-04-20"},"request": {"method": "PUT","url": "Condition/cond-pt010-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt010-2","subject": {"reference": "Patient/pt-010"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2008-09-12"},"request": {"method": "PUT","url": "Condition/cond-pt010-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt010-3","subject": {"reference": "Patient/pt-010"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2007-06-18"},"request": {"method": "PUT","url": "Condition/cond-pt010-3"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt010-1","patient": {"reference": "Patient/pt-010"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "moderate","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Urticaria"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt010-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt010-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-010"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 1000mg"}]},"dosageInstruction": [{"text": "1000mg twice daily with meals"}],"reasonCode": [{"text": "Type 2 diabetes and obesity management"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt010-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-011","name": [{"use": "official","family": "Moore","given": ["Steven","Paul"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1962-05-17","telecom": [{"system": "phone","value": "555-101-0011","use": "home"}],"address": [{"line": ["852 Poplar Place"],"city": "Columbus","state": "OH","postalCode": "43085"}]},"request": {"method": "PUT","url": "Patient/pt-011"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt011-1","subject": {"reference": "Patient/pt-011"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "53741008","display": "Coronary artery disease"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2017-12-03"},"request": {"method": "PUT","url": "Condition/cond-pt011-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt011-2","subject": {"reference": "Patient/pt-011"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2013-08-27"},"request": {"method": "PUT","url": "Condition/cond-pt011-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt011-1","patient": {"reference": "Patient/pt-011"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "704","display": "Sulfonamide"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Severe rash"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt011-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt011-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-011"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "855288","display": "Warfarin 5mg"}]},"dosageInstruction": [{"text": "5mg once daily - INR target 2-3"}],"reasonCode": [{"text": "Coronary artery disease - anticoagulation"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt011-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt011-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-011"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 500mg"}]},"dosageInstruction": [{"text": "500mg twice daily"}],"reasonCode": [{"text": "Type 2 diabetes mellitus"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt011-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-012","name": [{"use": "official","family": "Jackson","given": ["Catherine","Rose"],"prefix": ["Ms."]}],"gender": "female","birthDate": "1995-10-08","telecom": [{"system": "phone","value": "555-101-0012","use": "home"}],"address": [{"line": ["963 Willow Way"],"city": "Charlotte","state": "NC","postalCode": "28201"}]},"request": {"method": "PUT","url": "Patient/pt-012"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt012-1","subject": {"reference": "Patient/pt-012"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "195967001","display": "Asthma"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2008-03-22"},"request": {"method": "PUT","url": "Condition/cond-pt012-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt012-2","subject": {"reference": "Patient/pt-012"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "414916001","display": "Obesity"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2015-07-10"},"request": {"method": "PUT","url": "Condition/cond-pt012-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt012-1","patient": {"reference": "Patient/pt-012"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt012-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt012-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-012"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745679","display": "Fluticasone inhaler 500mcg"}]},"dosageInstruction": [{"text": "2 puffs twice daily"}],"reasonCode": [{"text": "Severe asthma - high dose ICS"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt012-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-013","name": [{"use": "official","family": "White","given": ["George","Henry"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1948-03-30","telecom": [{"system": "phone","value": "555-101-0013","use": "home"}],"address": [{"line": ["174 Chestnut Court"],"city": "Indianapolis","state": "IN","postalCode": "46201"}]},"request": {"method": "PUT","url": "Patient/pt-013"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt013-1","subject": {"reference": "Patient/pt-013"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2018-04-15"},"request": {"method": "PUT","url": "Condition/cond-pt013-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt013-2","subject": {"reference": "Patient/pt-013"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "49436004","display": "Atrial fibrillation"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2016-09-20"},"request": {"method": "PUT","url": "Condition/cond-pt013-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt013-1","patient": {"reference": "Patient/pt-013"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Aspirin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "moderate","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "21522001","display": "Abdominal pain"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt013-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt013-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-013"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "197604","display": "Digoxin 0.25mg"}]},"dosageInstruction": [{"text": "0.25mg once daily - monitor levels"}],"reasonCode": [{"text": "Heart failure and atrial fibrillation - rate control"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt013-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt013-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-013"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 40mg"}]},"dosageInstruction": [{"text": "40mg once daily"}],"reasonCode": [{"text": "Heart failure - fluid management"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt013-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-014","name": [{"use": "official","family": "Harris","given": ["Jennifer","Lynn"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1982-07-04","telecom": [{"system": "phone","value": "555-101-0014","use": "home"}],"address": [{"line": ["285 Magnolia Blvd"],"city": "Seattle","state": "WA","postalCode": "98101"}]},"request": {"method": "PUT","url": "Patient/pt-014"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt014-1","subject": {"reference": "Patient/pt-014"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "386661006","display": "Fever"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2024-01-05"},"request": {"method": "PUT","url": "Condition/cond-pt014-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt014-2","subject": {"reference": "Patient/pt-014"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "195967001","display": "Asthma"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2003-11-14"},"request": {"method": "PUT","url": "Condition/cond-pt014-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt014-1","patient": {"reference": "Patient/pt-014"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt014-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt014-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-014"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745678","display": "Albuterol inhaler 90mcg"}]},"dosageInstruction": [{"text": "2 puffs every 4-6 hours as needed"}],"reasonCode": [{"text": "Asthma - rescue inhaler"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt014-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-015","name": [{"use": "official","family": "Clark","given": ["Thomas","William"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1940-12-20","telecom": [{"system": "phone","value": "555-101-0015","use": "home"}],"address": [{"line": ["396 Sycamore Street"],"city": "Denver","state": "CO","postalCode": "80201"}]},"request": {"method": "PUT","url": "Patient/pt-015"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt015-1","subject": {"reference": "Patient/pt-015"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "53741008","display": "Coronary artery disease"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2010-06-01"},"request": {"method": "PUT","url": "Condition/cond-pt015-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt015-2","subject": {"reference": "Patient/pt-015"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease stage 4"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2019-03-14"},"request": {"method": "PUT","url": "Condition/cond-pt015-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt015-3","subject": {"reference": "Patient/pt-015"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2005-09-25"},"request": {"method": "PUT","url": "Condition/cond-pt015-3"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt015-1","patient": {"reference": "Patient/pt-015"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "NSAIDs"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "36402006","display": "Acute kidney injury"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt015-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt015-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-015"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "855288","display": "Warfarin 2.5mg"}]},"dosageInstruction": [{"text": "2.5mg once daily - reduced dose for CKD"}],"reasonCode": [{"text": "Coronary artery disease - anticoagulation"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt015-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-016","name": [{"use": "official","family": "Lewis","given": ["Dorothy","Mae"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1960-04-12","telecom": [{"system": "phone","value": "555-101-0016","use": "home"}],"address": [{"line": ["507 Dogwood Drive"],"city": "Nashville","state": "TN","postalCode": "37201"}]},"request": {"method": "PUT","url": "Patient/pt-016"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt016-1","subject": {"reference": "Patient/pt-016"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2009-02-28"},"request": {"method": "PUT","url": "Condition/cond-pt016-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt016-2","subject": {"reference": "Patient/pt-016"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease stage 2"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2020-05-08"},"request": {"method": "PUT","url": "Condition/cond-pt016-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt016-1","patient": {"reference": "Patient/pt-016"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "moderate","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Skin rash"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt016-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt016-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-016"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 500mg"}]},"dosageInstruction": [{"text": "500mg twice daily - dose reduced for CKD stage 2"}],"reasonCode": [{"text": "Type 2 diabetes mellitus"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt016-1"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-017","name": [{"use": "official","family": "Robinson","given": ["Andrew","James"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1975-11-02","telecom": [{"system": "phone","value": "555-101-0017","use": "home"}],"address": [{"line": ["618 Redwood Road"],"city": "Portland","state": "OR","postalCode": "97201"}]},"request": {"method": "PUT","url": "Patient/pt-017"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt017-1","subject": {"reference": "Patient/pt-017"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "230690007","display": "Stroke"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2022-08-17"},"request": {"method": "PUT","url": "Condition/cond-pt017-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt017-2","subject": {"reference": "Patient/pt-017"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2018-04-11"},"request": {"method": "PUT","url": "Condition/cond-pt017-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt017-1","patient": {"reference": "Patient/pt-017"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "704","display": "Sulfonamide"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Toxic epidermal necrolysis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt017-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt017-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-017"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 10mg"}]},"dosageInstruction": [{"text": "10mg once daily"}],"reasonCode": [{"text": "Hypertension - secondary stroke prevention"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt017-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt017-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-017"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "83367","display": "Atorvastatin 80mg"}]},"dosageInstruction": [{"text": "80mg once daily"}],"reasonCode": [{"text": "Stroke prevention - high intensity statin"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt017-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-018","name": [{"use": "official","family": "Walker","given": ["Barbara","Sue"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1955-08-30","telecom": [{"system": "phone","value": "555-101-0018","use": "home"}],"address": [{"line": ["729 Palmetto Path"],"city": "Memphis","state": "TN","postalCode": "38101"}]},"request": {"method": "PUT","url": "Patient/pt-018"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt018-1","subject": {"reference": "Patient/pt-018"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2006-01-19"},"request": {"method": "PUT","url": "Condition/cond-pt018-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt018-2","subject": {"reference": "Patient/pt-018"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2021-10-30"},"request": {"method": "PUT","url": "Condition/cond-pt018-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt018-3","subject": {"reference": "Patient/pt-018"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2004-07-22"},"request": {"method": "PUT","url": "Condition/cond-pt018-3"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt018-1","patient": {"reference": "Patient/pt-018"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Ibuprofen"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Worsening heart failure"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt018-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt018-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-018"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 500mg"}]},"dosageInstruction": [{"text": "500mg twice daily"}],"reasonCode": [{"text": "Type 2 diabetes mellitus"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt018-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt018-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-018"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 20mg"}]},"dosageInstruction": [{"text": "20mg once daily"}],"reasonCode": [{"text": "Heart failure - mild diuresis"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt018-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-019","name": [{"use": "official","family": "Hall","given": ["Daniel","Scott"],"prefix": ["Mr."]}],"gender": "male","birthDate": "1988-02-14","telecom": [{"system": "phone","value": "555-101-0019","use": "home"}],"address": [{"line": ["840 Laurel Lane"],"city": "Louisville","state": "KY","postalCode": "40201"}]},"request": {"method": "PUT","url": "Patient/pt-019"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt019-1","subject": {"reference": "Patient/pt-019"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "195967001","display": "Asthma"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2002-06-10"},"request": {"method": "PUT","url": "Condition/cond-pt019-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt019-2","subject": {"reference": "Patient/pt-019"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "414916001","display": "Obesity"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2018-03-25"},"request": {"method": "PUT","url": "Condition/cond-pt019-2"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt019-1","patient": {"reference": "Patient/pt-019"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "Aspirin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "230145002","display": "Bronchospasm"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt019-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt019-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-019"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745679","display": "Fluticasone inhaler 250mcg"}]},"dosageInstruction": [{"text": "2 puffs twice daily"}],"reasonCode": [{"text": "Moderate persistent asthma - ICS controller"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt019-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt019-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-019"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "745678","display": "Albuterol inhaler 90mcg"}]},"dosageInstruction": [{"text": "2 puffs as needed for breakthrough symptoms"}],"reasonCode": [{"text": "Asthma - rescue therapy"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt019-2"}}
-    ]
-  },
-  {
-    "resourceType": "Bundle",
-    "type": "transaction",
-    "entry": [
-      {"resource": {"resourceType": "Patient","id": "pt-020","name": [{"use": "official","family": "Young","given": ["Margaret","Ellen"],"prefix": ["Mrs."]}],"gender": "female","birthDate": "1943-09-16","telecom": [{"system": "phone","value": "555-101-0020","use": "home"}],"address": [{"line": ["951 Tulip Trail"],"city": "Baltimore","state": "MD","postalCode": "21201"}]},"request": {"method": "PUT","url": "Patient/pt-020"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt020-1","subject": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2015-12-08"},"request": {"method": "PUT","url": "Condition/cond-pt020-1"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt020-2","subject": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2007-04-30"},"request": {"method": "PUT","url": "Condition/cond-pt020-2"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt020-3","subject": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease stage 3"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2018-11-22"},"request": {"method": "PUT","url": "Condition/cond-pt020-3"}},
-      {"resource": {"resourceType": "Condition","id": "cond-pt020-4","subject": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://snomed.info/sct","code": "38341003","display": "Hypertension"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},"onsetDateTime": "2003-06-14"},"request": {"method": "PUT","url": "Condition/cond-pt020-4"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt020-1","patient": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "NSAIDs"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "intolerance","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Acute heart failure exacerbation"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt020-1"}},
-      {"resource": {"resourceType": "AllergyIntolerance","id": "allergy-pt020-2","patient": {"reference": "Patient/pt-020"},"code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "7980","display": "Penicillin"}]},"clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},"type": "allergy","criticality": "high","reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "39579001","display": "Anaphylaxis"}]}]}]},"request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt020-2"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt020-1","status": "active","intent": "order","subject": {"reference": "Patient/pt-020"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 40mg"}]},"dosageInstruction": [{"text": "40mg once daily"}],"reasonCode": [{"text": "Heart failure - fluid management"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt020-1"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt020-2","status": "active","intent": "order","subject": {"reference": "Patient/pt-020"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 5mg"}]},"dosageInstruction": [{"text": "5mg once daily - reduced dose for CKD"}],"reasonCode": [{"text": "Heart failure and CKD - ACE inhibitor"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt020-2"}},
-      {"resource": {"resourceType": "MedicationRequest","id": "med-pt020-3","status": "active","intent": "order","subject": {"reference": "Patient/pt-020"},"medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "860975","display": "Metformin 500mg"}]},"dosageInstruction": [{"text": "500mg once daily - low dose for CKD stage 3"}],"reasonCode": [{"text": "Type 2 diabetes - dose adjusted for renal function"}]},"request": {"method": "PUT","url": "MedicationRequest/med-pt020-3"}}
-    ]
-  }
-]
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-001",
+        "name": [{"use": "official", "family": "Rahman", "given": ["Sarah"], "prefix": ["Mrs."]}],
+        "gender": "female",
+        "birthDate": "1968-04-22",
+        "telecom": [{"system": "phone", "value": "555-101-2001", "use": "home"}],
+        "address": [{"line": ["123 Oak Street"], "city": "Boston", "state": "MA", "postalCode": "02101"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-001"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-001-1",
+        "subject": {"reference": "Patient/demo-001"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2015-03-10"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-001-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-001-2",
+        "subject": {"reference": "Patient/demo-001"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "38341003", "display": "Hypertension"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2016-07-20"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-001-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-001-3",
+        "subject": {"reference": "Patient/demo-001"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "40930008", "display": "Hypothyroidism"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2018-01-15"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-001-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-001-1",
+        "patient": {"reference": "Patient/demo-001"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "7980", "display": "Penicillin"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "39579001", "display": "Anaphylaxis"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-001-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-001-2",
+        "patient": {"reference": "Patient/demo-001"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "1191", "display": "Aspirin"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "271807003", "display": "Skin rash"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-001-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-001-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-001"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "860975", "display": "Metformin 500mg"}]},
+        "dosageInstruction": [{"text": "500mg twice daily with meals"}],
+        "reasonCode": [{"text": "Type 2 diabetes mellitus"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-001-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-001-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-001"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "29046", "display": "Lisinopril 10mg"}]},
+        "dosageInstruction": [{"text": "10mg once daily"}],
+        "reasonCode": [{"text": "Hypertension"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-001-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-001-3",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-001"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "83367", "display": "Atorvastatin 20mg"}]},
+        "dosageInstruction": [{"text": "20mg once daily at bedtime"}],
+        "reasonCode": [{"text": "Hyperlipidemia"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-001-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-001-4",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-001"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "10582", "display": "Levothyroxine 50mcg"}]},
+        "dosageInstruction": [{"text": "50mcg once daily on empty stomach"}],
+        "reasonCode": [{"text": "Hypothyroidism"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-001-4"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-001-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "4548-4", "display": "Hemoglobin A1c"}]},
+        "subject": {"reference": "Patient/demo-001"},
+        "effectiveDateTime": "2026-05-01",
+        "valueQuantity": {"value": 8.2, "unit": "%", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-001-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-002",
+        "name": [{"use": "official", "family": "Chen", "given": ["James"], "prefix": ["Mr."]}],
+        "gender": "male",
+        "birthDate": "1975-09-14",
+        "telecom": [{"system": "phone", "value": "555-101-2002", "use": "home"}],
+        "address": [{"line": ["456 Maple Ave"], "city": "Cambridge", "state": "MA", "postalCode": "02139"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-002"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-002-1",
+        "subject": {"reference": "Patient/demo-002"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "53741008", "display": "Coronary artery disease"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2020-06-15"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-002-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-002-2",
+        "subject": {"reference": "Patient/demo-002"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "195967001", "display": "Asthma"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2010-03-22"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-002-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-002-3",
+        "subject": {"reference": "Patient/demo-002"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "49436004", "display": "Atrial fibrillation"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2022-11-05"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-002-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-002-1",
+        "patient": {"reference": "Patient/demo-002"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "5640", "display": "Ibuprofen"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "230145002", "display": "Difficulty breathing"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-002-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-002-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-002"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "855288", "display": "Warfarin 5mg"}]},
+        "dosageInstruction": [{"text": "5mg once daily — dose adjusted per INR"}],
+        "reasonCode": [{"text": "Atrial fibrillation — stroke prevention"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-002-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-002-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-002"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "1049502", "display": "Aspirin 81mg"}]},
+        "dosageInstruction": [{"text": "81mg once daily"}],
+        "reasonCode": [{"text": "Coronary artery disease prevention"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-002-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-002-3",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-002"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "866511", "display": "Salbutamol 100mcg inhaler"}]},
+        "dosageInstruction": [{"text": "2 puffs as needed for breathlessness"}],
+        "reasonCode": [{"text": "Asthma — reliever"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-002-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-002-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "6301-6", "display": "INR"}]},
+        "subject": {"reference": "Patient/demo-002"},
+        "effectiveDateTime": "2026-05-10",
+        "valueQuantity": {"value": 1.6, "unit": "INR", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "L", "display": "Low — sub-therapeutic"}]}],
+        "note": [{"text": "INR below therapeutic range of 2.0-3.0 for AF. Warfarin dose review required."}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-002-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-003",
+        "name": [{"use": "official", "family": "Al-Farsi", "given": ["Mohammed"], "prefix": ["Mr."]}],
+        "gender": "male",
+        "birthDate": "1990-01-30",
+        "telecom": [{"system": "phone", "value": "555-101-2003", "use": "home"}],
+        "address": [{"line": ["789 Pine Road"], "city": "Riyadh", "state": "RD", "postalCode": "11564"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-003"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-003-1",
+        "subject": {"reference": "Patient/demo-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "84114007", "display": "Heart failure with reduced ejection fraction"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2021-08-14",
+        "note": [{"text": "EF 28% on last echo. BNP 845 pg/mL. Weight gain 4kg in 5 days."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-003-2",
+        "subject": {"reference": "Patient/demo-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "709044004", "display": "Chronic kidney disease stage 3"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2022-03-01"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-003-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-003-1",
+        "patient": {"reference": "Patient/demo-003"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "704", "display": "Sulfonamide"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "271807003", "display": "Stevens-Johnson syndrome"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-003-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "203160", "display": "Furosemide 40mg"}]},
+        "dosageInstruction": [{"text": "40mg once daily — increase to 80mg if weight gains >2kg"}],
+        "reasonCode": [{"text": "Heart failure — fluid management"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-003-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "203160", "display": "Digoxin 0.125mg"}]},
+        "dosageInstruction": [{"text": "0.125mg once daily — monitor levels, renal function"}],
+        "reasonCode": [{"text": "Heart failure — cardiac output"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-003-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-003-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "33762-6", "display": "BNP"}]},
+        "subject": {"reference": "Patient/demo-003"},
+        "effectiveDateTime": "2026-05-15",
+        "valueQuantity": {"value": 845, "unit": "pg/mL", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High — decompensated HF"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-003-2",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "2160-0", "display": "Serum Creatinine"}]},
+        "subject": {"reference": "Patient/demo-003"},
+        "effectiveDateTime": "2026-05-15",
+        "valueQuantity": {"value": 2.1, "unit": "mg/dL", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-003-2"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-004",
+        "name": [{"use": "official", "family": "Patel", "given": ["Priya"], "prefix": ["Ms."]}],
+        "gender": "female",
+        "birthDate": "1985-06-18",
+        "telecom": [{"system": "phone", "value": "555-101-2004", "use": "home"}],
+        "address": [{"line": ["22 Elm Court"], "city": "Houston", "state": "TX", "postalCode": "77001"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-004"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-004-1",
+        "subject": {"reference": "Patient/demo-004"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "195967001", "display": "Asthma — severe persistent"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2005-09-01"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-004-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-004-2",
+        "subject": {"reference": "Patient/demo-004"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "232353008", "display": "Allergic rhinitis"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2008-04-12"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-004-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-004-1",
+        "patient": {"reference": "Patient/demo-004"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "5640", "display": "NSAIDs"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "230145002", "display": "Severe bronchospasm"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-004-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-004-2",
+        "patient": {"reference": "Patient/demo-004"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "41493", "display": "Latex"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "39579001", "display": "Anaphylaxis"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-004-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-004-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-004"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "866511", "display": "Salbutamol 100mcg inhaler"}]},
+        "dosageInstruction": [{"text": "2 puffs every 4-6 hours as needed"}],
+        "reasonCode": [{"text": "Asthma — reliever"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-004-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-004-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-004"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "866514", "display": "Fluticasone 250mcg inhaler"}]},
+        "dosageInstruction": [{"text": "2 puffs twice daily — controller"}],
+        "reasonCode": [{"text": "Asthma — preventer"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-004-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-004-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "vital-signs"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "59408-5", "display": "Oxygen saturation"}]},
+        "subject": {"reference": "Patient/demo-004"},
+        "effectiveDateTime": "2026-05-20",
+        "valueQuantity": {"value": 91, "unit": "%", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "L", "display": "Low — during acute exacerbation"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-004-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-005",
+        "name": [{"use": "official", "family": "Okafor", "given": ["Emeka"], "prefix": ["Mr."]}],
+        "gender": "male",
+        "birthDate": "1960-11-03",
+        "telecom": [{"system": "phone", "value": "555-101-2005", "use": "home"}],
+        "address": [{"line": ["10 River Lane"], "city": "Lagos", "state": "LA", "postalCode": "10001"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-005"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-005-1",
+        "subject": {"reference": "Patient/demo-005"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "709044004", "display": "Chronic kidney disease stage 4"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2019-05-20",
+        "note": [{"text": "eGFR 22 mL/min/1.73m2. Preparing for dialysis planning."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-005-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-005-2",
+        "subject": {"reference": "Patient/demo-005"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2010-02-14"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-005-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-005-3",
+        "subject": {"reference": "Patient/demo-005"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "40930008", "display": "Anaemia of chronic kidney disease"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2021-01-10"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-005-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-005-1",
+        "patient": {"reference": "Patient/demo-005"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "5640", "display": "NSAIDs"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "intolerance", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "14669001", "display": "Acute kidney injury"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-005-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-005-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-005"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "860975", "display": "Metformin 500mg"}]},
+        "dosageInstruction": [{"text": "500mg once daily — reduced dose for eGFR <30"}],
+        "reasonCode": [{"text": "Type 2 diabetes — use with caution in CKD4"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-005-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-005-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-005"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "858063", "display": "Erythropoietin 4000 IU injection"}]},
+        "dosageInstruction": [{"text": "4000 IU subcutaneous three times weekly"}],
+        "reasonCode": [{"text": "Anaemia of CKD"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-005-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-005-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "62238-1", "display": "eGFR"}]},
+        "subject": {"reference": "Patient/demo-005"},
+        "effectiveDateTime": "2026-05-12",
+        "valueQuantity": {"value": 22, "unit": "mL/min/1.73m2", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "L", "display": "Low — CKD Stage 4"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-005-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-006",
+        "name": [{"use": "official", "family": "Martinez", "given": ["Elena"], "prefix": ["Dr."]}],
+        "gender": "female",
+        "birthDate": "1972-03-25",
+        "telecom": [{"system": "phone", "value": "555-101-2006", "use": "home"}],
+        "address": [{"line": ["55 Sunset Blvd"], "city": "Miami", "state": "FL", "postalCode": "33101"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-006"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-006-1",
+        "subject": {"reference": "Patient/demo-006"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "230690007", "display": "Cerebrovascular accident (stroke)"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2024-01-08",
+        "note": [{"text": "Ischaemic stroke. On anticoagulation. Residual left arm weakness."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-006-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-006-2",
+        "subject": {"reference": "Patient/demo-006"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2014-06-30"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-006-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-006-3",
+        "subject": {"reference": "Patient/demo-006"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "44054006", "display": "Dyslipidaemia"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2016-09-12"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-006-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-006-1",
+        "patient": {"reference": "Patient/demo-006"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "7980", "display": "Clopidogrel"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "unable-to-assess",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "271807003", "display": "Thrombotic thrombocytopenic purpura"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-006-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-006-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-006"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "855288", "display": "Warfarin 3mg"}]},
+        "dosageInstruction": [{"text": "3mg once daily — target INR 2.0-3.0"}],
+        "reasonCode": [{"text": "Stroke secondary prevention — AF related"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-006-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-006-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-006"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "83367", "display": "Atorvastatin 40mg"}]},
+        "dosageInstruction": [{"text": "40mg once daily at bedtime"}],
+        "reasonCode": [{"text": "Stroke prevention — dyslipidaemia"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-006-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-006-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "6301-6", "display": "INR"}]},
+        "subject": {"reference": "Patient/demo-006"},
+        "effectiveDateTime": "2026-05-18",
+        "valueQuantity": {"value": 1.4, "unit": "INR", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "L", "display": "Low — below therapeutic range"}]}],
+        "note": [{"text": "Subtherapeutic INR increases stroke recurrence risk. Dose adjustment needed."}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-006-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-007",
+        "name": [{"use": "official", "family": "Lindqvist", "given": ["Erik"], "prefix": ["Mr."]}],
+        "gender": "male",
+        "birthDate": "1955-07-19",
+        "telecom": [{"system": "phone", "value": "555-101-2007", "use": "home"}],
+        "address": [{"line": ["4 Fjord Street"], "city": "Oslo", "state": "NO", "postalCode": "0150"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-007"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-007-1",
+        "subject": {"reference": "Patient/demo-007"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "363418001", "display": "Malignant tumour of prostate"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2023-03-15",
+        "note": [{"text": "Gleason 7 (3+4). Localised. On active surveillance post-radiation."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-007-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-007-2",
+        "subject": {"reference": "Patient/demo-007"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "38341003", "display": "Hypertension"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2012-08-05"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-007-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-007-3",
+        "subject": {"reference": "Patient/demo-007"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "73211009", "display": "Osteoporosis"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2024-01-20",
+        "note": [{"text": "Secondary to androgen deprivation therapy. T-score -2.8."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-007-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-007-1",
+        "patient": {"reference": "Patient/demo-007"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "7980", "display": "Penicillin"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "allergy", "criticality": "low",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "271807003", "display": "Urticaria"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-007-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-007-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-007"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "858063", "display": "Leuprolide 22.5mg depot injection"}]},
+        "dosageInstruction": [{"text": "22.5mg IM every 3 months — androgen deprivation therapy"}],
+        "reasonCode": [{"text": "Prostate cancer — hormone therapy"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-007-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-007-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-007"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "41493", "display": "Alendronate 70mg"}]},
+        "dosageInstruction": [{"text": "70mg once weekly on empty stomach — remain upright 30 min"}],
+        "reasonCode": [{"text": "Osteoporosis secondary to ADT"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-007-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-007-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "10334-1", "display": "PSA"}]},
+        "subject": {"reference": "Patient/demo-007"},
+        "effectiveDateTime": "2026-05-05",
+        "valueQuantity": {"value": 4.8, "unit": "ng/mL", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "Rising — surveillance required"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-007-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-008",
+        "name": [{"use": "official", "family": "Nguyen", "given": ["Linh"], "prefix": ["Ms."]}],
+        "gender": "female",
+        "birthDate": "1995-12-08",
+        "telecom": [{"system": "phone", "value": "555-101-2008", "use": "home"}],
+        "address": [{"line": ["88 Lotus Way"], "city": "San Jose", "state": "CA", "postalCode": "95101"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-008"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-008-1",
+        "subject": {"reference": "Patient/demo-008"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "46635009", "display": "Type 1 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2008-05-14",
+        "note": [{"text": "Diagnosed age 13. On insulin pump therapy. Recent recurrent hypoglycaemia."}]
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-008-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-008-2",
+        "subject": {"reference": "Patient/demo-008"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "73211009", "display": "Diabetic retinopathy"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2022-11-20"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-008-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-008-1",
+        "patient": {"reference": "Patient/demo-008"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "7980", "display": "Sulphonylureas"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "intolerance", "criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "271327008", "display": "Severe hypoglycaemia"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-008-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-008-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-008"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "86009", "display": "Insulin lispro (Humalog) pump"}]},
+        "dosageInstruction": [{"text": "Continuous subcutaneous insulin infusion — pump settings per endocrinology"}],
+        "reasonCode": [{"text": "Type 1 diabetes mellitus"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-008-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-008-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "4548-4", "display": "Hemoglobin A1c"}]},
+        "subject": {"reference": "Patient/demo-008"},
+        "effectiveDateTime": "2026-05-02",
+        "valueQuantity": {"value": 9.4, "unit": "%", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High — poor glycaemic control"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-008-1"}
+    },
+
+    {
+      "resource": {
+        "resourceType": "Patient",
+        "id": "demo-009",
+        "name": [{"use": "official", "family": "Hassan", "given": ["Yusuf"], "prefix": ["Mr."]}],
+        "gender": "male",
+        "birthDate": "1948-02-11",
+        "telecom": [{"system": "phone", "value": "555-101-2009", "use": "home"}],
+        "address": [{"line": ["7 Grand Boulevard"], "city": "Dubai", "state": "DU", "postalCode": "00000"}]
+      },
+      "request": {"method": "PUT", "url": "Patient/demo-009"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-009-1",
+        "subject": {"reference": "Patient/demo-009"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "84114007", "display": "Heart failure with preserved ejection fraction"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2020-04-18"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-009-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-009-2",
+        "subject": {"reference": "Patient/demo-009"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "44054006", "display": "Type 2 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2008-11-05"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-009-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-009-3",
+        "subject": {"reference": "Patient/demo-009"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "38341003", "display": "Hypertension"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2005-03-22"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-009-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition", "id": "cond-demo-009-4",
+        "subject": {"reference": "Patient/demo-009"},
+        "code": {"coding": [{"system": "http://snomed.info/sct", "code": "709044004", "display": "Chronic kidney disease stage 3"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical", "code": "active"}]},
+        "onsetDateTime": "2023-07-14"
+      },
+      "request": {"method": "PUT", "url": "Condition/cond-demo-009-4"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance", "id": "allergy-demo-009-1",
+        "patient": {"reference": "Patient/demo-009"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "7980", "display": "ACE Inhibitors"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical", "code": "active"}]},
+        "type": "intolerance", "criticality": "unable-to-assess",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct", "code": "49727002", "display": "Persistent dry cough"}]}]}]
+      },
+      "request": {"method": "PUT", "url": "AllergyIntolerance/allergy-demo-009-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-009-1",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-009"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "83367", "display": "Empagliflozin 10mg"}]},
+        "dosageInstruction": [{"text": "10mg once daily with breakfast"}],
+        "reasonCode": [{"text": "T2DM with HFpEF — SGLT2 inhibitor for cardiac benefit"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-009-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-009-2",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-009"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "29046", "display": "Losartan 50mg"}]},
+        "dosageInstruction": [{"text": "50mg once daily — ARB replacing ACE inhibitor due to cough"}],
+        "reasonCode": [{"text": "Hypertension — ACE intolerant"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-009-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest", "id": "med-demo-009-3",
+        "status": "active", "intent": "order",
+        "subject": {"reference": "Patient/demo-009"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm", "code": "203160", "display": "Furosemide 20mg"}]},
+        "dosageInstruction": [{"text": "20mg once daily"}],
+        "reasonCode": [{"text": "HFpEF — congestion management"}]
+      },
+      "request": {"method": "PUT", "url": "MedicationRequest/med-demo-009-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation", "id": "obs-demo-009-1",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category", "code": "vital-signs"}]}],
+        "code": {"coding": [{"system": "http://loinc.org", "code": "8480-6", "display": "Systolic blood pressure"}]},
+        "subject": {"reference": "Patient/demo-009"},
+        "effectiveDateTime": "2026-05-19",
+        "valueQuantity": {"value": 162, "unit": "mmHg", "system": "http://unitsofmeasure.org"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation", "code": "H", "display": "High — uncontrolled hypertension"}]}]
+      },
+      "request": {"method": "PUT", "url": "Observation/obs-demo-009-1"}
+    }
+
+  ]
+}

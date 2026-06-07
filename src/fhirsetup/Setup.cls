@@ -61,9 +61,5 @@ ClassMethod SetupFHIRServer(ns = "FHIRSERVER", appKey = "/fhir/r4", testLoad = 1
     quit st
 }
 
-ClassMethod LoadPatientData(path, namespace, appKey) As %Status
-{
-    quit ##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles(path, namespace, appKey)
-}
 
 }
