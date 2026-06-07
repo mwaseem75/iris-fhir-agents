@@ -1,7 +1,6 @@
 # IRIS FHIR Agents
 
-> A multi-agent clinical AI platform built on InterSystems IRIS for Health (FHIR R4).
-> Built for the **InterSystems Programming Contest: AI Agents + FHIR** — June 2026.
+> A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.
 
 [![InterSystems IRIS](https://img.shields.io/badge/InterSystems-IRIS%20for%20Health-blue)](https://www.intersystems.com/products/intersystems-iris-for-health/)
 [![FHIR R4](https://img.shields.io/badge/FHIR-R4-orange)](https://hl7.org/fhir/R4/)
