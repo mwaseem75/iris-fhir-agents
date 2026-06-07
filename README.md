@@ -41,31 +41,8 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 ## Architecture
 
 ```
-Browser (4 pages)
-  ├── Triage Chat       → POST /chat
-  ├── Dashboard         → GET  /analytics/*
-  ├── Live Vitals       → GET  /vitals/stream/{id}  (SSE)
-  └── FHIR Server Agent → POST /fhir-agent/chat
+<img width="1500" height="1979" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/fbacc068-9836-4195-a70a-d5af396f4c3c" />
 
-FastAPI (main.py + config.py)
-  └── Orchestrator (orchestrator.py)
-        ├── Triage Agent     (triage_agent.py)    temp=0.3
-        ├── Specialist Agent (specialist_agent.py) temp=0.2
-        └── Pharmacy Agent   (pharmacy_agent.py)  temp=0.1
-              │
-              ├── fhir_tools.py       ← FHIR R4 read/write tools
-              └── knowledge_base.py   ← IRIS Vector Search RAG
-
-  └── FHIR Server Agent (fhir_agent.py)  11 tools, temp=0.2
-
-InterSystems IRIS for Health (FHIRSERVER namespace)
-  ├── FHIR R4 REST API   :52773/fhir/r4
-  ├── IRIS Vector Search  RAG.VectorKnowledgeBase
-  └── IRIS SQL           Atelier REST API
-
-OpenAI API
-  ├── gpt-4o-mini        → all agents + router
-  └── text-embedding-3-small → RAG embeddings
 ```
 
 ---
