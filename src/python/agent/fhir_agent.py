@@ -45,6 +45,7 @@ from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain.memory import ConversationBufferMemory
 from langchain.tools import tool
 from knowledge_base import search_clinical_guidelines
+from config import FHIR_BASE, FHIR_AUTH, FHIR_HEADERS, IRIS_BASE, LLM_MODEL, TEMP_SPECIALIST
 
 # ── FHIR / IRIS connection ────────────────────────────────────────────────────
 # Connection settings imported from config.py

@@ -35,6 +35,7 @@ import json
 import httpx
 from openai import OpenAI
 from langchain.tools import tool
+from config import IRIS_BASE, FHIR_AUTH, EMBEDDING_MODEL, RAG_GUIDELINES_CSV
 
 # ── OpenAI client ─────────────────────────────────────────────────────────────
 # text-embedding-3-small produces 1536-dimensional vectors — the same dimension

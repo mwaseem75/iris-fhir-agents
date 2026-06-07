@@ -56,6 +56,7 @@ from fhir_tools import (
     create_service_request
 )
 from knowledge_base import search_clinical_guidelines
+from config import LLM_MODEL, TEMP_TRIAGE
 
 # ── LLM ──────────────────────────────────────────────────────────────────────
 # temperature=0.3 — the most expressive of the three clinical agents.

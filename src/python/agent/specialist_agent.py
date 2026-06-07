@@ -1,5 +1,4 @@
 """
-from config import LLM_MODEL, TEMP_SPECIALIST
 specialist_agent.py — Clinical Specialist Consultation Agent
 =============================================================
 The Specialist Agent provides deep clinical analysis for patients with
@@ -38,6 +37,7 @@ Clinical design decisions:
 """
 
 import os
+from config import LLM_MODEL, TEMP_SPECIALIST
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent
 from langchain.prompts import ChatPromptTemplate, MessagesPlaceholder
@@ -114,12 +114,9 @@ prompt = ChatPromptTemplate.from_messages([
     ("system", SPECIALIST_PROMPT),
     MessagesPlaceholder(variable_name="chat_history"),
     ("human", "{input}"),
-    MessagesPlaceholder(variable_name="agent_scratchpad")  # LangChain writes tool calls here
+    MessagesPlaceholder(variable_name="agent_scratchpad")
 ])
 
-# Tool set covers the full clinical read path plus two write tools:
-#   create_triage_observation — record a clinical finding in FHIR
-#   create_service_request    — write a formal referral order to FHIR
 tools = [
     get_patient,
     get_patient_conditions,
@@ -135,9 +132,6 @@ tools = [
 #  SESSION MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════════
 
-# Per-session executors with their own memory — allows follow-up questions
-# ("which specialist should I see first?" after a full condition review)
-# without losing the clinical context established earlier in the conversation
 specialist_sessions: dict[str, AgentExecutor] = {}
 
 
@@ -157,7 +151,7 @@ def create_specialist_executor() -> AgentExecutor:
         agent=agent,
         tools=tools,
         memory=memory,
-        verbose=True,           # Tool call logging to container stdout
+        verbose=True,
         max_iterations=10,
         handle_parsing_errors=True
     )
