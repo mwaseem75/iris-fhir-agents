@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>IRIS FHIR Agents — Clinical Intelligence Platform</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><polygon points='32,4 56,18 56,46 32,60 8,46 8,18' fill='%230b1525' stroke='%2338bdf8' stroke-width='2'/><polyline points='14,32 22,32 25,22 29,42 33,32 38,32 40,26 42,38 44,32 50,32' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/><circle cx='29' cy='42' r='2.5' fill='%2334d399'/></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
@@ -147,11 +148,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .chat::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.3;pointer-events:none;}
 
 /* Chat header */
-.chat-hdr{padding:12px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:relative;z-index:2;gap:12px;flex-shrink:0;}
+.chat-hdr{padding:12px 22px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:relative;z-index:2;gap:12px;flex-shrink:0;overflow:visible;}
 .chat-hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.12;}
-.hdr-left{display:flex;align-items:center;gap:14px;min-width:0;}
-.hdr-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.2px;}
-.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.hdr-left{display:flex;align-items:center;gap:14px;min-width:0;overflow:visible;}
+.hdr-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);letter-spacing:-.2px;white-space:nowrap;overflow:visible;padding-bottom:2px;}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .agent-badge{display:flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;transition:all .3s;letter-spacing:.3px;flex-shrink:0;}
 .agent-badge.triage{background:rgba(56,189,248,.08);color:var(--triage);border-color:rgba(56,189,248,.2);}
 .agent-badge.specialist{background:rgba(167,139,250,.08);color:var(--specialist);border-color:rgba(167,139,250,.2);}
@@ -174,7 +175,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .w-icon::after{content:'';position:absolute;inset:-4px;border-radius:22px;border:1px solid var(--border);animation:iconpulse 3s infinite;}
 @keyframes iconpulse{0%,100%{opacity:.4;transform:scale(1)}50%{opacity:.8;transform:scale(1.03)}}
 .w-icon svg{width:28px;height:28px;stroke:var(--accent);fill:none;stroke-width:1.5;}
-.w-title{font-family:var(--display);font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;}
+.w-title{font-family:var(--display);font-size:22px;font-weight:800;color:var(--text);letter-spacing:-.5px;padding-bottom:3px;overflow:visible;}
 .w-desc{font-size:13px;color:var(--text2);max-width:400px;line-height:1.7;}
 .w-chips{display:flex;gap:7px;flex-wrap:wrap;justify-content:center;}
 .w-chip{display:flex;align-items:center;gap:5px;padding:4px 12px;border-radius:20px;font-size:11px;font-weight:700;border:1px solid;letter-spacing:.3px;}
@@ -275,6 +276,50 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .toast svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
 @keyframes tin{from{transform:translateX(18px);opacity:0}to{transform:translateX(0);opacity:1}}
 @keyframes tout{to{opacity:0;transform:translateX(12px)}}
+/* ── Patient Picker Modal ── */
+.picker-overlay{position:fixed;inset:0;background:rgba(6,13,24,.8);backdrop-filter:blur(6px);z-index:300;display:none;align-items:center;justify-content:center;padding:20px;}
+.picker-overlay.open{display:flex;animation:pfade .2s ease;}
+@keyframes pfade{from{opacity:0}to{opacity:1}}
+.picker-modal{background:var(--bg2);border:1px solid var(--border2);border-radius:16px;width:100%;max-width:680px;max-height:82vh;display:flex;flex-direction:column;overflow:hidden;animation:pslide .25s ease;}
+@keyframes pslide{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.picker-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.picker-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);}
+.picker-sub{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.picker-close{width:28px;height:28px;border-radius:var(--rs);background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;transition:all .15s;}
+.picker-close:hover{color:var(--text);border-color:var(--border2);}
+.picker-search{padding:12px 20px;border-bottom:1px solid var(--border);flex-shrink:0;}
+.picker-search-wrap{display:flex;align-items:center;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 12px;transition:border-color .15s;}
+.picker-search-wrap:focus-within{border-color:var(--border2);}
+.picker-search-wrap svg{width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0;}
+.picker-search-inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13px;}
+.picker-search-inp::placeholder{color:var(--text3);}
+.picker-body{flex:1;overflow-y:auto;padding:12px 16px;}
+.picker-loading{display:flex;align-items:center;justify-content:center;padding:40px;gap:10px;color:var(--text3);font-family:var(--mono);font-size:12px;}
+.picker-spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:pspin .8s linear infinite;}
+@keyframes pspin{to{transform:rotate(360deg)}}
+.picker-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;}
+.pcard{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:13px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.pcard::before{content:'';position:absolute;top:0;left:0;width:3px;bottom:0;background:var(--accent);opacity:0;transition:opacity .2s;}
+.pcard:hover{border-color:var(--border2);transform:translateY(-1px);box-shadow:0 4px 16px rgba(0,0,0,.3);}
+.pcard:hover::before{opacity:1;}
+.pcard-head{display:flex;align-items:center;gap:10px;margin-bottom:8px;}
+.pcard-av{width:36px;height:36px;border-radius:9px;background:var(--adim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:15px;font-weight:800;color:var(--accent);flex-shrink:0;}
+.pcard-av.f{background:rgba(167,139,250,.1);border-color:rgba(167,139,250,.2);color:#a78bfa;}
+.pcard-av.m{background:rgba(56,189,248,.1);border-color:rgba(56,189,248,.2);color:var(--accent);}
+.pcard-name{font-size:13px;font-weight:700;color:var(--text);line-height:1.2;}
+.pcard-id{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:1px;}
+.pcard-meta{display:flex;gap:5px;flex-wrap:wrap;}
+.pmeta-tag{font-size:9px;padding:2px 7px;border-radius:20px;font-family:var(--mono);font-weight:600;}
+.pmeta-tag.age{background:var(--adim2);color:var(--text2);border:1px solid var(--border);}
+.pmeta-tag.gender-m{background:rgba(56,189,248,.08);color:var(--accent);border:1px solid rgba(56,189,248,.2);}
+.pmeta-tag.gender-f{background:rgba(167,139,250,.08);color:#a78bfa;border:1px solid rgba(167,139,250,.2);}
+.pcard-hint{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:6px;padding-top:6px;border-top:1px solid var(--border);line-height:1.4;}
+.picker-empty{text-align:center;padding:40px;color:var(--text3);font-family:var(--mono);font-size:12px;}
+.picker-footer{padding:12px 20px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.picker-count{font-family:var(--mono);font-size:11px;color:var(--text3);}
+.picker-btn{display:flex;align-items:center;gap:5px;padding:6px 13px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--rs);color:var(--accent);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s;}
+.picker-btn:hover{background:rgba(56,189,248,.15);}
+.picker-btn svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
 </style>
 </head>
 <body>
@@ -396,25 +441,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Header -->
   <div class="chat-hdr">
     <div class="hdr-left">
-      <div>
-        <div class="hdr-title">IRIS FHIR Agents</div>
-        <div class="hdr-sub">Multi-Agent · FHIR R4 · RAG Vector Search · Live Vitals</div>
-      </div>
-      <div class="agent-badge triage" id="agBadge">
+       <div class="agent-badge triage" id="agBadge">
         <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span id="agTxt">Orchestrator Ready</span>
       </div>
     </div>
     <div class="hdr-right">
-      <a href="/vitals" class="hdr-btn">
-        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Vitals
-      </a>
-      <a href="/fhir-agent" class="hdr-btn" style="border-color:rgba(110,231,183,.2);color:#6ee7b7;">
-        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Agent
-      </a>
-      <a href="/dashboard" class="hdr-btn">
-        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
-      </a>
       <div class="sess-tag" id="sessTag">No Session</div>
       <button class="hdr-btn" onclick="cycleTheme()" id="themeBtn">🌙 Dark</button>
     </div>
@@ -423,14 +455,21 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Messages -->
   <div class="msgs" id="msgs">
     <div class="welcome" id="welcomeScreen">
-      <div class="w-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-      <div class="w-title">IRIS FHIR Agents</div>
-      <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator automatically routes each message to the right specialist agent — grounded by IRIS Vector Search RAG.</div>
+      <div style="display:flex;align-items:center;gap:16px;justify-content:center;padding-bottom:4px;overflow:visible;">
+        <div class="w-icon" style="flex-shrink:0;"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div style="text-align:left;">
+          <div class="w-title" style="text-align:left;overflow:visible;padding-bottom:3px;">IRIS FHIR Agents</div>
+          <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;margin-top:2px;">v2.0 · MULTI-AGENT · FHIR R4</div>
+        </div>
+      </div>
+      <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator automatically routes each message to the right specialist agent.</div>
       <div class="w-chips">
         <div class="w-chip triage"><div class="w-chip-dot"></div>Triage Agent</div>
         <div class="w-chip specialist"><div class="w-chip-dot"></div>Specialist Agent</div>
         <div class="w-chip pharmacy"><div class="w-chip-dot"></div>Pharmacy Agent</div>
       </div>
+
+      
 
       <!-- Prominent nav cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:620px;">
@@ -483,12 +522,12 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Input -->
   <div class="input-area">
     <div class="suggestions">
+      <div class="sug" onclick="openPicker()" style="background:var(--adim);border-color:var(--border2);color:var(--accent);font-weight:700;">👥 Browse Patients</div>
       <div class="sug" onclick="sq('I have chest pain and shortness of breath')">🚨 Chest pain</div>
       <div class="sug" onclick="sq('What specialist should I see?')">👨‍⚕️ Referral</div>
       <div class="sug" onclick="sq('Check all my medication interactions')">💊 Drug check</div>
-      <div class="sug" onclick="sq('My patient ID is pt-003')">pt-003 · Williams</div>
       <div class="sug" onclick="sq('My patient ID is demo-003')">🚨 demo-003 · HFrEF</div>
-      <div class="sug" onclick="sq('My patient ID is demo-001')">demo-001 · Rahman</div>
+      <div class="sug" onclick="sq('My patient ID is pt-010')">pt-010 · Complex</div>
     </div>
     <div class="input-wrap">
       <textarea class="inp" id="inp" placeholder="Describe symptoms, ask about conditions, or check medications..." rows="1"
@@ -508,6 +547,35 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   </div>
 
 </main>
+
+<!-- ═══════════════ PATIENT PICKER ═══════════════ -->
+<div class="picker-overlay" id="pickerOverlay" onclick="closePicker(event)">
+  <div class="picker-modal">
+    <div class="picker-hdr">
+      <div>
+        <div class="picker-title">Select Patient</div>
+        <div class="picker-sub" id="pickerSubtitle">Loading from IRIS FHIR R4...</div>
+      </div>
+      <button class="picker-close" onclick="closePicker()">✕</button>
+    </div>
+    <div class="picker-search">
+      <div class="picker-search-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="picker-search-inp" id="pickerSearch" placeholder="Search by name or ID..." oninput="filterPicker(this.value)"/>
+      </div>
+    </div>
+    <div class="picker-body" id="pickerBody">
+      <div class="picker-loading"><div class="picker-spin"></div>Loading patients from IRIS...</div>
+    </div>
+    <div class="picker-footer">
+      <div class="picker-count" id="pickerFooterCount">—</div>
+      <button class="picker-btn" onclick="loadPickerPatients()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -570,12 +638,13 @@ function newSession(){
   document.getElementById('msgs').innerHTML=`<div class="welcome" id="welcomeScreen">
     <div class="w-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
     <div class="w-title">IRIS FHIR Agents</div>
-    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator routes each message to the right specialist agent — grounded by IRIS Vector Search RAG.</div>
+    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator routes each message to the right specialist agent.</div>
     <div class="w-chips">
       <div class="w-chip triage"><div class="w-chip-dot"></div>Triage Agent</div>
       <div class="w-chip specialist"><div class="w-chip-dot"></div>Specialist Agent</div>
       <div class="w-chip pharmacy"><div class="w-chip-dot"></div>Pharmacy Agent</div>
     </div>
+    <button onclick="openPicker()" style="display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);color:var(--accent);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.3px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Browse Patients</button>
     <div class="qs-grid">
       <div class="qs" onclick="sq('Hello, I need help with my symptoms')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Start a new symptom assessment</div></div>
       <div class="qs" onclick="sq('My patient ID is demo-002')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Load James Chen — CAD + Warfarin risk</div></div>
@@ -865,6 +934,138 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 });
+
+// ── Patient Picker ───────────────────────────────────────────────────────────
+const PATIENT_HINTS = {
+  'pt-003':   'HFrEF · Digoxin · K⁺ low — dangerous combination',
+  'pt-005':   'T2DM · SGLT2 inhibitor · Diabetic retinopathy',
+  'pt-010':   'HFrEF + T2DM + CKD + HTN · 7 medications · Most complex',
+  'demo-001': 'T2DM · Hypertension · Hypothyroidism · HbA1c 8.2%',
+  'demo-002': 'CAD · AFib · Warfarin + Aspirin · INR 1.6 sub-therapeutic',
+  'demo-003': 'HFrEF · CKD · BNP 845 · Weight +4kg — decompensated HF',
+  'demo-004': 'Severe Asthma · NSAID allergy · Latex allergy',
+  'demo-005': 'CKD Stage 4 · T2DM · eGFR 22 — dialysis planning',
+  'demo-006': 'Post-stroke · Warfarin · INR 1.4 sub-therapeutic',
+  'demo-007': 'Prostate cancer · ADT-induced osteoporosis · Rising PSA',
+  'demo-008': 'T1DM · Insulin pump · HbA1c 9.4% · Retinopathy',
+  'demo-009': 'HFpEF + T2DM + HTN + CKD · BP 162 uncontrolled',
+};
+
+let allPickerPatients = [];
+
+async function loadPickerPatients() {
+  document.getElementById('pickerBody').innerHTML =
+    '<div class="picker-loading"><div class="picker-spin"></div>Loading patients from IRIS...</div>';
+  try {
+    const r = await fetch('http://localhost:8000/analytics/patients');
+    const d = await r.json();
+    allPickerPatients = d.patients || [];
+    // Sort by ID for consistent ordering
+    allPickerPatients.sort((a, b) => a.id.localeCompare(b.id));
+    renderPickerGrid(allPickerPatients);
+    // Update count badge on welcome screen
+    const badge = document.getElementById('pickerPatientCount');
+    if (badge) badge.textContent = allPickerPatients.length + ' patients';
+    document.getElementById('pickerSubtitle').textContent =
+      allPickerPatients.length + ' patients loaded from IRIS FHIR R4';
+    document.getElementById('pickerFooterCount').textContent =
+      allPickerPatients.length + ' patients in IRIS';
+  } catch(e) {
+    document.getElementById('pickerBody').innerHTML =
+      '<div class="picker-empty">Could not load patients.<br>Make sure the API is running at localhost:8000</div>';
+  }
+}
+
+function calcAge(dob) {
+  if (!dob) return '—';
+  return Math.floor((new Date() - new Date(dob)) / 31557600000) + 'y';
+}
+
+function renderPickerGrid(patients) {
+  const body = document.getElementById('pickerBody');
+  if (!patients.length) {
+    body.innerHTML = '<div class="picker-empty">No patients found</div>';
+    return;
+  }
+  body.innerHTML = '<div class="picker-grid" id="pickerGrid"></div>';
+  const grid = document.getElementById('pickerGrid');
+  patients.forEach(p => {
+    const name = p.name || 'Unknown';
+    const initial = name.charAt(0).toUpperCase();
+    const age = calcAge(p.birthDate);
+    const gender = (p.gender || '').toLowerCase();
+    const hint = PATIENT_HINTS[p.id] || 'Click to start triage session';
+    const avCls = gender === 'female' ? 'f' : 'm';
+    const gCls  = gender === 'female' ? 'gender-f' : 'gender-m';
+    const gLbl  = gender === 'female' ? '♀ Female' : '♂ Male';
+
+    const card = document.createElement('div');
+    card.className = 'pcard';
+    card.innerHTML = `
+      <div class="pcard-head">
+        <div class="pcard-av ${avCls}">${initial}</div>
+        <div>
+          <div class="pcard-name">${name}</div>
+          <div class="pcard-id">${p.id}</div>
+        </div>
+      </div>
+      <div class="pcard-meta">
+        <span class="pmeta-tag age">${age}</span>
+        <span class="pmeta-tag ${gCls}">${gLbl}</span>
+      </div>
+      <div class="pcard-hint">${hint}</div>`;
+    card.onclick = () => selectPickerPatient(p.id, name);
+    grid.appendChild(card);
+  });
+}
+
+function filterPicker(q) {
+  const lo = q.toLowerCase();
+  const filtered = allPickerPatients.filter(p =>
+    (p.name || '').toLowerCase().includes(lo) ||
+    (p.id   || '').toLowerCase().includes(lo)
+  );
+  renderPickerGrid(filtered);
+  document.getElementById('pickerFooterCount').textContent =
+    filtered.length + ' of ' + allPickerPatients.length + ' patients';
+}
+
+function selectPickerPatient(id, name) {
+  closePicker();
+  // Small delay so modal closes before message sends
+  setTimeout(() => sq(`My patient ID is ${id}`), 150);
+}
+
+function openPicker() {
+  document.getElementById('pickerOverlay').classList.add('open');
+  document.getElementById('pickerSearch').value = '';
+  if (!allPickerPatients.length) loadPickerPatients();
+  else renderPickerGrid(allPickerPatients);
+  // Focus search after animation
+  setTimeout(() => document.getElementById('pickerSearch').focus(), 250);
+}
+
+function closePicker(e) {
+  if (e && e.target !== document.getElementById('pickerOverlay')) return;
+  document.getElementById('pickerOverlay').classList.remove('open');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') document.getElementById('pickerOverlay').classList.remove('open');
+});
+
+// Pre-load patient count on page load for the badge
+fetch('http://localhost:8000/analytics/patients')
+  .then(r => r.json())
+  .then(d => {
+    allPickerPatients = (d.patients || []).sort((a,b) => a.id.localeCompare(b.id));
+    const badge = document.getElementById('pickerPatientCount');
+    if (badge) badge.textContent = allPickerPatients.length + ' patients';
+  })
+  .catch(() => {
+    const badge = document.getElementById('pickerPatientCount');
+    if (badge) badge.textContent = 'offline';
+  });
 </script>
 </body>
 </html>
