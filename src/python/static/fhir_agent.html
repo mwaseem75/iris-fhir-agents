@@ -184,6 +184,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .send{width:32px;height:32px;background:var(--iris);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .send:hover{filter:brightness(1.15);transform:scale(1.05);}
 .send:disabled{background:var(--surface);cursor:not-allowed;transform:none;}
+/* ── Mic button ── */
+.mic{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.mic:hover{border-color:var(--iris-border);background:var(--iris-dim);}
+.mic.listening{background:rgba(255,107,107,.12);border-color:rgba(255,107,107,.4);animation:micpulse 1s infinite;}
+.mic.unsupported{opacity:.3;cursor:not-allowed;}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,.3)}50%{box-shadow:0 0 0 6px rgba(255,107,107,0)}}
+.mic svg{width:14px;height:14px;stroke:var(--text2);fill:none;stroke-width:2;transition:stroke .2s;}
+.mic.listening svg{stroke:var(--emg);}
+.voice-hint{font-family:var(--mono);font-size:10px;color:var(--emg);animation:vfade .5s ease;}
+@keyframes vfade{from{opacity:0}to{opacity:1}}
 .send svg{width:14px;height:14px;stroke:var(--bg);fill:none;stroke-width:2.5;}
 .inp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
 .inp-hint{font-family:var(--mono);font-size:10px;color:var(--text3);}
@@ -415,10 +425,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       </div>
       <div class="inp-wrap">
         <textarea class="inp" id="inp" placeholder="Ask about IRIS FHIR data, capability statement, patients, SQL..." rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
+        <button class="mic" id="micBtn" onclick="toggleMic()" title="Voice input">
+          <svg viewBox="0 0 24 24" id="micIcon"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
         <button class="send" id="sendBtn" onclick="send()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
       </div>
       <div class="inp-foot">
-        <div class="inp-hint">Enter · Shift+Enter new line</div>
+        <div class="inp-hint" id="inpHint">Enter · Shift+Enter new line · 🎤 Click mic for voice</div>
         <div class="inp-hint" id="toolHint">13 FHIR tools + RAG Vector Search</div>
       </div>
     </div>
@@ -750,6 +763,85 @@ async function send() {
 function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 
+
+// ── Voice Input ─────────────────────────────────────────────────────────────
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+let recognition = null;
+let isListening = false;
+
+function initMic() {
+  if (!SpeechRecognition) {
+    const btn = document.getElementById('micBtn');
+    if (btn) btn.classList.add('unsupported');
+    return;
+  }
+  recognition = new SpeechRecognition();
+  recognition.lang = 'en-US';
+  recognition.interimResults = true;
+  recognition.continuous = false;
+  recognition.maxAlternatives = 1;
+
+  recognition.onstart = () => {
+    isListening = true;
+    document.getElementById('micBtn').classList.add('listening');
+    document.getElementById('inpHint').innerHTML =
+      '<span class="voice-hint">🎤 Listening... speak now</span>';
+  };
+
+  recognition.onresult = (e) => {
+    const inp = document.getElementById('inp');
+    let transcript = '';
+    for (let i = e.resultIndex; i < e.results.length; i++) {
+      transcript += e.results[i][0].transcript;
+    }
+    inp.value = transcript;
+    ar(inp);
+    if (e.results[e.results.length - 1].isFinal) {
+      document.getElementById('inpHint').innerHTML =
+        '<span class="voice-hint">✓ Got it — sending...</span>';
+      setTimeout(() => send(), 600);
+    }
+  };
+
+  recognition.onerror = (e) => {
+    stopMic();
+    const msgs = {
+      'no-speech':     'No speech detected — try again',
+      'audio-capture': 'Microphone not found',
+      'not-allowed':   'Microphone access denied — check browser settings',
+      'network':       'Network error during speech recognition',
+    };
+    const hint = document.getElementById('inpHint');
+    if (hint) hint.textContent = msgs[e.error] || `Voice error: ${e.error}`;
+  };
+
+  recognition.onend = () => { stopMic(); };
+}
+
+function toggleMic() {
+  if (!SpeechRecognition) {
+    document.getElementById('agentState').textContent = 'Voice not supported — use Chrome/Edge';
+    setTimeout(() => document.getElementById('agentState').textContent = 'IRIS Connected', 3000);
+    return;
+  }
+  if (!recognition) initMic();
+  if (isListening) {
+    recognition.stop();
+  } else {
+    document.getElementById('inp').value = '';
+    recognition.start();
+  }
+}
+
+function stopMic() {
+  isListening = false;
+  const btn = document.getElementById('micBtn');
+  if (btn) btn.classList.remove('listening');
+  const hint = document.getElementById('inpHint');
+  if (hint) hint.textContent = 'Enter · Shift+Enter new line · 🎤 Click mic for voice';
+}
+
+initMic();
 // Theme
 const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
 let ti=0;

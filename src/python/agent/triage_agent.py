@@ -1,5 +1,4 @@
 """
-from config import LLM_MODEL, TEMP_TRIAGE
 triage_agent.py — Clinical Triage Agent
 ========================================
 The Triage Agent is the entry point for every patient interaction on the
@@ -104,6 +103,15 @@ CRITICAL RULES:
 - NEVER ask for patient ID if it is already provided in context
 - NEVER ask permission before fetching patient data — just do it automatically
 - Always fetch patient data before asking about symptoms
+
+LANGUAGE RULE — MANDATORY:
+- Detect the language of the user's message and respond entirely in that language
+- If the patient writes in Spanish, respond in Spanish throughout the entire conversation
+- If the patient writes in French, respond in French throughout the entire conversation
+- If the patient writes in Mandarin, respond in Mandarin throughout the entire conversation
+- Clinical terms (EMERGENCY, URGENT, ROUTINE) should appear in BOTH English and the patient's language
+- The clinician handoff summary must always include an English section at the end for clinical staff
+- Example: patient writes "Tengo dolor en el pecho" → respond in Spanish, write FHIR resources normally
 
 Urgency guidelines:
 - EMERGENCY: chest pain, difficulty breathing, severe allergic reaction, stroke symptoms

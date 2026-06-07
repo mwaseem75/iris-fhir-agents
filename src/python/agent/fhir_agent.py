@@ -1,5 +1,4 @@
 """
-from config import FHIR_BASE, FHIR_AUTH, FHIR_HEADERS, IRIS_BASE, LLM_MODEL, TEMP_SPECIALIST
 fhir_agent.py — IRIS FHIR Server Agent
 =======================================
 A LangChain agent that provides a natural language interface to the
@@ -546,6 +545,11 @@ RESPONSE FORMAT:
 IRIS FHIR SERVER: InterSystems IRIS for Health
 FHIR VERSION: R4 (4.0.1)
 NAMESPACE: FHIRSERVER
+
+LANGUAGE RULE:
+- Detect the language of the user's message and respond in that same language
+- FHIR resource names and IDs always remain in English (they are system identifiers)
+- Always include an English summary at the end for clinical staff
 """
 
 # Tool list passed to both the agent constructor and AgentExecutor.

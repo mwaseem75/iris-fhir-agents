@@ -248,6 +248,20 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .send{width:32px;height:32px;background:var(--accent);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
 .send:hover{background:var(--accent2);transform:scale(1.05);}
 .send:active{transform:scale(.95);}
+/* ── Voice input ── */
+.mic{width:32px;height:32px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s;}
+.mic:hover{border-color:var(--border2);background:var(--surface);}
+.mic.listening{background:rgba(255,107,107,.1);border-color:rgba(255,107,107,.35);animation:micpulse 1s infinite;}
+.mic.unsupported{opacity:.3;cursor:not-allowed;}
+@keyframes micpulse{0%,100%{box-shadow:0 0 0 0 rgba(255,107,107,.3)}50%{box-shadow:0 0 0 6px rgba(255,107,107,0)}}
+.mic svg{width:14px;height:14px;stroke:var(--text2);fill:none;stroke-width:2;transition:stroke .2s;}
+.mic.listening svg{stroke:var(--emg);}
+.voice-hint{color:var(--emg);animation:vfade .4s ease;}
+@keyframes vfade{from{opacity:0}to{opacity:1}}
+/* ── Language indicator ── */
+.lang-badge{display:flex;align-items:center;gap:5px;padding:3px 9px;border-radius:20px;font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);transition:all .4s;}
+.lang-badge.active{color:var(--accent);border-color:var(--border2);background:var(--adim);}
+.lang-dot{width:5px;height:5px;border-radius:50%;background:currentColor;}
 .send:disabled{background:var(--surface);cursor:not-allowed;transform:none;}
 .send svg{width:14px;height:14px;stroke:var(--bg);fill:none;stroke-width:2.5;}
 .inp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
@@ -391,7 +405,16 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         <span id="agTxt">Orchestrator Ready</span>
       </div>
     </div>
-    <div class="hdr-right">        
+    <div class="hdr-right">
+      <a href="/vitals" class="hdr-btn">
+        <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Vitals
+      </a>
+      <a href="/fhir-agent" class="hdr-btn" style="border-color:rgba(110,231,183,.2);color:#6ee7b7;">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Agent
+      </a>
+      <a href="/dashboard" class="hdr-btn">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard
+      </a>
       <div class="sess-tag" id="sessTag">No Session</div>
       <button class="hdr-btn" onclick="cycleTheme()" id="themeBtn">🌙 Dark</button>
     </div>
@@ -441,9 +464,9 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
           <div class="qs-agent" style="color:var(--triage)">Triage Agent</div>
           <div class="qs-text">Start a new symptom assessment</div>
         </div>
-        <div class="qs" onclick="sq('My patient ID is pt-001')">
+        <div class="qs" onclick="sq('My patient ID is demo-002')">
           <div class="qs-agent" style="color:var(--triage)">Triage Agent</div>
-          <div class="qs-text">Load James Anderson — CAD + HTN</div>
+          <div class="qs-text">Load James Chen — CAD + Warfarin risk</div>
         </div>
         <div class="qs" onclick="sq('Tell me about my diabetes complications and what specialist I need')">
           <div class="qs-agent" style="color:var(--specialist)">Specialist Agent</div>
@@ -464,19 +487,23 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <div class="sug" onclick="sq('What specialist should I see?')">👨‍⚕️ Referral</div>
       <div class="sug" onclick="sq('Check all my medication interactions')">💊 Drug check</div>
       <div class="sug" onclick="sq('My patient ID is pt-003')">pt-003 · Williams</div>
-      <div class="sug" onclick="sq('My patient ID is pt-009')">🚨 pt-009 · Sepsis</div>
-      <div class="sug" onclick="sq('My patient ID is pt-010')">pt-010 · Complex</div>
+      <div class="sug" onclick="sq('My patient ID is demo-003')">🚨 demo-003 · HFrEF</div>
+      <div class="sug" onclick="sq('My patient ID is demo-001')">demo-001 · Rahman</div>
     </div>
     <div class="input-wrap">
       <textarea class="inp" id="inp" placeholder="Describe symptoms, ask about conditions, or check medications..." rows="1"
         onkeydown="hk(event)" oninput="ar(this)"></textarea>
+      <button class="mic" id="micBtn" onclick="toggleMic()" title="🎤 Voice input"><svg viewBox="0 0 24 24"><rect x="9" y="2" width="6" height="11" rx="3"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg></button>
       <button class="send" id="sendBtn" onclick="send()">
         <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
     <div class="inp-foot">
-      <div class="inp-hint">Enter · Shift+Enter new line</div>
-      <div class="route-hint" id="routeHint">Orchestrator routes automatically</div>
+      <div class="inp-hint" id="inpHint">Enter · Shift+Enter new line · 🎤 mic for voice</div>
+      <div style="display:flex;align-items:center;gap:7px;">
+        <div class="lang-badge" id="langBadge"><div class="lang-dot"></div><span id="langTxt">EN</span></div>
+        <div class="route-hint" id="routeHint">Orchestrator routes automatically</div>
+      </div>
     </div>
   </div>
 
@@ -551,7 +578,7 @@ function newSession(){
     </div>
     <div class="qs-grid">
       <div class="qs" onclick="sq('Hello, I need help with my symptoms')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Start a new symptom assessment</div></div>
-      <div class="qs" onclick="sq('My patient ID is pt-001')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Load James Anderson — CAD + HTN</div></div>
+      <div class="qs" onclick="sq('My patient ID is demo-002')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Load James Chen — CAD + Warfarin risk</div></div>
       <div class="qs" onclick="sq('Tell me about my diabetes complications and what specialist I need')"><div class="qs-agent" style="color:var(--specialist)">Specialist Agent</div><div class="qs-text">Deep condition analysis + referrals</div></div>
       <div class="qs" onclick="sq('Can I take ibuprofen with my current medications?')"><div class="qs-agent" style="color:var(--pharmacy)">Pharmacy Agent</div><div class="qs-text">Drug interaction safety check</div></div>
     </div>
@@ -693,8 +720,151 @@ function cycleTheme(){
   document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;
   localStorage.setItem('fhir-theme',ti);
 }
+
+
 const st=localStorage.getItem('fhir-theme');
 if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;}
+
+// ── Voice Input (Web Speech API) ────────────────────────────────────────────
+(function() {
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+  let rec = null;
+  let on  = false;
+
+  function hint(txt, isVoice) {
+    const el = document.getElementById('inpHint');
+    if (!el) return;
+    el.innerHTML = isVoice ? `<span class="voice-hint">${txt}</span>` : txt;
+  }
+
+  function stopMic() {
+    on = false;
+    const btn = document.getElementById('micBtn');
+    if (btn) btn.classList.remove('listening');
+    hint('Enter · Shift+Enter new line · 🎤 mic for voice', false);
+  }
+
+  function initMic() {
+    rec = new SR();
+    window._recognition = rec;
+    rec.lang = 'en-US';
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.maxAlternatives = 1;
+
+    rec.onstart = () => {
+      on = true;
+      const btn = document.getElementById('micBtn');
+      if (btn) btn.classList.add('listening');
+      hint('🎤 Listening... speak now', true);
+    };
+
+    rec.onresult = (e) => {
+      const inp = document.getElementById('inp');
+      let t = '';
+      for (let i = e.resultIndex; i < e.results.length; i++) t += e.results[i][0].transcript;
+      inp.value = t;
+      ar(inp);
+      if (e.results[e.results.length - 1].isFinal) {
+        hint('✓ Got it — sending...', true);
+        setTimeout(() => { send(); stopMic(); }, 700);
+      }
+    };
+
+    rec.onerror = (e) => {
+      stopMic();
+      const msgs = {
+        'no-speech':     'No speech detected — try again',
+        'audio-capture': 'Microphone not found',
+        'not-allowed':   'Mic blocked — allow access in browser settings',
+        'network':       'Network error during recognition',
+      };
+      hint(msgs[e.error] || `Voice error: ${e.error}`, true);
+    };
+
+    rec.onend = () => { if (on) stopMic(); };
+  }
+
+  window.toggleMic = function() {
+    if (!SR) {
+      toast('Voice input requires Chrome or Edge browser.', 'warn');
+      return;
+    }
+    if (!rec) initMic();
+    if (on) { rec.stop(); stopMic(); }
+    else    { document.getElementById('inp').value = ''; rec.start(); }
+  };
+
+  // Mark button unsupported if API unavailable
+  document.addEventListener('DOMContentLoaded', () => {
+    if (!SR) {
+      const btn = document.getElementById('micBtn');
+      if (btn) { btn.classList.add('unsupported'); btn.title = 'Voice not supported — use Chrome/Edge'; }
+    }
+  });
+  // Initialise mic on page load
+  initMic();
+})();
+
+// ── Language Detection ───────────────────────────────────────────────────────
+// Detects language of typed/spoken message and updates the badge.
+// Also sets the voice recognition language to match.
+const LANG_MAP = {
+  "yo tengo":"es","tengo":"es","dolor":"es","ayuda":"es","me duele":"es",
+  "enfermedad":"es","medicamento":"es","médico":"es","hospital":"es",
+  "pastilla":"es","sangre":"es","corazón":"es","pecho":"es","respirar":"es",
+  "je suis":"fr","j'ai":"fr","douleur":"fr","aide":"fr","malade":"fr",
+  "médicament":"fr","médecin":"fr","hôpital":"fr","poitrine":"fr","respirer":"fr",
+  "我有":"zh","疼痛":"zh","帮助":"zh","医院":"zh","药":"zh","医生":"zh",
+  "胸痛":"zh","呼吸":"zh","心脏":"zh","血":"zh",
+};
+
+const LANG_NAMES = { en:"EN", es:"ES · Español", fr:"FR · Français", zh:"ZH · 中文" };
+const VOICE_LANGS = { en:"en-US", es:"es-US", fr:"fr-FR", zh:"zh-CN" };
+
+let detectedLang = 'en';
+
+function detectLanguage(text) {
+  const lo = text.toLowerCase();
+  // Check for Chinese characters
+  if (/[一-鿿]/.test(text)) return 'zh';
+  for (const [kw, lang] of Object.entries(LANG_MAP)) {
+    if (lo.includes(kw)) return lang;
+  }
+  return 'en';
+}
+
+function updateLangBadge(lang) {
+  if (lang === detectedLang) return;
+  detectedLang = lang;
+  const badge = document.getElementById('langBadge');
+  const txt   = document.getElementById('langTxt');
+  if (!badge || !txt) return;
+  txt.textContent = LANG_NAMES[lang] || lang.toUpperCase();
+  badge.classList.toggle('active', lang !== 'en');
+  // Update voice recognition language
+  if (window._recognition) {
+    window._recognition.lang = VOICE_LANGS[lang] || 'en-US';
+  }
+}
+
+// Hook into the send function — detect language before sending
+const _origSend = window.send;
+window.send = async function() {
+  const txt = document.getElementById('inp').value.trim();
+  if (txt) updateLangBadge(detectLanguage(txt));
+  return _origSend.apply(this, arguments);
+};
+
+// Also detect as user types
+document.addEventListener('DOMContentLoaded', () => {
+  const inp = document.getElementById('inp');
+  if (inp) {
+    inp.addEventListener('input', () => {
+      if (inp.value.length > 8) updateLangBadge(detectLanguage(inp.value));
+    });
+  }
+});
 </script>
 </body>
 </html>
