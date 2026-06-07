@@ -9,10 +9,6 @@
 [![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)](https://www.docker.com/)
 [![Python](https://img.shields.io/badge/Python-3.11-3776AB)](https://www.python.org/)
 
----
-
-## What Is This?
-
 IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work together to deliver clinical intelligence directly on top of a live FHIR R4 server:
 
 | Agent | Role | Key Capability |
@@ -39,13 +35,8 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 ---
 
 ## Architecture
+<img width="1500" height="1979" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/4c0d1238-7c80-491d-9f74-aed4b5e44e76" />
 
-```
-<img width="1500" height="1979" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/fbacc068-9836-4195-a70a-d5af396f4c3c" />
-
-```
-
----
 
 ## Tech Stack
 
