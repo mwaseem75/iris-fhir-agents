@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Export generator="Cache" version="25">
+  <Document name="iris-fhir-agents.ZPM">
+    <Module>
+      <Name>iris-fhir-agents</Name>
+      <Version>1.0.0</Version>
+      <Description>A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.</Description>
+      <Keywords>FHIR,Server,Agents,RAG</Keywords>
+      <Packaging>module</Packaging>
+     <SystemRequirements Interoperability="enabled" Health="true"/>
+    <Default Name="name" Value="FHIRSERVER" />
+    <Default Name="Webapp" Value="/fhir/r4" />
+    <Default Name="AddTestData" Value="1" />
+    <Default Name="InteractionsStrategy" Value="JsonAdvSql" />
+    <SourcesRoot>src</SourcesRoot>
+    <Invokes>
+    <Invoke Class="fhirsetup.Setup" Method="SetupFHIRServer" Phase="Activate" When="After" >
+      <Arg>${name}</Arg>
+      <Arg>${Webapp}</Arg>
+      <Arg>${AddTestData}</Arg>
+      <Arg>${InteractionsStrategy}</Arg>
+     </Invoke>
+    </Invokes>
+    <Resource Name="fhirsetup.PKG"/>
+    
+  </Module>
+ </Document>
+</Export>

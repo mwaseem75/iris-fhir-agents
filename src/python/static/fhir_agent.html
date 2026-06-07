@@ -1,0 +1,764 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRIS FHIR Agents — FHIR Server Agent</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d18;--bg2:#0b1525;--bg3:#0f1e33;--surface:#132340;--surface2:#172a4c;
+  --border:rgba(56,189,248,0.09);--border2:rgba(56,189,248,0.18);--border3:rgba(56,189,248,0.32);
+  --accent:#38bdf8;--accent2:#0ea5e9;--accent3:#7dd3fc;
+  --adim:rgba(56,189,248,0.08);--adim2:rgba(56,189,248,0.04);
+  --text:#dbeafe;--text2:#7fa8cc;--text3:#3d6080;
+  --ok:#34d399;--warn:#fbbf24;--emg:#ff6b6b;--info:#a78bfa;
+  --iris:#6ee7b7;--iris-dim:rgba(110,231,183,0.08);--iris-border:rgba(110,231,183,0.22);
+  --font:'Lato',sans-serif;--display:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--rs:6px;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb;--bg2:#fff;--bg3:#eaf0f8;--surface:#dde8f5;
+  --border:rgba(14,90,140,0.1);--border2:rgba(14,90,140,0.2);
+  --accent:#0369a1;--accent3:#0ea5e9;--adim:rgba(3,105,161,0.07);--adim2:rgba(3,105,161,0.03);
+  --text:#0c1a2e;--text2:#2d5577;--text3:#7fa8c8;
+  --iris:#059669;--iris-dim:rgba(5,150,105,0.07);--iris-border:rgba(5,150,105,0.2);
+}
+[data-theme="clinical"]{
+  --bg:#050f0a;--bg2:#081810;--bg3:#0c2216;--surface:#0f2e1e;
+  --border:rgba(52,211,153,0.09);--border2:rgba(52,211,153,0.18);
+  --accent:#34d399;--accent3:#6ee7b7;--adim:rgba(52,211,153,0.08);--adim2:rgba(52,211,153,0.04);
+  --text:#d1fae5;--text2:#5eab80;--text3:#2d6b48;
+  --iris:#34d399;--iris-dim:rgba(52,211,153,0.08);--iris-border:rgba(52,211,153,0.22);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;overflow:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── Layout ── */
+.app{display:grid;grid-template-columns:272px 1fr;height:100vh;}
+
+/* ══════════ SIDEBAR ══════════ */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--iris),transparent);opacity:.4;}
+
+.brand{padding:16px 16px 13px;border-bottom:1px solid var(--border);}
+.brand-top{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.brand-icon{width:36px;height:36px;background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-icon svg{width:18px;height:18px;stroke:var(--iris);fill:none;stroke-width:2;}
+.brand-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);}
+.brand-ver{font-family:var(--mono);font-size:9px;color:var(--iris);background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:20px;padding:1px 7px;width:fit-content;letter-spacing:.5px;}
+.new-btn{width:100%;padding:8px 12px;background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:var(--r);color:var(--iris);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:7px;transition:all .15s;letter-spacing:.3px;}
+.new-btn:hover{background:rgba(110,231,183,.15);}
+.new-btn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2.5;}
+
+.nav-links{display:flex;flex-direction:column;gap:2px;padding:10px 8px 0;}
+.nav-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rs);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:all .15s;letter-spacing:.2px;}
+.nav-link:hover{background:var(--adim);color:var(--text);}
+.nav-link.active{background:var(--iris-dim);border-color:var(--iris-border);color:var(--iris);}
+.nav-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.nl-badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);}
+
+.sec-lbl{padding:10px 16px 4px;font-family:var(--mono);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;}
+
+/* IRIS Status */
+.iris-status{margin:0 8px 6px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;position:relative;overflow:hidden;}
+.iris-status::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--iris),transparent);}
+.is-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:10px;}
+.is-row:last-child{margin-bottom:0;}
+.is-key{color:var(--text3);font-family:var(--mono);}
+.is-val{color:var(--text);font-family:var(--mono);}
+.is-online{color:var(--ok);}
+
+/* Tool list */
+.tool-list{padding:0 8px;display:flex;flex-direction:column;gap:2px;flex:1;overflow-y:auto;}
+.tool-item{display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs);font-size:11px;color:var(--text2);border:1px solid transparent;transition:all .2s;cursor:pointer;}
+.tool-item:hover{background:var(--iris-dim);border-color:var(--iris-border);}
+.tool-item.active{background:var(--bg3);border-color:var(--border);color:var(--text);}
+.tool-pip{width:6px;height:6px;border-radius:50%;flex-shrink:0;background:var(--iris);}
+.tool-pip.pulse{animation:pip 1.1s infinite;}
+@keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}
+.tool-name{font-size:11px;font-weight:600;font-family:var(--mono);flex:1;}
+.tool-name.active{color:var(--iris);}
+.tool-cnt{font-family:var(--mono);font-size:9px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:10px;}
+
+.sb-foot{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.fhir-st{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text3);}
+.fhir-st-dot{width:5px;height:5px;border-radius:50%;background:var(--ok);}
+
+/* ══════════ MAIN AREA ══════════ */
+.main-area{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;position:relative;}
+.main-area::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25;pointer-events:none;}
+
+/* Header */
+.hdr{padding:11px 22px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:relative;z-index:2;flex-shrink:0;gap:12px;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--iris),transparent);opacity:.2;}
+.hdr-left{display:flex;align-items:center;gap:14px;min-width:0;}
+.hdr-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.iris-badge{display:flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;background:var(--iris-dim);border:1px solid var(--iris-border);color:var(--iris);letter-spacing:.3px;flex-shrink:0;}
+.iris-badge svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+.hdr-right{display:flex;align-items:center;gap:7px;flex-shrink:0;}
+.btn{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text2);font-size:11px;font-weight:600;font-family:var(--font);text-decoration:none;cursor:pointer;transition:all .15s;white-space:nowrap;letter-spacing:.2px;}
+.btn:hover{border-color:var(--border2);color:var(--text);}
+.btn.iris-btn{background:var(--iris-dim);border-color:var(--iris-border);color:var(--iris);}
+.btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+.sess-tag{font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:3px 9px;border-radius:var(--rs);}
+
+/* Tabs */
+.tabs{display:flex;background:var(--bg2);border-bottom:1px solid var(--border);position:relative;z-index:2;flex-shrink:0;}
+.tab{padding:9px 18px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;letter-spacing:.2px;display:flex;align-items:center;gap:6px;}
+.tab:hover{color:var(--text2);}
+.tab.on{color:var(--iris);border-bottom-color:var(--iris);}
+.tab:not(.on):hover{background:var(--adim2);border-radius:var(--rs) var(--rs) 0 0;}
+.tab svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* Tab content */
+.tab-content{display:none;flex:1;overflow:hidden;flex-direction:column;}
+.tab-content.on{display:flex;}
+
+/* ── CHAT TAB ── */
+.msgs{flex:1;overflow-y:auto;padding:20px 24px;display:flex;flex-direction:column;gap:12px;position:relative;z-index:1;scroll-behavior:smooth;}
+
+.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;flex:1;text-align:center;gap:14px;padding:24px;animation:wfade .5s ease;}
+@keyframes wfade{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+.w-icon{width:64px;height:64px;background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:18px;display:flex;align-items:center;justify-content:center;position:relative;}
+.w-icon::after{content:'';position:absolute;inset:-4px;border-radius:22px;border:1px solid var(--iris-border);animation:iconp 3s infinite;}
+@keyframes iconp{0%,100%{opacity:.3;transform:scale(1)}50%{opacity:.7;transform:scale(1.03)}}
+.w-icon svg{width:28px;height:28px;stroke:var(--iris);fill:none;stroke-width:1.5;}
+.w-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
+.w-sub{font-family:var(--mono);font-size:10px;color:var(--iris);letter-spacing:.5px;}
+.w-desc{font-size:13px;color:var(--text2);max-width:480px;line-height:1.7;}
+.cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:540px;}
+.cap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left;transition:all .15s;}
+.cap:hover{border-color:var(--iris-border);background:var(--iris-dim);transform:translateY(-1px);}
+.cap-icon{font-size:16px;margin-bottom:4px;}
+.cap-title{font-size:11px;font-weight:700;color:var(--iris);font-family:var(--mono);letter-spacing:.3px;margin-bottom:2px;}
+.cap-desc{font-size:11px;color:var(--text2);line-height:1.4;}
+.sug-list{display:flex;flex-direction:column;gap:4px;width:100%;max-width:540px;}
+.sug-item{display:flex;align-items:center;gap:8px;padding:7px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .15s;}
+.sug-item:hover{border-color:var(--iris-border);background:var(--iris-dim);}
+.sug-cat{font-family:var(--mono);font-size:9px;color:var(--iris);letter-spacing:.5px;text-transform:uppercase;flex-shrink:0;width:90px;}
+.sug-text{font-size:12px;color:var(--text2);}
+
+.mg{display:flex;flex-direction:column;gap:4px;animation:mgf .2s ease;}
+@keyframes mgf{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:translateY(0)}}
+.ag-lbl{font-family:var(--mono);font-size:10px;font-weight:500;display:flex;align-items:center;gap:5px;padding-left:42px;color:var(--iris);}
+.ag-lbl-pip{width:5px;height:5px;border-radius:50%;background:var(--iris);}
+.msg{display:flex;gap:10px;max-width:900px;}
+.msg.user{flex-direction:row-reverse;align-self:flex-end;}
+.av{width:32px;height:32px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0;border:1px solid;}
+.av.iris{background:var(--iris-dim);border-color:var(--iris-border);}
+.av.iris svg{stroke:var(--iris);}
+.av.user{background:var(--surface2);border-color:var(--border2);}
+.av.user svg{stroke:var(--text2);}
+.av svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.bub{padding:11px 15px;border-radius:var(--r);font-size:13.5px;line-height:1.75;max-width:800px;}
+.bub.iris-msg{background:var(--bg3);border:1px solid var(--border);border-left:2px solid rgba(110,231,183,.4);color:var(--text);border-top-left-radius:3px;}
+.bub.user{background:var(--adim2);border:1px solid var(--border2);color:var(--text);border-top-right-radius:3px;}
+.bub strong{color:var(--iris);font-weight:700;}
+.bub code{font-family:var(--mono);font-size:11px;background:var(--surface);padding:1px 5px;border-radius:4px;color:var(--iris);}
+.citation{background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:var(--rs);padding:7px 10px;margin:6px 0;font-size:12px;color:var(--text2);font-style:italic;}
+.citation strong{color:var(--iris);font-style:normal;}
+.emg-t{color:var(--emg);font-weight:700;}
+.wrn-t{color:var(--warn);font-weight:700;}
+.pt-id{font-family:var(--mono);font-size:10px;color:var(--iris);background:var(--iris-dim);padding:1px 5px;border-radius:4px;}
+
+.typing-wrap{display:flex;gap:10px;align-items:flex-start;}
+.typing-inner{display:flex;flex-direction:column;gap:3px;}
+.typing-lbl{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.typing-dots{display:flex;gap:4px;padding:12px 14px;background:var(--bg3);border:1px solid var(--border);border-left:2px solid rgba(110,231,183,.4);border-radius:var(--r);border-top-left-radius:3px;}
+.typing-dots span{width:5px;height:5px;background:var(--text3);border-radius:50%;animation:tdot 1.3s infinite;}
+.typing-dots span:nth-child(2){animation-delay:.2s;} .typing-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px);background:var(--iris)}}
+
+.input-area{padding:12px 22px 14px;border-top:1px solid var(--border);background:var(--bg2);position:relative;z-index:2;flex-shrink:0;}
+.sugs{display:flex;gap:5px;margin-bottom:8px;flex-wrap:wrap;}
+.sug{font-size:10px;padding:3px 9px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);cursor:pointer;transition:all .15s;font-family:var(--mono);white-space:nowrap;}
+.sug:hover{border-color:var(--iris-border);color:var(--iris);background:var(--iris-dim);}
+.inp-wrap{display:flex;gap:9px;align-items:flex-end;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:9px 11px;transition:border-color .15s;}
+.inp-wrap:focus-within{border-color:var(--iris-border);box-shadow:0 0 0 3px var(--iris-dim);}
+.inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13.5px;line-height:1.6;resize:none;max-height:110px;min-height:22px;}
+.inp::placeholder{color:var(--text3);}
+.send{width:32px;height:32px;background:var(--iris);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.send:hover{filter:brightness(1.15);transform:scale(1.05);}
+.send:disabled{background:var(--surface);cursor:not-allowed;transform:none;}
+.send svg{width:14px;height:14px;stroke:var(--bg);fill:none;stroke-width:2.5;}
+.inp-foot{display:flex;align-items:center;justify-content:space-between;margin-top:5px;}
+.inp-hint{font-family:var(--mono);font-size:10px;color:var(--text3);}
+
+/* ── CAPABILITY TAB ── */
+.cap-tab{flex:1;overflow-y:auto;padding:20px 24px;position:relative;z-index:1;}
+.cap-hero{background:linear-gradient(135deg,rgba(110,231,183,.06),rgba(56,189,248,.04));border:1px solid var(--iris-border);border-radius:14px;padding:20px 22px;margin-bottom:18px;position:relative;overflow:hidden;}
+.cap-hero::before{content:'IRIS';position:absolute;right:-10px;top:-15px;font-family:var(--display);font-size:100px;font-weight:800;color:var(--iris);opacity:.04;pointer-events:none;}
+.cap-hero-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;}
+.chi{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px 13px;}
+.chi-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:4px;}
+.chi-val{font-family:var(--display);font-size:15px;font-weight:700;color:var(--iris);}
+.chi-sub{font-size:11px;color:var(--text2);margin-top:1px;}
+.cap-stats{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-bottom:18px;}
+.cs{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px 14px;position:relative;overflow:hidden;}
+.cs::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.cs.c1::before{background:linear-gradient(90deg,var(--iris),transparent);}
+.cs.c2::before{background:linear-gradient(90deg,var(--accent),transparent);}
+.cs.c3::before{background:linear-gradient(90deg,var(--ok),transparent);}
+.cs.c4::before{background:linear-gradient(90deg,var(--info),transparent);}
+.cs.c5::before{background:linear-gradient(90deg,var(--warn),transparent);}
+.cs-val{font-family:var(--display);font-size:24px;font-weight:800;color:var(--text);line-height:1;}
+.cs-lbl{font-family:var(--mono);font-size:9px;color:var(--text3);margin-top:2px;text-transform:uppercase;letter-spacing:.5px;}
+
+/* Charts */
+.charts-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:18px;}
+.chart-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;}
+.cc-title{font-family:var(--display);font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.cc-sub{font-family:var(--mono);font-size:10px;color:var(--text3);margin-bottom:12px;}
+.donut-wrap{display:flex;align-items:center;gap:14px;}
+.legend{display:flex;flex-direction:column;gap:5px;flex:1;}
+.leg-row{display:flex;align-items:center;gap:6px;font-size:11px;}
+.leg-dot{width:7px;height:7px;border-radius:50%;flex-shrink:0;}
+.leg-name{color:var(--text2);flex:1;}
+.leg-val{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.bc-list{display:flex;flex-direction:column;gap:5px;}
+.bc-row{display:flex;align-items:center;gap:7px;}
+.bc-lbl{font-size:10px;color:var(--text2);width:90px;flex-shrink:0;font-family:var(--mono);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.bc-track{flex:1;height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bc-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.bc-num{font-family:var(--mono);font-size:10px;color:var(--text3);width:24px;text-align:right;}
+
+/* Matrix */
+.matrix-wrap{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:18px;}
+.matrix-scroll{overflow-x:auto;}
+.matrix{border-collapse:collapse;width:100%;min-width:600px;}
+.matrix th{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;padding:9px 10px;text-align:center;border-bottom:1px solid var(--border);border-right:1px solid var(--border);background:var(--bg3);}
+.matrix th.rcol{text-align:left;min-width:150px;}
+.matrix td{padding:5px 7px;text-align:center;border-bottom:1px solid rgba(56,189,248,.04);border-right:1px solid rgba(56,189,248,.04);}
+.matrix tr:hover td{background:var(--adim2);}
+.matrix .rname{text-align:left;font-size:11px;font-weight:600;color:var(--text);padding-left:12px;font-family:var(--mono);}
+.dy{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-size:9px;}
+.dn{width:16px;height:16px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;color:var(--text3);font-size:8px;}
+
+/* Resource cards */
+.sec-title{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);margin-bottom:10px;display:flex;align-items:center;gap:10px;}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.search-wrap{position:relative;margin-bottom:10px;}
+.s-inp{width:100%;padding:8px 12px 8px 34px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);color:var(--text);font-family:var(--mono);font-size:12px;outline:none;transition:border-color .15s;}
+.s-inp:focus{border-color:var(--iris-border);}
+.s-inp::placeholder{color:var(--text3);}
+.s-icon{position:absolute;left:11px;top:50%;transform:translateY(-50%);width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:2;}
+.filter-row{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:10px;}
+.fb{padding:3px 9px;border-radius:20px;font-size:10px;font-family:var(--mono);cursor:pointer;border:1px solid var(--border);background:var(--bg3);color:var(--text2);transition:all .15s;}
+.fb:hover,.fb.on{background:var(--iris-dim);border-color:var(--iris-border);color:var(--iris);}
+.res-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:8px;margin-bottom:16px;}
+.rc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:11px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.rc::before{content:'';position:absolute;top:0;left:0;width:2px;bottom:0;background:var(--iris);opacity:0;transition:opacity .2s;}
+.rc:hover{border-color:var(--iris-border);background:var(--iris-dim);transform:translateY(-1px);}
+.rc:hover::before,.rc.sel::before{opacity:1;}
+.rc.sel{border-color:var(--iris-border);background:var(--iris-dim);}
+.rc-head{display:flex;align-items:center;gap:7px;margin-bottom:6px;}
+.rc-ico{font-size:14px;flex-shrink:0;}
+.rc-type{font-family:var(--display);font-size:12px;font-weight:700;color:var(--text);}
+.rc-cnt{font-family:var(--mono);font-size:9px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);padding:1px 5px;border-radius:10px;margin-left:auto;}
+.rc-tags{display:flex;flex-wrap:wrap;gap:3px;margin-bottom:4px;}
+.rctag{font-size:9px;padding:1px 5px;border-radius:20px;font-family:var(--mono);}
+.rctag.read{background:rgba(56,189,248,.08);color:var(--accent);border:1px solid rgba(56,189,248,.15);}
+.rctag.search-type{background:rgba(110,231,183,.08);color:var(--iris);border:1px solid rgba(110,231,183,.15);}
+.rctag.create{background:rgba(52,211,153,.08);color:var(--ok);border:1px solid rgba(52,211,153,.15);}
+.rctag.update{background:rgba(251,191,36,.08);color:var(--warn);border:1px solid rgba(251,191,36,.15);}
+.rctag.delete{background:rgba(255,107,107,.08);color:var(--emg);border:1px solid rgba(255,107,107,.15);}
+.rctag.patch{background:rgba(167,139,250,.08);color:var(--info);border:1px solid rgba(167,139,250,.15);}
+.rc-info{font-family:var(--mono);font-size:10px;color:var(--text3);}
+
+/* Detail panel */
+.detail{background:var(--bg2);border:1px solid var(--iris-border);border-radius:var(--r);padding:16px;margin-bottom:14px;display:none;animation:dfade .2s ease;}
+@keyframes dfade{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.detail.show{display:block;}
+.d-head{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.d-icon{width:36px;height:36px;border-radius:9px;background:var(--iris-dim);border:1px solid var(--iris-border);display:flex;align-items:center;justify-content:center;font-size:16px;}
+.d-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--iris);}
+.d-profile{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.d-close{margin-left:auto;padding:3px 9px;font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;}
+.d-close:hover{color:var(--text);}
+.d-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.d-sec-t{font-family:var(--mono);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:.8px;text-transform:uppercase;margin-bottom:6px;}
+.d-items{display:flex;flex-direction:column;gap:3px;max-height:160px;overflow-y:auto;}
+.d-item{font-size:11px;color:var(--text2);padding:3px 8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);font-family:var(--mono);}
+.d-item.ia{color:var(--iris);}
+
+/* Formats strip */
+.fmts{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:16px;}
+.fmt-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;background:var(--bg2);border:1px solid var(--border);border-radius:20px;font-family:var(--mono);font-size:10px;color:var(--text2);}
+.fmt-dot{width:5px;height:5px;border-radius:50%;background:var(--ok);}
+
+/* Loading */
+.cap-loading{display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px;gap:12px;color:var(--text3);}
+.ld{display:flex;gap:5px;}
+.ld span{width:7px;height:7px;border-radius:50%;background:var(--iris);animation:ldp 1.3s infinite;}
+.ld span:nth-child(2){animation-delay:.2s;} .ld span:nth-child(3){animation-delay:.4s;}
+@keyframes ldp{0%,60%,100%{transform:scale(1);opacity:.3}30%{transform:scale(1.5);opacity:1}}
+.ld-txt{font-family:var(--mono);font-size:11px;}
+.cap-err{background:rgba(255,107,107,.06);border:1px solid rgba(255,107,107,.2);border-radius:var(--r);padding:16px;color:var(--emg);font-family:var(--mono);font-size:12px;text-align:center;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-top">
+      <div class="brand-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
+      <div><div class="brand-name">IRIS FHIR Agents</div><div class="brand-ver">FHIR SERVER AGENT</div></div>
+    </div>
+    <button class="new-btn" onclick="newSession()">
+      <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Session
+    </button>
+  </div>
+
+  <div class="nav-links">
+    <a href="/" class="nav-link"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat</a>
+    <a href="/dashboard" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
+    <a href="/vitals" class="nav-link"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals</a>
+    <a href="/fhir-agent" class="nav-link active"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Server Agent<span class="nl-badge" style="color:var(--iris);border-color:var(--iris-border);background:var(--iris-dim);">New</span></a>
+  </div>
+
+  <div class="sec-lbl">IRIS Server</div>
+  <div class="iris-status">
+    <div class="is-row"><span class="is-key">Status</span><span class="is-val is-online" id="srvSt">Checking...</span></div>
+    <div class="is-row"><span class="is-key">FHIR</span><span class="is-val" id="fhirVer">—</span></div>
+    <div class="is-row"><span class="is-key">Resources</span><span class="is-val" id="resCnt">—</span></div>
+    <div class="is-row"><span class="is-key">Endpoint</span><span class="is-val" style="font-size:9px">:32783/fhir/r4</span></div>
+  </div>
+
+  <div class="sec-lbl">Tools Used</div>
+  <div class="tool-list">
+    <div class="tool-item" id="t-patients"><div class="tool-pip" id="p-patients"></div><div class="tool-name" id="n-patients">get_patient_list</div><div class="tool-cnt" id="c-patients">0</div></div>
+    <div class="tool-item" id="t-conditions"><div class="tool-pip" id="p-conditions"></div><div class="tool-name" id="n-conditions">get_conditions</div><div class="tool-cnt" id="c-conditions">0</div></div>
+    <div class="tool-item" id="t-medications"><div class="tool-pip" id="p-medications"></div><div class="tool-name" id="n-medications">get_medications</div><div class="tool-cnt" id="c-medications">0</div></div>
+    <div class="tool-item" id="t-observations"><div class="tool-pip" id="p-observations"></div><div class="tool-name" id="n-observations">get_observations</div><div class="tool-cnt" id="c-observations">0</div></div>
+    <div class="tool-item" id="t-capability"><div class="tool-pip" id="p-capability"></div><div class="tool-name" id="n-capability">get_capability</div><div class="tool-cnt" id="c-capability">0</div></div>
+    <div class="tool-item" id="t-sql"><div class="tool-pip" id="p-sql"></div><div class="tool-name" id="n-sql">query_iris_sql</div><div class="tool-cnt" id="c-sql">0</div></div>
+    <div class="tool-item" id="t-rag"><div class="tool-pip" id="p-rag"></div><div class="tool-name" id="n-rag">search_guidelines</div><div class="tool-cnt" id="c-rag">0</div></div>
+    <div class="tool-item" id="t-stats"><div class="tool-pip" id="p-stats"></div><div class="tool-name" id="n-stats">get_fhir_statistics</div><div class="tool-cnt" id="c-stats">0</div></div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="fhir-st"><div class="fhir-st-dot"></div>IRIS FHIR R4</div>
+    <div style="font-family:var(--mono);font-size:10px;color:var(--text3);">GPT-4o-mini</div>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main-area">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div>
+        <div class="hdr-title">FHIR Server Agent</div>
+        <div class="hdr-sub">Natural Language · FHIR R4 · IRIS SQL · RAG · Capability Explorer</div>
+      </div>
+      <div class="iris-badge">
+        <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>
+        <span id="agentState">IRIS Connected</span>
+      </div>
+    </div>
+    <div class="hdr-right">
+      <div class="sess-tag" id="sessTag">No Session</div>
+      <button class="btn" onclick="cycleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="switchTab('capability',this)" id="tab-capability">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>
+      FHIR Capability
+      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--iris-dim);border:1px solid var(--iris-border);color:var(--iris);">Default</span>
+    </div>
+    <div class="tab" onclick="switchTab('chat',this)" id="tab-chat">
+      <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      AI Chat
+      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--adim);border:1px solid var(--border2);color:var(--accent);">GPT-4o</span>
+    </div>
+  </div>
+
+  <!-- ── CHAT TAB ── -->
+  <div class="tab-content" id="tc-chat">
+    <div class="msgs" id="msgs">
+      <div class="welcome" id="welcomeScreen">
+        <div class="w-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
+        <div class="w-title">FHIR Server Agent</div>
+        <div class="w-sub">INTERSYSTEMS IRIS FOR HEALTH · FHIR R4</div>
+        <div class="w-desc">Ask anything about your IRIS FHIR server — patients, conditions, labs, population analytics, capability statement, or direct SQL queries.</div>
+        <div class="cap-grid">
+          <div class="cap" onclick="sq('Show me all patients on the IRIS FHIR server')"><div class="cap-icon">👥</div><div class="cap-title">Patient Queries</div><div class="cap-desc">Find and explore patient records</div></div>
+          <div class="cap" onclick="sq('Show me the FHIR capability statement for this IRIS server')"><div class="cap-icon">📋</div><div class="cap-title">Capability Statement</div><div class="cap-desc">What the IRIS FHIR server supports</div></div>
+          <div class="cap" onclick="sq('Show IRIS FHIR server statistics and resource counts')"><div class="cap-icon">📊</div><div class="cap-title">Server Statistics</div><div class="cap-desc">Resource counts and analytics</div></div>
+          <div class="cap" onclick="sq('Find all patients with heart failure and show their medications')"><div class="cap-icon">🔬</div><div class="cap-title">Clinical Intelligence</div><div class="cap-desc">Cross-reference clinical data</div></div>
+        </div>
+        <div class="sug-list">
+          <div class="sug-item" onclick="sq('Show me the complete FHIR capability statement for this IRIS server')"><span class="sug-cat">Capability</span><span class="sug-text">Show complete FHIR capability statement</span></div>
+          <div class="sug-item" onclick="sq('What interactions does the Patient resource support?')"><span class="sug-cat">Capability</span><span class="sug-text">Patient resource interactions and search params</span></div>
+          <div class="sug-item" onclick="sq('Show me all patients on the IRIS FHIR server')"><span class="sug-cat">Patients</span><span class="sug-text">List all patients</span></div>
+          <div class="sug-item" onclick="sq('Give me a complete clinical summary for patient pt-010')"><span class="sug-cat">Summary</span><span class="sug-text">Full clinical summary for pt-010 (most complex)</span></div>
+          <div class="sug-item" onclick="sq('Which patients have both diabetes and kidney disease?')"><span class="sug-cat">Analysis</span><span class="sug-text">Population analysis — comorbidities</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="input-area">
+      <div class="sugs">
+        <div class="sug" onclick="sq('Capability statement')">📋 Capability</div>
+        <div class="sug" onclick="sq('List all patients')">👥 Patients</div>
+        <div class="sug" onclick="sq('IRIS FHIR statistics')">📊 Stats</div>
+        <div class="sug" onclick="sq('Patient pt-001 full summary')">📋 pt-001</div>
+        <div class="sug" onclick="sq('Find diabetic patients')">🔍 Diabetes</div>
+        <div class="sug" onclick="sq('Warfarin interaction risks')">💊 Drug risk</div>
+      </div>
+      <div class="inp-wrap">
+        <textarea class="inp" id="inp" placeholder="Ask about IRIS FHIR data, capability statement, patients, SQL..." rows="1" onkeydown="hk(event)" oninput="ar(this)"></textarea>
+        <button class="send" id="sendBtn" onclick="send()"><svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+      </div>
+      <div class="inp-foot">
+        <div class="inp-hint">Enter · Shift+Enter new line</div>
+        <div class="inp-hint" id="toolHint">13 FHIR tools + RAG Vector Search</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ── CAPABILITY TAB ── -->
+  <div class="tab-content on" id="tc-capability">
+    <div class="cap-tab" id="capContent">
+      <div class="cap-loading"><div class="ld"><span></span><span></span><span></span></div><div class="ld-txt">Loading capability statement...</div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+const FHIR = 'http://localhost:8000';
+let sid = null, loading = false;
+let capData = null, allResources = [], activeFilter = 'all';
+const toolCounts = {};
+
+const RESOURCE_ICONS = {
+  Patient:'👤',Condition:'🏥',MedicationRequest:'💊',Observation:'📊',
+  AllergyIntolerance:'⚠️',ServiceRequest:'📋',Procedure:'🔬',Encounter:'🏨',
+  DiagnosticReport:'📄',Immunization:'💉',CarePlan:'📝',Organization:'🏢',
+  Practitioner:'👨‍⚕️',Location:'📍',Device:'🔧',Specimen:'🧪',default:'📦'
+};
+const RESOURCE_CATS = {
+  Clinical:['Condition','Observation','AllergyIntolerance','Procedure','DiagnosticReport','Immunization','MedicationRequest','MedicationStatement'],
+  Patient:['Patient','RelatedPerson','Person'],
+  Administrative:['Encounter','EpisodeOfCare','ServiceRequest','Appointment','Schedule','Organization','Practitioner','Location'],
+  Financial:['Coverage','Claim','ClaimResponse','ExplanationOfBenefit'],
+  Infrastructure:['CapabilityStatement','OperationOutcome','Bundle','Binary']
+};
+
+function iaColor(ia){
+  return{read:'#38bdf8','search-type':'#6ee7b7',create:'#34d399',update:'#fbbf24',delete:'#ff6b6b',patch:'#a78bfa'}[ia]||'#7fa8cc';
+}
+function catColor(i){return['#6ee7b7','#38bdf8','#a78bfa','#fbbf24','#ff6b6b','#34d399'][i%6];}
+function getCat(type){for(const[c,ts]of Object.entries(RESOURCE_CATS)){if(ts.includes(type))return c;}return'Other';}
+
+// ── Tab switching ──
+function switchTab(name, btn) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
+  btn.classList.add('on');
+  document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('on'));
+  document.getElementById(`tc-${name}`).classList.add('on');
+  if (name === 'capability' && !capData) loadCapability();
+}
+
+// ── Status check ──
+async function checkStatus() {
+  try {
+    const r = await fetch(`${API}/fhir-agent/status`);
+    const d = await r.json();
+    if (d.status === 'online') {
+      document.getElementById('srvSt').textContent = '● Online';
+      document.getElementById('fhirVer').textContent = d.fhir_version || 'R4';
+      document.getElementById('agentState').textContent = 'IRIS Connected';
+    } else {
+      document.getElementById('srvSt').textContent = '● Offline';
+      document.getElementById('srvSt').style.color = 'var(--emg)';
+    }
+  } catch(e) { document.getElementById('srvSt').textContent = 'Error'; }
+}
+
+// ── Capability loading ──
+async function loadCapability() {
+  document.getElementById('capContent').innerHTML = `<div class="cap-loading"><div class="ld"><span></span><span></span><span></span></div><div class="ld-txt">Fetching IRIS FHIR Capability Statement...</div></div>`;
+  try {
+    const r = await fetch(`${FHIR}/fhir/metadata`);
+    if (!r.ok) throw new Error(`HTTP ${r.status}`);
+    capData = await r.json();
+    allResources = (capData.rest || [{}])[0].resource || [];
+    document.getElementById('resCnt').textContent = allResources.length;
+    renderCapability();
+  } catch(e) {
+    document.getElementById('capContent').innerHTML = `<div class="cap-err">❌ ${e.message}<br><br>Check: Is the /fhir/metadata proxy route in main.py?<br>Try opening: <a href="http://localhost:8000/fhir/metadata" target="_blank" style="color:var(--iris)">http://localhost:8000/fhir/metadata</a></div>`;
+  }
+}
+
+function renderCapability() {
+  const sw = capData.software || {};
+  const rest = (capData.rest || [{}])[0];
+  const formats = capData.format || [];
+  const ops = rest.operation || [];
+  const iaCounts = {read:0,'search-type':0,create:0,update:0,delete:0,patch:0};
+  const paramCounts = {};
+  allResources.forEach(res => {
+    (res.interaction||[]).forEach(i=>{ if(iaCounts[i.code]!==undefined) iaCounts[i.code]++; });
+    paramCounts[res.type] = (res.searchParam||[]).length;
+  });
+  const catCounts = {};
+  allResources.forEach(r => { const c=getCat(r.type); catCounts[c]=(catCounts[c]||0)+1; });
+  const maxP = Math.max(...Object.values(paramCounts), 1);
+  const iaTotal = Object.values(iaCounts).reduce((a,b)=>a+b,0);
+  const circ = 2*Math.PI*32;
+
+  // Build interaction donut
+  let iOff = 0;
+  const iSegs = Object.entries(iaCounts).map(([k,v]) => {
+    const d = circ*(v/iaTotal||0);
+    const s = `<circle cx="40" cy="40" r="32" fill="none" stroke="${iaColor(k)}" stroke-width="11" stroke-dasharray="${d} ${circ-d}" stroke-dashoffset="${-iOff}" transform="rotate(-90 40 40)"/>`;
+    iOff += d; return s;
+  }).join('');
+
+  // Build category donut
+  const catTotal = allResources.length;
+  let cOff = 0;
+  const cSegs = Object.entries(catCounts).map(([k,v],i) => {
+    const d = circ*(v/catTotal);
+    const s = `<circle cx="40" cy="40" r="32" fill="none" stroke="${catColor(i)}" stroke-width="11" stroke-dasharray="${d} ${circ-d}" stroke-dashoffset="${-cOff}" transform="rotate(-90 40 40)"/>`;
+    cOff += d; return s;
+  }).join('');
+
+  // Key resources matrix
+  const keyRes = ['Patient','Condition','MedicationRequest','Observation','AllergyIntolerance','ServiceRequest','Procedure','Encounter'];
+  const ias = ['read','search-type','create','update','delete','patch'];
+  const matrixRows = allResources.filter(r=>keyRes.includes(r.type)).map(res => {
+    const has = new Set((res.interaction||[]).map(i=>i.code));
+    return `<tr><td class="rname">${RESOURCE_ICONS[res.type]||'📦'} ${res.type}</td>${ias.map(ia=>has.has(ia)?`<td><div class="dy" style="background:${iaColor(ia)}22;color:${iaColor(ia)}">✓</div></td>`:`<td><div class="dn">·</div></td>`).join('')}<td style="font-family:var(--mono);font-size:11px;color:var(--iris)">${(res.searchParam||[]).length}</td></tr>`;
+  }).join('');
+
+  document.getElementById('capContent').innerHTML = `
+    <div class="cap-hero">
+      <div class="cap-hero-grid">
+        <div class="chi"><div class="chi-lbl">Software</div><div class="chi-val">${sw.name||'IRIS'}</div><div class="chi-sub">v${sw.version||'?'} · ${sw.releaseDate||'?'}</div></div>
+        <div class="chi"><div class="chi-lbl">FHIR Version</div><div class="chi-val">${capData.fhirVersion||'R4'}</div><div class="chi-sub">HL7 Standard</div></div>
+        <div class="chi"><div class="chi-lbl">Kind</div><div class="chi-val" style="text-transform:capitalize">${capData.kind||'instance'}</div><div class="chi-sub">Status: ${capData.status||'active'}</div></div>
+        <div class="chi"><div class="chi-lbl">Endpoint</div><div class="chi-val" style="font-size:12px;font-family:var(--mono)">:32783/fhir/r4</div><div class="chi-sub">FHIRSERVER</div></div>
+      </div>
+    </div>
+    <div class="cap-stats">
+      <div class="cs c1"><div class="cs-val">${allResources.length}</div><div class="cs-lbl">Resource Types</div></div>
+      <div class="cs c2"><div class="cs-val">${iaTotal}</div><div class="cs-lbl">Interactions</div></div>
+      <div class="cs c3"><div class="cs-val">${formats.length}</div><div class="cs-lbl">Formats</div></div>
+      <div class="cs c4"><div class="cs-val">${ops.length}</div><div class="cs-lbl">Operations</div></div>
+      <div class="cs c5"><div class="cs-val">${allResources.reduce((a,r)=>a+(r.searchParam||[]).length,0)}</div><div class="cs-lbl">Search Params</div></div>
+    </div>
+    <div class="charts-row">
+      <div class="chart-card">
+        <div class="cc-title">Interaction Coverage</div>
+        <div class="cc-sub">Across all resources</div>
+        <div class="donut-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80" style="flex-shrink:0">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--bg3)" stroke-width="11"/>
+            ${iSegs}
+            <text x="40" y="37" text-anchor="middle" font-family="Syne,sans-serif" font-size="13" font-weight="800" fill="var(--text)">${iaTotal}</text>
+            <text x="40" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text3)">total</text>
+          </svg>
+          <div class="legend">${Object.entries(iaCounts).map(([k,v])=>`<div class="leg-row"><div class="leg-dot" style="background:${iaColor(k)}"></div><span class="leg-name">${k}</span><span class="leg-val">${v}</span></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="cc-title">Resource Categories</div>
+        <div class="cc-sub">${allResources.length} total resources</div>
+        <div class="donut-wrap">
+          <svg width="80" height="80" viewBox="0 0 80 80" style="flex-shrink:0">
+            <circle cx="40" cy="40" r="32" fill="none" stroke="var(--bg3)" stroke-width="11"/>
+            ${cSegs}
+            <text x="40" y="37" text-anchor="middle" font-family="Syne,sans-serif" font-size="13" font-weight="800" fill="var(--text)">${allResources.length}</text>
+            <text x="40" y="48" text-anchor="middle" font-family="JetBrains Mono,monospace" font-size="7" fill="var(--text3)">resources</text>
+          </svg>
+          <div class="legend">${Object.entries(catCounts).map(([k,v],i)=>`<div class="leg-row"><div class="leg-dot" style="background:${catColor(i)}"></div><span class="leg-name">${k}</span><span class="leg-val">${v}</span></div>`).join('')}</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <div class="cc-title">Top Search Params</div>
+        <div class="cc-sub">Resources with most params</div>
+        <div class="bc-list">${Object.entries(paramCounts).sort((a,b)=>b[1]-a[1]).slice(0,7).map(([t,c])=>`<div class="bc-row"><div class="bc-lbl">${t}</div><div class="bc-track"><div class="bc-fill" style="width:${(c/maxP*100).toFixed(0)}%;background:var(--iris)"></div></div><div class="bc-num">${c}</div></div>`).join('')}</div>
+      </div>
+    </div>
+    <div class="sec-title">Interaction Matrix</div>
+    <div class="matrix-wrap"><div class="matrix-scroll">
+      <table class="matrix">
+        <thead><tr><th class="rcol">Resource</th>${ias.map(i=>`<th style="color:${iaColor(i)}">${i}</th>`).join('')}<th>Params</th></tr></thead>
+        <tbody>${matrixRows}</tbody>
+      </table>
+    </div></div>
+    <div class="sec-title">Supported Formats & Operations</div>
+    <div class="fmts">${formats.map(f=>`<div class="fmt-chip"><div class="fmt-dot"></div>${f}</div>`).join('')}${ops.slice(0,8).map(op=>`<div class="fmt-chip" style="border-color:var(--iris-border);color:var(--iris)"><div class="fmt-dot" style="background:var(--iris)"></div>$${op.name}</div>`).join('')}</div>
+    <div class="detail" id="detailPanel"></div>
+    <div class="sec-title">All Supported Resources</div>
+    <div class="search-wrap">
+      <svg class="s-icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="s-inp" id="resSearch" placeholder="Search resources..." oninput="filterRes(this.value)"/>
+    </div>
+    <div class="filter-row" id="filterRow">
+      <button class="fb on" onclick="setFilter('all',this)">All (${allResources.length})</button>
+      ${Object.entries(catCounts).map(([k,v])=>`<button class="fb" onclick="setFilter('${k}',this)">${k} (${v})</button>`).join('')}
+    </div>
+    <div class="res-grid" id="resGrid">${allResources.map(r=>renderCard(r)).join('')}</div>
+  `;
+}
+
+function renderCard(res) {
+  const type = res.type||'Unknown';
+  const icon = RESOURCE_ICONS[type]||RESOURCE_ICONS.default;
+  const ias = (res.interaction||[]).map(i=>i.code);
+  const sp = (res.searchParam||[]).length;
+  const tags = ias.map(ia=>`<span class="rctag ${ia==='search-type'?'search-type':ia}">${ia}</span>`).join('');
+  return `<div class="rc" id="rc-${type}" data-cat="${getCat(type)}" onclick="showResDetail('${type}')">
+    <div class="rc-head"><div class="rc-ico">${icon}</div><div class="rc-type">${type}</div><div class="rc-cnt">${sp}p</div></div>
+    <div class="rc-tags">${tags}</div>
+    <div class="rc-info">${ias.length} interactions · ${getCat(type)}</div>
+  </div>`;
+}
+
+function showResDetail(type) {
+  const res = allResources.find(r=>r.type===type); if(!res) return;
+  document.querySelectorAll('.rc').forEach(c=>c.classList.remove('sel'));
+  const card = document.getElementById(`rc-${type}`);
+  if(card) card.classList.add('sel');
+  const ias = res.interaction||[], sps = res.searchParam||[];
+  const icon = RESOURCE_ICONS[type]||'📦';
+  const panel = document.getElementById('detailPanel');
+  panel.className = 'detail show';
+  panel.innerHTML = `
+    <div class="d-head">
+      <div class="d-icon">${icon}</div>
+      <div><div class="d-title">${type}</div><div class="d-profile">${res.profile||'Standard FHIR R4'} · Versioning: ${res.versioning||'no-version'}</div></div>
+      <div class="d-close" onclick="closeDetail()">✕ Close</div>
+    </div>
+    <div class="d-grid">
+      <div><div class="d-sec-t">Interactions (${ias.length})</div><div class="d-items">${ias.map(i=>`<div class="d-item ia" style="border-left:2px solid ${iaColor(i.code)}">● ${i.code}</div>`).join('')||'<div style="color:var(--text3);font-size:11px;padding:6px">None</div>'}</div></div>
+      <div><div class="d-sec-t">Search Params (${sps.length})</div><div class="d-items">${sps.map(sp=>`<div class="d-item">${sp.name} <span style="color:var(--text3);font-size:9px">${sp.type}</span></div>`).join('')||'<div style="color:var(--text3);font-size:11px;padding:6px">None</div>'}</div></div>
+      <div><div class="d-sec-t">Capabilities</div><div class="d-items">
+        <div class="d-item">ReadHistory: ${res.readHistory||false}</div>
+        <div class="d-item">UpdateCreate: ${res.updateCreate||false}</div>
+        <div class="d-item">CondCreate: ${res.conditionalCreate||false}</div>
+        <div class="d-item">CondUpdate: ${res.conditionalUpdate||false}</div>
+      </div></div>
+    </div>`;
+  panel.scrollIntoView({behavior:'smooth',block:'nearest'});
+}
+
+function closeDetail() { document.getElementById('detailPanel').className='detail'; document.querySelectorAll('.rc').forEach(c=>c.classList.remove('sel')); }
+function setFilter(cat, btn) { activeFilter=cat; document.querySelectorAll('.fb').forEach(b=>b.classList.remove('on')); btn.classList.add('on'); filterRes(document.getElementById('resSearch')?.value||''); }
+function filterRes(q) {
+  const lo=q.toLowerCase(); const grid=document.getElementById('resGrid'); if(!grid) return;
+  const filtered=allResources.filter(r=>{
+    const cm=activeFilter==='all'||getCat(r.type)===activeFilter;
+    const sm=!lo||r.type.toLowerCase().includes(lo)||(r.interaction||[]).some(i=>i.code.includes(lo));
+    return cm&&sm;
+  });
+  grid.innerHTML=filtered.length?filtered.map(r=>renderCard(r)).join(''):`<div style="grid-column:1/-1;text-align:center;padding:30px;color:var(--text3);font-family:var(--mono);font-size:12px">No resources found</div>`;
+}
+
+// ── Chat functions ──
+function newSession() { sid=null; Object.keys(toolCounts).forEach(k=>{toolCounts[k]=0;const e=document.getElementById(`c-${k}`);if(e)e.textContent='0';}); document.getElementById('sessTag').textContent='No Session'; document.getElementById('msgs').innerHTML=`<div class="welcome" id="welcomeScreen"><div class="w-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div><div class="w-title">FHIR Server Agent</div><div class="w-sub">IRIS FOR HEALTH · FHIR R4</div><div class="w-desc">Ask anything about your IRIS FHIR server.</div><div class="sug-list"><div class="sug-item" onclick="sq('Show me the FHIR capability statement')"><span class="sug-cat">Capability</span><span class="sug-text">Show FHIR capability statement</span></div><div class="sug-item" onclick="sq('Show me all patients')"><span class="sug-cat">Patients</span><span class="sug-text">List all patients</span></div></div></div>`; }
+function sq(t){document.getElementById('inp').value=t;send();}
+function hw(){const w=document.getElementById('welcomeScreen');if(w)w.remove();}
+
+function trackTool(text) {
+  const lo=text.toLowerCase();
+  const map={patients:'patients',conditions:'conditions',medication:'medications',observation:'observations',capability:'capability',sql:'sql','according to':'rag',statistics:'stats'};
+  Object.entries(map).forEach(([kw,tid])=>{ if(lo.includes(kw)){toolCounts[tid]=(toolCounts[tid]||0)+1;const e=document.getElementById(`c-${tid}`);if(e)e.textContent=toolCounts[tid];const row=document.getElementById(`t-${tid}`);const pip=document.getElementById(`p-${tid}`);const nm=document.getElementById(`n-${tid}`);if(row){row.classList.add('active');pip.classList.add('pulse');nm.classList.add('active');setTimeout(()=>{row.classList.remove('active');pip.classList.remove('pulse');nm.classList.remove('active');},2000);}} });
+}
+
+function addMsg(role, content) {
+  hw();
+  const msgs=document.getElementById('msgs');
+  const g=document.createElement('div'); g.className='mg';
+  if(role==='ai'){const l=document.createElement('div');l.className='ag-lbl';l.innerHTML='<div class="ag-lbl-pip"></div>FHIR Server Agent';g.appendChild(l);}
+  const m=document.createElement('div'); m.className=`msg ${role}`;
+  const av=document.createElement('div'); av.className=`av ${role==='ai'?'iris':'user'}`;
+  av.innerHTML=role==='ai'?`<svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>`:`<svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>`;
+  const b=document.createElement('div'); b.className=`bub ${role==='ai'?'iris-msg':'user'}`;
+  b.innerHTML=fmt(content);
+  m.appendChild(av);m.appendChild(b);g.appendChild(m);
+  msgs.appendChild(g);msgs.scrollTop=msgs.scrollHeight;
+  if(role==='ai'){trackTool(content);}
+}
+
+function fmt(t){
+  return t
+    .replace(/According to \[([^\]]+)\] \(Relevance: ([\d.]+%)\)/g,'<div class="citation"><strong>📚 $1</strong> · Relevance: $2</div>')
+    .replace(/\*\*(.*?)\*\*/g,'<strong>$1</strong>')
+    .replace(/`(.*?)`/g,'<code>$1</code>')
+    .replace(/HIGH RISK:/gi,'<span class="emg-t">⚠ HIGH RISK:</span>')
+    .replace(/\bEMERGENCY\b/g,'<span class="emg-t">🔴 EMERGENCY</span>')
+    .replace(/\bCRITICAL\b/g,'<span class="emg-t">🔴 CRITICAL</span>')
+    .replace(/• (pt-\d+)/g,'• <span class="pt-id">$1</span>')
+    .replace(/\(ID: (pt-\d+)\)/g,'(ID: <span class="pt-id">$1</span>)')
+    .replace(/\n/g,'<br>');
+}
+
+function showTyping(){hw();const msgs=document.getElementById('msgs');const d=document.createElement('div');d.className='typing-wrap';d.id='typInd';d.innerHTML=`<div class="av iris"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div><div class="typing-inner"><div class="typing-lbl">Querying IRIS FHIR R4...</div><div class="typing-dots"><span></span><span></span><span></span></div></div>`;msgs.appendChild(d);msgs.scrollTop=msgs.scrollHeight;}
+function hideTyping(){const t=document.getElementById('typInd');if(t)t.remove();}
+
+async function send() {
+  if(loading) return;
+  const inp=document.getElementById('inp');
+  const txt=inp.value.trim(); if(!txt) return;
+  inp.value=''; ar(inp);
+  loading=true; document.getElementById('sendBtn').disabled=true;
+  document.getElementById('agentState').textContent='Querying IRIS...';
+  addMsg('user',txt); showTyping();
+
+  // Auto-switch to chat tab if on capability tab
+  const chatTab=document.getElementById('tab-chat');
+  if(!document.getElementById('tc-chat').classList.contains('on')){
+    switchTab('chat',chatTab);
+  }
+
+  try {
+    const body={message:txt}; if(sid) body.session_id=sid;
+    const res=await fetch(`${API}/fhir-agent/chat`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data=await res.json();
+    hideTyping();
+    if(!sid&&data.session_id){sid=data.session_id;document.getElementById('sessTag').textContent=`#${sid.substring(0,6)}`;}
+    if(data.response) addMsg('ai',data.response);
+    else if(data.detail) addMsg('ai',`Error: ${data.detail}`);
+    document.getElementById('agentState').textContent='IRIS Connected';
+
+    // If response mentions capability, auto-load capability tab data
+    if(data.response&&data.response.toLowerCase().includes('capability')&&!capData){
+      loadCapability();
+    }
+  } catch(e) {
+    hideTyping();
+    addMsg('ai','Could not connect to API at `http://localhost:8000/fhir-agent/chat`. Check docker logs.');
+    document.getElementById('agentState').textContent='Error';
+  }
+  loading=false; document.getElementById('sendBtn').disabled=false; document.getElementById('inp').focus();
+}
+
+function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
+function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
+
+// Theme
+const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
+let ti=0;
+function cycleTheme(){ti=(ti+1)%TH.length;const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;localStorage.setItem('fhir-theme',ti);}
+const st=localStorage.getItem('fhir-theme');
+if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;}
+
+checkStatus();
+loadCapability();
+</script>
+</body>
+</html>

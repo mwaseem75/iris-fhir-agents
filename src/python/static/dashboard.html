@@ -1,0 +1,622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRIS FHIR Agents — Analytics Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d18;--bg2:#0b1525;--bg3:#0f1e33;--surface:#132340;--surface2:#172a4c;
+  --border:rgba(56,189,248,0.09);--border2:rgba(56,189,248,0.18);--border3:rgba(56,189,248,0.32);
+  --accent:#38bdf8;--accent2:#0ea5e9;--accent3:#7dd3fc;
+  --adim:rgba(56,189,248,0.08);--adim2:rgba(56,189,248,0.04);
+  --text:#dbeafe;--text2:#7fa8cc;--text3:#3d6080;
+  --emg:#f87171;--warn:#fbbf24;--ok:#34d399;--info:#a78bfa;
+  --blue:#38bdf8;--purple:#a78bfa;--green:#34d399;
+  --font:'Lato',sans-serif;--display:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--rs:6px;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb;--bg2:#fff;--bg3:#eaf0f8;--surface:#dde8f5;
+  --border:rgba(14,90,140,0.1);--border2:rgba(14,90,140,0.2);
+  --accent:#0369a1;--accent3:#0ea5e9;--adim:rgba(3,105,161,0.07);--adim2:rgba(3,105,161,0.03);
+  --text:#0c1a2e;--text2:#2d5577;--text3:#7fa8c8;
+  --emg:#dc2626;--warn:#d97706;--ok:#16a34a;
+  --blue:#0369a1;--purple:#7c3aed;--green:#16a34a;
+}
+[data-theme="clinical"]{
+  --bg:#050f0a;--bg2:#081810;--bg3:#0c2216;--surface:#0f2e1e;
+  --border:rgba(52,211,153,0.09);--border2:rgba(52,211,153,0.18);
+  --accent:#34d399;--accent3:#6ee7b7;--adim:rgba(52,211,153,0.08);--adim2:rgba(52,211,153,0.04);
+  --text:#d1fae5;--text2:#5eab80;--text3:#2d6b48;
+  --emg:#f87171;--warn:#fbbf24;--ok:#34d399;
+  --blue:#34d399;--purple:#a78bfa;--green:#34d399;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;overflow:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── App layout ── */
+.app{display:grid;grid-template-columns:272px 1fr;height:100vh;}
+
+/* ══════ SIDEBAR ══════ */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:relative;flex-shrink:0;}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.25;}
+.brand{padding:16px 16px 13px;border-bottom:1px solid var(--border);}
+.brand-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.brand-icon{width:36px;height:36px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-icon svg{width:18px;height:18px;stroke:var(--accent);fill:none;stroke-width:2;}
+.brand-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);}
+.brand-ver{font-family:var(--mono);font-size:9px;color:var(--accent);background:var(--adim);border:1px solid var(--border2);border-radius:20px;padding:1px 7px;width:fit-content;letter-spacing:.5px;}
+.nav-links{display:flex;flex-direction:column;gap:2px;padding:10px 8px;}
+.nav-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rs);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:all .15s;letter-spacing:.2px;}
+.nav-link:hover{background:var(--adim);color:var(--text);}
+.nav-link.active{background:var(--adim);border-color:var(--border2);color:var(--accent);}
+.nav-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.nl-badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);}
+.sec-lbl{padding:10px 16px 5px;font-family:var(--mono);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;}
+.sb-info{padding:0 8px;flex:1;}
+.info-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;margin-bottom:6px;}
+.info-title{font-family:var(--display);font-size:12px;font-weight:700;color:var(--text);margin-bottom:8px;}
+.info-row{display:flex;justify-content:space-between;font-size:11px;margin-bottom:4px;}
+.info-key{color:var(--text3);font-family:var(--mono);}
+.info-val{color:var(--text);font-family:var(--mono);font-weight:600;}
+.info-val.blue{color:var(--blue);}
+.info-val.purple{color:var(--purple);}
+.info-val.green{color:var(--green);}
+.info-val.emg{color:var(--emg);}
+.info-val.warn{color:var(--warn);}
+.sb-foot{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.fhir-st{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text3);}
+.fhir-st-dot{width:5px;height:5px;border-radius:50%;background:var(--ok);}
+.live-ind{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--ok);}
+.ldot{width:5px;height:5px;border-radius:50%;background:var(--ok);animation:ldp 1.5s infinite;}
+@keyframes ldp{0%,100%{opacity:1}50%{opacity:.3}}
+
+/* ══════ MAIN AREA ══════ */
+.main-area{display:flex;flex-direction:column;overflow:hidden;}
+
+/* Header */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;position:relative;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);opacity:.12;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.hdr-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text);}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.hdr-r{display:flex;align-items:center;gap:7px;}
+.btn{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text2);font-size:11px;font-weight:600;font-family:var(--font);text-decoration:none;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn:hover{border-color:var(--border2);color:var(--text);}
+.btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* Tabs */
+.tabs{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 22px;display:flex;gap:0;flex-shrink:0;overflow-x:auto;}
+.tab{padding:9px 14px;font-size:12px;font-weight:600;color:var(--text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .2s;white-space:nowrap;display:flex;align-items:center;gap:6px;}
+.tab:hover{color:var(--text2);}
+.tab.on{color:var(--accent);border-bottom-color:var(--accent);}
+.tab svg{width:12px;height:12px;stroke:currentColor;fill:none;stroke-width:2;}
+.tc{font-size:10px;background:var(--bg3);border:1px solid var(--border);border-radius:10px;padding:1px 5px;font-family:var(--mono);}
+.tab.on .tc{background:var(--adim);border-color:var(--border2);color:var(--accent);}
+
+/* Content scroll */
+.content{flex:1;overflow-y:auto;padding:18px 22px;}
+.panel{display:none;}.panel.on{display:block;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+.g21{display:grid;grid-template-columns:2fr 1fr;gap:14px;margin-bottom:14px;}
+
+/* Stat cards */
+.stats{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin-bottom:14px;}
+.sc{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .2s;position:relative;overflow:hidden;}
+.sc::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.sc.b::before{background:linear-gradient(90deg,var(--blue),transparent);}
+.sc.v::before{background:linear-gradient(90deg,var(--purple),transparent);}
+.sc.g::before{background:linear-gradient(90deg,var(--green),transparent);}
+.sc.r::before{background:linear-gradient(90deg,var(--emg),transparent);}
+.sc.a::before{background:linear-gradient(90deg,var(--warn),transparent);}
+.sc.t::before{background:linear-gradient(90deg,#2dd4bf,transparent);}
+.sc:hover{border-color:var(--border2);transform:translateY(-1px);}
+.si{width:28px;height:28px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.si svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.sc.b .si{background:rgba(56,189,248,.1);color:var(--blue);}
+.sc.v .si{background:rgba(167,139,250,.1);color:var(--purple);}
+.sc.g .si{background:rgba(52,211,153,.1);color:var(--green);}
+.sc.r .si{background:rgba(248,113,113,.1);color:var(--emg);}
+.sc.a .si{background:rgba(251,191,36,.1);color:var(--warn);}
+.sc.t .si{background:rgba(45,212,191,.1);color:#2dd4bf;}
+.sc .sv{font-family:var(--display);font-size:22px;font-weight:800;line-height:1;margin-bottom:3px;}
+.sc.b .sv{color:var(--blue);}
+.sc.v .sv{color:var(--purple);}
+.sc.g .sv{color:var(--green);}
+.sc.r .sv{color:var(--emg);}
+.sc.a .sv{color:var(--warn);}
+.sc.t .sv{color:#2dd4bf;}
+.sc .sl{font-size:10px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono);}
+.sc .st{font-size:9px;font-family:var(--mono);margin-top:4px;color:var(--text3);}
+
+/* Cards */
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;margin-bottom:14px;}
+.ch{padding:12px 16px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.ct{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);}
+.cs{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.cb{padding:14px 16px;}
+.cb0{padding:0;}
+.pill{display:inline-flex;align-items:center;font-size:9px;border-radius:20px;padding:2px 7px;font-family:var(--mono);}
+.pill.fhir{color:var(--purple);background:rgba(167,139,250,.07);border:1px solid rgba(167,139,250,.2);}
+.pill.ai{color:var(--ok);background:rgba(52,211,153,.07);border:1px solid rgba(52,211,153,.2);}
+
+/* Bar chart */
+.bars{display:flex;flex-direction:column;gap:8px;}
+.bi{display:flex;flex-direction:column;gap:3px;cursor:pointer;padding:4px;border-radius:5px;transition:background .15s;}
+.bi:hover{background:var(--bg3);}
+.bl{display:flex;justify-content:space-between;align-items:center;gap:8px;}
+.bn{font-size:12px;color:var(--text2);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;}
+.bv{font-size:11px;color:var(--text3);font-family:var(--mono);flex-shrink:0;}
+.bt{height:5px;background:var(--bg3);border-radius:3px;overflow:hidden;}
+.bf{height:100%;border-radius:3px;transition:width .9s ease;}
+
+/* Donut */
+.donut{display:flex;align-items:center;gap:20px;justify-content:center;padding:8px 0;}
+.dleg{display:flex;flex-direction:column;gap:7px;}
+.dli{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--text2);}
+.dld{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.dlv{font-family:var(--mono);font-size:10px;color:var(--text3);margin-left:3px;}
+
+/* Table */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:8px 12px;text-align:left;border-bottom:1px solid var(--border);font-family:var(--mono);}
+.tbl td{font-size:12px;color:var(--text2);padding:9px 12px;border-bottom:1px solid rgba(56,189,248,.04);vertical-align:middle;}
+.tbl tr:last-child td{border-bottom:none;}
+.tbl tbody tr{cursor:pointer;transition:background .1s;}
+.tbl tbody tr:hover td{background:var(--adim2);}
+.badge{font-size:9px;padding:2px 7px;border-radius:20px;font-weight:600;font-family:var(--mono);display:inline-flex;align-items:center;gap:3px;white-space:nowrap;}
+.badge::before{content:'';width:4px;height:4px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.badge.asap,.badge.emergency{background:rgba(248,113,113,.1);color:var(--emg);border:1px solid rgba(248,113,113,.2);}
+.badge.urgent{background:rgba(251,191,36,.1);color:var(--warn);border:1px solid rgba(251,191,36,.2);}
+.badge.routine,.badge.active,.badge.mild,.badge.preliminary{background:rgba(52,211,153,.1);color:var(--ok);border:1px solid rgba(52,211,153,.2);}
+.badge.severe{background:rgba(248,113,113,.1);color:var(--emg);border:1px solid rgba(248,113,113,.2);}
+.badge.moderate{background:rgba(251,191,36,.1);color:var(--warn);border:1px solid rgba(251,191,36,.2);}
+.badge.male{background:rgba(56,189,248,.1);color:var(--blue);border:1px solid rgba(56,189,248,.2);}
+.badge.female{background:rgba(167,139,250,.1);color:var(--purple);border:1px solid rgba(167,139,250,.2);}
+
+/* Patient grid */
+.pgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;}
+.pc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;cursor:pointer;transition:all .15s;display:flex;align-items:center;gap:10px;}
+.pc:hover{border-color:var(--border2);transform:translateY(-1px);}
+.pav{width:36px;height:36px;border-radius:9px;background:var(--adim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:14px;font-weight:800;color:var(--accent);flex-shrink:0;}
+.pn{font-size:12px;font-weight:700;color:var(--text);margin-bottom:2px;}
+.pm{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.parr svg{width:14px;height:14px;stroke:var(--text3);fill:none;stroke-width:2;}
+.ogrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:10px;}
+.oc{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:12px;transition:all .15s;}
+.oc:hover{border-color:var(--border2);}
+.osym{font-size:13px;font-weight:600;color:var(--text);margin-bottom:5px;}
+.ometa{display:flex;align-items:center;gap:7px;flex-wrap:wrap;}
+
+/* Search */
+.srch{display:flex;align-items:center;gap:9px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:7px 11px;margin-bottom:13px;}
+.srch svg{width:13px;height:13px;stroke:var(--text3);fill:none;stroke-width:2;flex-shrink:0;}
+.srch input{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:12px;}
+.srch input::placeholder{color:var(--text3);}
+
+/* Misc */
+.spin{width:16px;height:16px;border:2px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;flex-shrink:0;}
+@keyframes sp{to{transform:rotate(360deg)}}
+.loading{display:flex;align-items:center;justify-content:center;padding:32px;color:var(--text3);font-size:12px;gap:8px;}
+.empty{text-align:center;padding:32px;color:var(--text3);font-size:12px;line-height:1.8;}
+.slabel{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:1px;font-family:var(--mono);margin-bottom:10px;display:flex;align-items:center;gap:8px;}
+
+/* Modal */
+.overlay{position:fixed;inset:0;background:rgba(6,13,24,.85);backdrop-filter:blur(4px);z-index:200;display:none;align-items:center;justify-content:center;padding:20px;}
+.overlay.open{display:flex;animation:fi .2s ease;}
+@keyframes fi{from{opacity:0}to{opacity:1}}
+.modal{background:var(--bg2);border:1px solid var(--border2);border-radius:14px;width:100%;max-width:680px;max-height:88vh;overflow-y:auto;animation:su .25s ease;}
+@keyframes su{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+.mhdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:12px;position:sticky;top:0;background:var(--bg2);z-index:1;}
+.mav{width:40px;height:40px;border-radius:10px;background:var(--adim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--display);font-size:16px;font-weight:800;color:var(--accent);flex-shrink:0;}
+.mname{font-family:var(--display);font-size:16px;font-weight:700;}
+.mmeta{font-size:11px;color:var(--text3);font-family:var(--mono);margin-top:2px;}
+.mclose{margin-left:auto;width:28px;height:28px;border-radius:var(--rs);background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);transition:all .15s;}
+.mclose:hover{color:var(--text);border-color:var(--border2);}
+.mclose svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+.mbody{padding:16px 20px;}
+.msec{margin-bottom:16px;}
+.mstitle{font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono);margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.mstitle::after{content:'';flex:1;height:1px;background:var(--border);}
+.dgrid{display:grid;grid-template-columns:1fr 1fr;gap:7px;}
+.di{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:9px 11px;}
+.dlb{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;font-family:var(--mono);margin-bottom:2px;}
+.dv{font-size:12px;color:var(--text);font-weight:600;}
+.ci{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px;}
+.cdot{width:7px;height:7px;border-radius:50%;background:var(--purple);flex-shrink:0;}
+.cname{font-size:12px;color:var(--text);flex:1;}
+.medi{display:flex;align-items:center;gap:9px;padding:9px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);margin-bottom:5px;}
+.mdot{width:7px;height:7px;border-radius:50%;background:var(--green);flex-shrink:0;}
+.mname2{font-size:12px;color:var(--text);flex:1;}
+.mdose{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.ali{display:flex;align-items:center;gap:9px;padding:9px 11px;background:rgba(248,113,113,.05);border:1px solid rgba(248,113,113,.15);border-radius:var(--rs);margin-bottom:5px;}
+.adot{width:7px;height:7px;border-radius:50%;background:var(--emg);flex-shrink:0;}
+.aname{font-size:12px;color:var(--emg);flex:1;font-weight:600;}
+.acrit{font-size:10px;color:var(--emg);font-family:var(--mono);opacity:.7;}
+.mabtn{width:100%;padding:10px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--rs);color:var(--accent);font-family:var(--font);font-size:12px;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-top:7px;}
+.mabtn:hover{background:rgba(56,189,248,.15);}
+.mabtn svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-top">
+      <div class="brand-icon"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+      <div>
+        <div class="brand-name">IRIS FHIR Agents</div>
+        <div class="brand-ver">ANALYTICS DASHBOARD</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="/" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat
+    </a>
+    <a href="/dashboard" class="nav-link active">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Analytics Dashboard
+      <span class="nl-badge" style="color:var(--accent)">Active</span>
+    </a>
+    <a href="/vitals" class="nav-link">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals Monitor
+      <span class="nl-badge" style="color:var(--ok);border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.06);">Live</span>
+    </a>
+    <a href="/fhir-agent" class="nav-link">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Server Agent
+      <span class="nl-badge" style="color:#6ee7b7;border-color:rgba(110,231,183,.2);background:rgba(110,231,183,.06);">New</span>
+    </a>
+  </div>
+
+  <div class="sec-lbl">FHIR Summary</div>
+  <div class="sb-info">
+    <div class="info-card">
+      <div class="info-title">Resource Counts</div>
+      <div class="info-row"><span class="info-key">Patients</span><span class="info-val blue" id="sb-patients">—</span></div>
+      <div class="info-row"><span class="info-key">Conditions</span><span class="info-val purple" id="sb-conditions">—</span></div>
+      <div class="info-row"><span class="info-key">Medications</span><span class="info-val green" id="sb-medications">—</span></div>
+      <div class="info-row"><span class="info-key">Allergies</span><span class="info-val emg" id="sb-allergies">—</span></div>
+      <div class="info-row"><span class="info-key">Observations</span><span class="info-val warn" id="sb-observations">—</span></div>
+    </div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="fhir-st"><div class="fhir-st-dot"></div>FHIR R4 · :32783</div>
+    <div class="live-ind"><div class="ldot"></div><span id="lu-small">Live</span></div>
+  </div>
+</aside>
+
+<!-- ══════ MAIN AREA ══════ -->
+<div class="main-area">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div>
+        <div class="hdr-title">Analytics Dashboard</div>
+        <div class="hdr-sub">IRIS FHIR R4 · Real-time · AI-Generated Resources</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <button class="btn" onclick="loadAll()">
+        <svg viewBox="0 0 24 24"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>Refresh
+      </button>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono)" id="lu">—</div>
+      <button class="btn" onclick="cycleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- Tabs -->
+  <div class="tabs">
+    <div class="tab on" onclick="go('overview',this)"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Overview</div>
+    <div class="tab" onclick="go('patients',this)"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Patients<span class="tc" id="tpc">—</span></div>
+    <div class="tab" onclick="go('conditions',this)"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Conditions<span class="tc" id="tcc">—</span></div>
+    <div class="tab" onclick="go('observations',this)"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Triage Activity<span class="tc" id="toc">—</span></div>
+    <div class="tab" onclick="go('requests',this)"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>Service Requests<span class="tc" id="tsc">—</span></div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- OVERVIEW -->
+    <div class="panel on" id="p-overview">
+      <div class="slabel">Resource Summary <span class="pill fhir">FHIR REST API</span></div>
+      <div class="stats">
+        <div class="sc b" onclick="go('patients',document.querySelectorAll('.tab')[1])"><div class="si"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div><div class="sv" id="sP"><div class="spin"></div></div><div class="sl">Patients</div><div class="st">Click to explore →</div></div>
+        <div class="sc v" onclick="go('conditions',document.querySelectorAll('.tab')[2])"><div class="si"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div><div class="sv" id="sC"><div class="spin"></div></div><div class="sl">Conditions</div><div class="st">Click to explore →</div></div>
+        <div class="sc g"><div class="si"><svg viewBox="0 0 24 24"><path d="M18 8h1a4 4 0 0 1 0 8h-1"/><path d="M2 8h16v9a4 4 0 0 1-4 4H6a4 4 0 0 1-4-4V8z"/></svg></div><div class="sv" id="sM"><div class="spin"></div></div><div class="sl">Medications</div></div>
+        <div class="sc r"><div class="si"><svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg></div><div class="sv" id="sA"><div class="spin"></div></div><div class="sl">Allergies</div></div>
+        <div class="sc a" onclick="go('observations',document.querySelectorAll('.tab')[3])"><div class="si"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/></svg></div><div class="sv" id="sO"><div class="spin"></div></div><div class="sl">AI Observations</div><div class="st">Click to explore →</div></div>
+        <div class="sc t" onclick="go('requests',document.querySelectorAll('.tab')[4])"><div class="si"><svg viewBox="0 0 24 24"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></div><div class="sv" id="sSR"><div class="spin"></div></div><div class="sl">Service Requests</div><div class="st">Click to explore →</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch"><div><div class="ct">Top Active Conditions</div><div class="cs">By frequency across all patients</div></div><span class="pill fhir">FHIR</span></div><div class="cb"><div id="cChart" class="loading"><div class="spin"></div>Loading...</div></div></div>
+        <div class="card"><div class="ch"><div><div class="ct">Gender Distribution</div><div class="cs">Patient demographics</div></div></div><div class="cb"><div id="gChart" class="loading"><div class="spin"></div>Loading...</div></div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch"><div><div class="ct">Recent Triage Observations</div><div class="cs">AI-created FHIR resources</div></div><span class="pill ai">AI Written</span></div><div class="cb0"><div id="oTbl" class="loading"><div class="spin"></div>Loading...</div></div></div>
+        <div class="card"><div class="ch"><div><div class="ct">Service Requests</div><div class="cs">Clinical follow-up orders</div></div><span class="pill ai">AI Written</span></div><div class="cb0"><div id="sTbl" class="loading"><div class="spin"></div>Loading...</div></div></div>
+      </div>
+    </div>
+
+    <!-- PATIENTS -->
+    <div class="panel" id="p-patients">
+      <div class="srch"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg><input id="psearch" placeholder="Search by name or ID..." oninput="filterPts()"/></div>
+      <div id="pGrid" class="loading"><div class="spin"></div>Loading patients...</div>
+    </div>
+
+    <!-- CONDITIONS -->
+    <div class="panel" id="p-conditions">
+      <div class="g21">
+        <div class="card"><div class="ch"><div><div class="ct">All Active Conditions</div><div class="cs">Click a bar to see affected patients</div></div><span class="pill fhir">FHIR</span></div><div class="cb"><div id="cChartFull" class="loading"><div class="spin"></div>Loading...</div></div></div>
+        <div class="card"><div class="ch"><div><div class="ct">Condition Detail</div><div class="cs">Patients with this condition</div></div></div><div class="cb0"><div id="cDetail"><div class="empty">Click a condition to see affected patients</div></div></div></div>
+      </div>
+    </div>
+
+    <!-- OBSERVATIONS -->
+    <div class="panel" id="p-observations">
+      <div class="slabel">AI-Created Triage Observations <span class="pill ai">Written by AI Agents</span></div>
+      <div id="oGrid" class="loading"><div class="spin"></div>Loading...</div>
+    </div>
+
+    <!-- SERVICE REQUESTS -->
+    <div class="panel" id="p-requests">
+      <div class="slabel">Clinical Service Requests <span class="pill ai">Written by AI Agents</span></div>
+      <div class="card"><div class="cb0"><div id="srFull" class="loading"><div class="spin"></div>Loading...</div></div></div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<!-- Modal -->
+<div class="overlay" id="modal" onclick="closeMod(event)">
+  <div class="modal">
+    <div class="mhdr">
+      <div class="mav" id="mAv">?</div>
+      <div><div class="mname" id="mName">—</div><div class="mmeta" id="mMeta">—</div></div>
+      <button class="mclose" onclick="closePModal()"><svg viewBox="0 0 24 24"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
+    </div>
+    <div class="mbody">
+      <div class="msec"><div class="mstitle">Demographics</div><div class="dgrid" id="mDemo"></div></div>
+      <div class="msec"><div class="mstitle">Active Conditions</div><div id="mConds"><div class="loading"><div class="spin"></div></div></div></div>
+      <div class="msec"><div class="mstitle">Known Allergies</div><div id="mAlls"><div class="loading"><div class="spin"></div></div></div></div>
+      <div class="msec"><div class="mstitle">Current Medications</div><div id="mMeds"><div class="loading"><div class="spin"></div></div></div></div>
+      <button class="mabtn" id="mBtn"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Open in Triage Chat</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const API='http://localhost:8000', FHIR='http://localhost:32783/fhir/r4';
+const COLORS=['#38bdf8','#a78bfa','#34d399','#fb923c','#f87171','#fbbf24','#2dd4bf','#e879f9','#94a3b8','#f472b6'];
+let allPts=[];
+
+async function fj(url){const r=await fetch(url);if(!r.ok)throw new Error(`HTTP ${r.status}`);return r.json();}
+
+function go(name,el){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('on'));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  if(el)el.classList.add('on');
+  document.getElementById(`p-${name}`).classList.add('on');
+}
+
+async function loadSum(){
+  try{
+    const d=await fj(`${API}/analytics/summary`);
+    ['sP','sC','sM','sA','sO','sSR'].forEach((id,i)=>{
+      const keys=['patients','conditions','medications','allergies','observations','service_requests'];
+      document.getElementById(id).textContent=d[keys[i]]??'0';
+    });
+    document.getElementById('toc').textContent=d.observations??'0';
+    document.getElementById('tsc').textContent=d.service_requests??'0';
+    // Sidebar
+    document.getElementById('sb-patients').textContent=d.patients??'—';
+    document.getElementById('sb-conditions').textContent=d.conditions??'—';
+    document.getElementById('sb-medications').textContent=d.medications??'—';
+    document.getElementById('sb-allergies').textContent=d.allergies??'—';
+    document.getElementById('sb-observations').textContent=d.observations??'—';
+  }catch(e){console.error(e);}
+}
+
+function bars(id,data,clickable){
+  const el=document.getElementById(id);
+  if(!data.length){el.innerHTML='<div class="empty">No data found</div>';return;}
+  const mx=data[0].count; el.innerHTML=''; el.className='bars';
+  data.forEach((c,i)=>{
+    const pct=Math.round(c.count/mx*100);
+    const d=document.createElement('div'); d.className='bi';
+    if(clickable)d.onclick=()=>showCond(c.name);
+    d.innerHTML=`<div class="bl"><span class="bn" title="${c.name}">${c.name}</span><span class="bv">${c.count}</span></div><div class="bt"><div class="bf" style="width:0%;background:${COLORS[i%COLORS.length]}" data-w="${pct}%"></div></div>`;
+    el.appendChild(d);
+  });
+  setTimeout(()=>el.querySelectorAll('.bf').forEach(b=>b.style.width=b.dataset.w),80);
+}
+
+async function loadConds(){
+  try{
+    const d=await fj(`${API}/analytics/conditions`);
+    document.getElementById('tcc').textContent=d.conditions.reduce((a,c)=>a+c.count,0);
+    bars('cChart',d.conditions,false);
+    bars('cChartFull',d.conditions,true);
+  }catch(e){document.getElementById('cChart').innerHTML='<div class="empty">Failed</div>';}
+}
+
+function showCond(name){
+  const el=document.getElementById('cDetail');
+  const pts=allPts.filter(p=>p.conditions&&p.conditions.some(c=>c.includes(name)));
+  el.innerHTML=`<div style="padding:10px 14px;border-bottom:1px solid var(--border)"><div style="font-size:12px;font-weight:700;color:var(--text)">${name}</div><div style="font-size:10px;color:var(--text3);font-family:var(--mono)">${pts.length} patient(s)</div></div>
+  <table class="tbl"><thead><tr><th>Patient</th><th>ID</th></tr></thead><tbody>
+  ${pts.length?pts.map(p=>`<tr onclick="openMod('${p.id}')"><td style="font-weight:600;color:var(--text)">${p.name||'Unknown'}</td><td style="font-family:var(--mono);font-size:10px;color:var(--text3)">${p.id}</td></tr>`).join(''):'<tr><td colspan="2" style="text-align:center;color:var(--text3);padding:16px">No patients found</td></tr>'}
+  </tbody></table>`;
+}
+
+async function loadGender(){
+  const el=document.getElementById('gChart');
+  try{
+    const d=await fj(`${API}/analytics/patients`);
+    const cnt={male:0,female:0,other:0};
+    d.patients.forEach(p=>{const g=(p.gender||'other').toLowerCase();if(g==='male')cnt.male++;else if(g==='female')cnt.female++;else cnt.other++;});
+    const total=d.patients.length||1;
+    const segs=[{l:'Male',n:cnt.male,c:'#38bdf8'},{l:'Female',n:cnt.female,c:'#a78bfa'},{l:'Other',n:cnt.other,c:'#34d399'}].filter(s=>s.n>0);
+    const r=52,cx=70,cy=70,sw=18,circ=2*Math.PI*r;
+    let off=0;
+    const paths=segs.map(s=>{const dash=s.n/total*circ,gap=circ-dash;const svg=`<circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${s.c}" stroke-width="${sw}" stroke-dasharray="${dash} ${gap}" stroke-dashoffset="${-off}" transform="rotate(-90 ${cx} ${cy})" opacity=".85"/>`;off+=dash;return svg;});
+    el.innerHTML='';el.className='donut';
+    el.innerHTML=`<svg width="140" height="140" viewBox="0 0 140 140">
+      <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="var(--bg3)" stroke-width="${sw}"/>
+      ${paths.join('')}
+      <text x="${cx}" y="${cy-6}" text-anchor="middle" fill="var(--text)" font-size="20" font-weight="700" font-family="Syne,sans-serif">${total}</text>
+      <text x="${cx}" y="${cy+10}" text-anchor="middle" fill="var(--text3)" font-size="10" font-family="JetBrains Mono,monospace">patients</text>
+    </svg>
+    <div class="dleg">${segs.map(s=>`<div class="dli"><div class="dld" style="background:${s.c}"></div><span>${s.l}</span><span class="dlv">${s.n} (${Math.round(s.n/total*100)}%)</span></div>`).join('')}</div>`;
+  }catch(e){el.innerHTML='<div class="empty">Failed</div>';}
+}
+
+async function loadPts(){
+  try{
+    const d=await fj(`${API}/analytics/patients`);
+    allPts=d.patients;
+    document.getElementById('tpc').textContent=d.patients.length;
+    renderPts(d.patients);
+  }catch(e){document.getElementById('pGrid').innerHTML='<div class="empty">Failed</div>';}
+}
+
+function renderPts(pts){
+  const el=document.getElementById('pGrid');
+  if(!pts.length){el.innerHTML='<div class="empty">No patients found</div>';return;}
+  el.className='pgrid';
+  el.innerHTML=pts.map(p=>{
+    const ini=(p.name||'?').charAt(0).toUpperCase();
+    const age=p.birthDate?Math.floor((new Date()-new Date(p.birthDate))/31557600000)+'y':'—';
+    const gc=p.gender==='male'?'var(--blue)':p.gender==='female'?'var(--purple)':'var(--text3)';
+    return `<div class="pc" onclick="openMod('${p.id}')">
+      <div class="pav" style="color:${gc};border-color:${gc}40">${ini}</div>
+      <div style="flex:1;min-width:0"><div class="pn">${p.name||'Unknown'}</div><div class="pm">${p.id} · ${p.gender||'—'} · ${age}</div></div>
+      <div class="parr"><svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg></div>
+    </div>`;
+  }).join('');
+}
+
+function filterPts(){
+  const q=document.getElementById('psearch').value.toLowerCase();
+  renderPts(allPts.filter(p=>(p.name||'').toLowerCase().includes(q)||(p.id||'').toLowerCase().includes(q)));
+}
+
+async function openMod(id){
+  document.getElementById('modal').classList.add('open');
+  const p=allPts.find(x=>x.id===id)||{id,name:'Patient',gender:'—',birthDate:''};
+  const age=p.birthDate?Math.floor((new Date()-new Date(p.birthDate))/31557600000):'—';
+  document.getElementById('mAv').textContent=(p.name||'?').charAt(0).toUpperCase();
+  document.getElementById('mName').textContent=p.name||'Unknown';
+  document.getElementById('mMeta').textContent=`ID: ${id} · ${p.gender||'—'} · ${age}y`;
+  document.getElementById('mDemo').innerHTML=`
+    <div class="di"><div class="dlb">Patient ID</div><div class="dv" style="font-family:var(--mono);font-size:11px">${id}</div></div>
+    <div class="di"><div class="dlb">Date of Birth</div><div class="dv">${p.birthDate||'—'}</div></div>
+    <div class="di"><div class="dlb">Gender</div><div class="dv">${p.gender||'—'}</div></div>
+    <div class="di"><div class="dlb">Age</div><div class="dv">${age}y</div></div>`;
+  document.getElementById('mBtn').onclick=()=>window.open(`/?patient=${id}`,'_blank');
+  loadModConds(id); loadModAlls(id); loadModMeds(id);
+}
+
+async function loadModConds(id){
+  const el=document.getElementById('mConds');
+  try{
+    const r=await fetch(`${FHIR}/Condition?patient=${id}&clinical-status=active`,{headers:{Accept:'application/fhir+json'}});
+    const d=await r.json(); const entries=d.entry||[];
+    el.innerHTML=entries.length?entries.map(e=>{const c=e.resource?.code?.coding?.[0]||{};return `<div class="ci"><div class="cdot"></div><div class="cname">${c.display||'Unknown'}</div><span class="badge active">active</span></div>`;}).join(''):'<div style="color:var(--text3);font-size:12px;padding:7px">No active conditions</div>';
+  }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:7px">Unable to load</div>';}
+}
+
+async function loadModAlls(id){
+  const el=document.getElementById('mAlls');
+  try{
+    const r=await fetch(`${FHIR}/AllergyIntolerance?patient=${id}`,{headers:{Accept:'application/fhir+json'}});
+    const d=await r.json(); const entries=d.entry||[];
+    el.innerHTML=entries.length?entries.map(e=>{const c=e.resource?.code?.coding?.[0]||{};const crit=e.resource?.criticality||'low';return `<div class="ali"><div class="adot"></div><div class="aname">${c.display||'Unknown'}</div><div class="acrit">${crit}</div></div>`;}).join(''):'<div style="color:var(--text3);font-size:12px;padding:7px">No known allergies</div>';
+  }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:7px">Unable to load</div>';}
+}
+
+async function loadModMeds(id){
+  const el=document.getElementById('mMeds');
+  try{
+    const r=await fetch(`${FHIR}/MedicationRequest?patient=${id}&status=active`,{headers:{Accept:'application/fhir+json'}});
+    const d=await r.json(); const entries=d.entry||[];
+    el.innerHTML=entries.length?entries.map(e=>{const res=e.resource||{};const name=res.medicationCodeableConcept?.coding?.[0]?.display||res.medicationCodeableConcept?.text||'Unknown';const dose=res.dosageInstruction?.[0]?.text||'';return `<div class="medi"><div class="mdot"></div><div class="mname2">${name}</div><div class="mdose">${dose}</div></div>`;}).join(''):'<div style="color:var(--text3);font-size:12px;padding:7px">No active medications</div>';
+  }catch(e){el.innerHTML='<div style="color:var(--text3);font-size:12px;padding:7px">Unable to load</div>';}
+}
+
+function closePModal(){document.getElementById('modal').classList.remove('open');}
+function closeMod(e){if(e.target===document.getElementById('modal'))closePModal();}
+
+async function loadObs(){
+  try{
+    const d=await fj(`${API}/analytics/observations`);
+    renderObsTbl('oTbl',d.observations.slice(0,5));
+    renderObsGrid(d.observations);
+  }catch(e){console.error(e);}
+}
+
+function renderObsTbl(id,obs){
+  const el=document.getElementById(id);
+  if(!obs.length){el.innerHTML='<div class="empty" style="padding:20px">No observations yet. Start a chat session!</div>';return;}
+  el.innerHTML='';
+  const t=document.createElement('table'); t.className='tbl';
+  t.innerHTML='<thead><tr><th>Symptom</th><th>Severity</th><th>Patient</th></tr></thead>';
+  const tb=document.createElement('tbody');
+  obs.forEach(o=>{const tr=document.createElement('tr');tr.innerHTML=`<td style="font-weight:600;color:var(--text)">${o.symptom}</td><td><span class="badge ${o.severity}">${o.severity}</span></td><td style="font-family:var(--mono);font-size:11px">${o.patient}</td>`;tb.appendChild(tr);});
+  t.appendChild(tb); el.appendChild(t);
+}
+
+function renderObsGrid(obs){
+  const el=document.getElementById('oGrid');
+  if(!obs.length){el.innerHTML='<div class="empty">No triage observations yet.<br>Start a chat session to create some!</div>';return;}
+  el.className='ogrid';
+  el.innerHTML=obs.map(o=>`<div class="oc"><div class="osym">${o.symptom}</div><div class="ometa"><span class="badge ${o.severity}">${o.severity}</span><span style="font-size:10px;color:var(--text3);font-family:var(--mono)">Patient: ${o.patient}</span></div></div>`).join('');
+}
+
+async function loadSR(){
+  try{
+    const d=await fj(`${API}/analytics/service-requests`);
+    renderSR('sTbl',d.service_requests.slice(0,5));
+    renderSR('srFull',d.service_requests);
+  }catch(e){console.error(e);}
+}
+
+function renderSR(id,srs){
+  const el=document.getElementById(id);
+  if(!srs.length){el.innerHTML='<div class="empty" style="padding:20px">No service requests yet. Start a chat session!</div>';return;}
+  el.innerHTML='';
+  const t=document.createElement('table'); t.className='tbl';
+  t.innerHTML='<thead><tr><th>Priority</th><th>Status</th><th>Patient</th><th>Reason</th></tr></thead>';
+  const tb=document.createElement('tbody');
+  srs.forEach(sr=>{const tr=document.createElement('tr');tr.innerHTML=`<td><span class="badge ${sr.priority}">${sr.priority}</span></td><td><span class="badge ${sr.status}">${sr.status}</span></td><td style="font-family:var(--mono);font-size:11px">${sr.patient}</td><td style="font-size:11px;color:var(--text2);max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="${sr.reason}">${sr.reason||'—'}</td>`;tb.appendChild(tr);});
+  t.appendChild(tb); el.appendChild(t);
+}
+
+async function loadAll(){
+  const now=new Date().toLocaleTimeString();
+  document.getElementById('lu').textContent=`Updated ${now}`;
+  document.getElementById('lu-small').textContent=now;
+  await Promise.all([loadSum(),loadConds(),loadGender(),loadPts(),loadObs(),loadSR()]);
+}
+
+loadAll();
+setInterval(loadAll,30000);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closePModal();});
+
+const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
+let ti=0;
+function cycleTheme(){ti=(ti+1)%TH.length;const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;localStorage.setItem('fhir-theme',ti);}
+const st=localStorage.getItem('fhir-theme');
+if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;}
+</script>
+</body>
+</html>

@@ -1,0 +1,500 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRIS FHIR Agents — Live Vitals Monitor</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d18;--bg2:#0b1525;--bg3:#0f1e33;--surface:#132340;
+  --border:rgba(56,189,248,0.09);--border2:rgba(56,189,248,0.18);
+  --accent:#38bdf8;--adim:rgba(56,189,248,0.08);--adim2:rgba(56,189,248,0.04);
+  --text:#dbeafe;--text2:#7fa8cc;--text3:#3d6080;
+  --normal:#34d399;--warning:#fbbf24;--critical:#f87171;--info:#a78bfa;
+  --font:'Lato',sans-serif;--display:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--rs:6px;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb;--bg2:#fff;--bg3:#eaf0f8;--surface:#dde8f5;
+  --border:rgba(14,90,140,0.1);--border2:rgba(14,90,140,0.2);
+  --accent:#0369a1;--adim:rgba(3,105,161,0.07);--adim2:rgba(3,105,161,0.03);
+  --text:#0c1a2e;--text2:#2d5577;--text3:#7fa8c8;
+  --normal:#16a34a;--warning:#d97706;--critical:#dc2626;
+}
+[data-theme="clinical"]{
+  --bg:#050f0a;--bg2:#081810;--bg3:#0c2216;--surface:#0f2e1e;
+  --border:rgba(52,211,153,0.09);--border2:rgba(52,211,153,0.18);
+  --accent:#34d399;--adim:rgba(52,211,153,0.08);--adim2:rgba(52,211,153,0.04);
+  --text:#d1fae5;--text2:#5eab80;--text3:#2d6b48;
+  --normal:#34d399;--warning:#fbbf24;--critical:#f87171;
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;overflow:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+
+/* ── App layout ── */
+.app{display:grid;grid-template-columns:272px 1fr;height:100vh;}
+
+/* ══════ SIDEBAR ══════ */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:relative;flex-shrink:0;}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--normal),transparent);opacity:.3;}
+.brand{padding:16px 16px 13px;border-bottom:1px solid var(--border);}
+.brand-top{display:flex;align-items:center;gap:10px;margin-bottom:10px;}
+.brand-icon{width:36px;height:36px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.brand-icon svg{width:18px;height:18px;stroke:var(--normal);fill:none;stroke-width:2;}
+.brand-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);}
+.brand-ver{font-family:var(--mono);font-size:9px;color:var(--normal);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:20px;padding:1px 7px;width:fit-content;letter-spacing:.5px;}
+.nav-links{display:flex;flex-direction:column;gap:2px;padding:10px 8px;}
+.nav-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rs);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:all .15s;letter-spacing:.2px;}
+.nav-link:hover{background:var(--adim);color:var(--text);}
+.nav-link.active{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2);color:var(--normal);}
+.nav-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.nl-badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);}
+
+.sec-lbl{padding:10px 16px 5px;font-family:var(--mono);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;}
+
+/* Patient list in sidebar */
+.sb-patients{padding:0 8px;flex:1;overflow-y:auto;}
+.sb-ptbtn{display:flex;align-items:center;gap:8px;width:100%;padding:7px 10px;border-radius:var(--rs);font-size:11px;font-family:var(--mono);cursor:pointer;border:1px solid transparent;background:transparent;color:var(--text2);transition:all .15s;text-align:left;}
+.sb-ptbtn:hover{background:var(--adim);color:var(--text);}
+.sb-ptbtn.on{background:rgba(52,211,153,.08);border-color:rgba(52,211,153,.2);color:var(--normal);}
+.sb-pip{width:6px;height:6px;border-radius:50%;background:var(--normal);flex-shrink:0;}
+.sb-pip.warning{background:var(--warning);}
+.sb-pip.critical{background:var(--critical);animation:pip 1.1s infinite;}
+@keyframes pip{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.3;transform:scale(1.5)}}
+
+.sb-foot{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.fhir-st{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text3);}
+.fhir-st-dot{width:5px;height:5px;border-radius:50%;background:var(--normal);}
+.stream-badge{display:flex;align-items:center;gap:5px;font-family:var(--mono);font-size:10px;color:var(--normal);}
+.sdot-sm{width:5px;height:5px;border-radius:50%;background:var(--normal);animation:pulse 1.5s infinite;}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.3)}}
+
+/* ══════ MAIN AREA ══════ */
+.main-area{display:flex;flex-direction:column;overflow:hidden;}
+
+/* Header */
+.hdr{background:var(--bg2);border-bottom:1px solid var(--border);padding:11px 22px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;gap:12px;position:relative;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--normal),transparent);opacity:.15;}
+.hdr-l{display:flex;align-items:center;gap:12px;}
+.hdr-title{font-family:var(--display);font-size:15px;font-weight:700;color:var(--text);}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.hdr-r{display:flex;align-items:center;gap:7px;}
+.btn{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text2);font-size:11px;font-weight:600;font-family:var(--font);text-decoration:none;cursor:pointer;transition:all .15s;white-space:nowrap;}
+.btn:hover{border-color:var(--border2);color:var(--text);}
+.btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+.stream-status{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;color:var(--normal);padding:4px 10px;border-radius:20px;border:1px solid rgba(52,211,153,.2);background:rgba(52,211,153,.06);}
+.stream-status.off{color:var(--critical);border-color:rgba(248,113,113,.2);background:rgba(248,113,113,.06);}
+.sdot{width:6px;height:6px;border-radius:50%;background:currentColor;animation:pulse 1.5s infinite;}
+.stream-status.off .sdot{animation:none;}
+
+/* Content scroll */
+.content{flex:1;overflow-y:auto;padding:14px 20px;}
+
+/* Use case banner */
+.usecase{background:linear-gradient(135deg,rgba(56,189,248,.06),rgba(167,139,250,.06));border:1px solid rgba(56,189,248,.12);border-radius:var(--r);padding:12px 16px;margin-bottom:14px;display:flex;align-items:flex-start;gap:12px;}
+.uc-icon{width:36px;height:36px;border-radius:var(--rs);background:var(--adim);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.uc-icon svg{width:16px;height:16px;stroke:var(--accent);fill:none;stroke-width:2;}
+.uc-title{font-size:12px;font-weight:700;color:var(--text);margin-bottom:3px;}
+.uc-desc{font-size:11px;color:var(--text2);line-height:1.6;}
+.uc-flow{display:flex;align-items:center;gap:5px;margin-top:7px;flex-wrap:wrap;}
+.fs{font-size:10px;padding:2px 8px;border-radius:20px;font-family:var(--mono);background:var(--bg3);border:1px solid var(--border);color:var(--text2);}
+.fa{color:var(--text3);font-size:11px;}
+
+/* Status banner */
+.status-banner{padding:10px 16px;border-radius:var(--r);margin-bottom:12px;display:flex;align-items:center;gap:10px;font-size:12px;font-weight:700;transition:all .3s;}
+.status-banner.normal{background:rgba(52,211,153,.06);border:1px solid rgba(52,211,153,.2);color:var(--normal);}
+.status-banner.warning{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.2);color:var(--warning);}
+.status-banner.critical{background:rgba(248,113,113,.06);border:1px solid rgba(248,113,113,.3);color:var(--critical);animation:critPulse 1s infinite;}
+@keyframes critPulse{0%,100%{opacity:1}50%{opacity:.75}}
+.sdot-lg{width:8px;height:8px;border-radius:50%;background:currentColor;animation:pulse 1.2s infinite;flex-shrink:0;}
+.status-time{margin-left:auto;font-size:10px;font-family:var(--mono);font-weight:400;opacity:.65;}
+.fhir-badge{font-size:9px;padding:2px 7px;border-radius:20px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.2);color:#a78bfa;font-family:var(--mono);}
+
+/* Vitals grid */
+.vitals-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;margin-bottom:12px;}
+.vcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);padding:14px;position:relative;overflow:hidden;transition:all .3s;}
+.vcard.warning{border-color:rgba(251,191,36,.35);background:rgba(251,191,36,.03);}
+.vcard.critical{border-color:rgba(248,113,113,.4);background:rgba(248,113,113,.04);animation:cardPulse 1s infinite;}
+@keyframes cardPulse{0%,100%{box-shadow:none}50%{box-shadow:0 0 16px rgba(248,113,113,.18)}}
+.vcard-icon{width:28px;height:28px;border-radius:var(--rs);display:flex;align-items:center;justify-content:center;margin-bottom:8px;}
+.vcard-icon svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.vcard.normal .vcard-icon{background:rgba(52,211,153,.1);color:var(--normal);}
+.vcard.warning .vcard-icon{background:rgba(251,191,36,.1);color:var(--warning);}
+.vcard.critical .vcard-icon{background:rgba(248,113,113,.1);color:var(--critical);}
+.vcard-label{font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;font-family:var(--mono);margin-bottom:3px;}
+.vcard-value{font-size:26px;font-weight:700;font-family:var(--mono);line-height:1;margin-bottom:2px;transition:color .3s;}
+.vcard.normal .vcard-value{color:var(--normal);}
+.vcard.warning .vcard-value{color:var(--warning);}
+.vcard.critical .vcard-value{color:var(--critical);}
+.vcard-unit{font-size:10px;color:var(--text3);font-family:var(--mono);}
+.vcard-status{position:absolute;top:10px;right:10px;font-size:9px;padding:1px 6px;border-radius:20px;font-family:var(--mono);font-weight:600;}
+.vcard-status.normal{background:rgba(52,211,153,.1);color:var(--normal);border:1px solid rgba(52,211,153,.2);}
+.vcard-status.warning{background:rgba(251,191,36,.1);color:var(--warning);border:1px solid rgba(251,191,36,.2);}
+.vcard-status.critical{background:rgba(248,113,113,.1);color:var(--critical);border:1px solid rgba(248,113,113,.2);}
+.sparkline{height:24px;display:flex;align-items:flex-end;gap:2px;margin-top:7px;}
+.spark-bar{flex:1;border-radius:2px 2px 0 0;min-height:2px;transition:height .3s;}
+.vcard.normal .spark-bar{background:rgba(52,211,153,.25);}
+.vcard.warning .spark-bar{background:rgba(251,191,36,.25);}
+.vcard.critical .spark-bar{background:rgba(248,113,113,.25);}
+
+/* Bottom grid */
+.bottom-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px;}
+.card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--r);overflow:hidden;}
+.card-hdr{padding:10px 14px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;}
+.card-title{font-size:12px;font-weight:700;font-family:var(--display);}
+.card-sub{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:1px;}
+.card-body{padding:12px 14px;}
+.pill{display:inline-flex;align-items:center;font-size:9px;border-radius:20px;padding:2px 7px;font-family:var(--mono);}
+.pill.live{color:var(--normal);background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);}
+.pill.fhir{color:#a78bfa;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);}
+.pill.ai{color:var(--accent);background:var(--adim);border:1px solid var(--border2);}
+
+/* Alert items */
+.ai-alert-item{background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);padding:10px 12px;margin-bottom:7px;animation:slideIn .3s ease;}
+@keyframes slideIn{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:translateY(0)}}
+.ai-alert-item.critical{border-color:rgba(248,113,113,.3);background:rgba(248,113,113,.04);}
+.ai-alert-header{display:flex;align-items:center;gap:7px;margin-bottom:5px;}
+.ai-alert-time{font-size:9px;color:var(--text3);font-family:var(--mono);margin-left:auto;}
+.ai-alert-vitals{font-size:10px;color:var(--critical);font-family:var(--mono);margin-bottom:5px;}
+.ai-alert-response{font-size:11px;color:var(--text2);line-height:1.5;border-top:1px solid var(--border);padding-top:5px;margin-top:5px;}
+.ai-thinking{display:flex;align-items:center;gap:7px;font-size:11px;color:var(--accent);font-family:var(--mono);}
+.ai-thinking-dots span{animation:blink 1s infinite;}
+.ai-thinking-dots span:nth-child(2){animation-delay:.2s;}
+.ai-thinking-dots span:nth-child(3){animation-delay:.4s;}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+/* FHIR log */
+.fhir-item{display:flex;align-items:center;gap:7px;font-size:10px;color:var(--text2);font-family:var(--mono);padding:4px 0;border-bottom:1px solid var(--border);}
+.fhir-item:last-child{border-bottom:none;}
+.fhir-dot{width:5px;height:5px;border-radius:50%;background:#a78bfa;flex-shrink:0;}
+.fhir-time{color:var(--text3);margin-left:auto;font-size:9px;}
+
+/* History table */
+.tbl{width:100%;border-collapse:collapse;}
+.tbl th{font-size:9px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;padding:7px 10px;text-align:left;border-bottom:1px solid var(--border);font-family:var(--mono);}
+.tbl td{font-size:10px;color:var(--text2);padding:6px 10px;border-bottom:1px solid rgba(56,189,248,.04);font-family:var(--mono);}
+.tbl tr:last-child td{border-bottom:none;}
+.badge{font-size:9px;padding:2px 6px;border-radius:20px;font-weight:600;font-family:var(--mono);}
+.badge.normal{background:rgba(52,211,153,.1);color:var(--normal);border:1px solid rgba(52,211,153,.2);}
+.badge.warning{background:rgba(251,191,36,.1);color:var(--warning);border:1px solid rgba(251,191,36,.2);}
+.badge.critical{background:rgba(248,113,113,.1);color:var(--critical);border:1px solid rgba(248,113,113,.2);}
+.scrollable{max-height:220px;overflow-y:auto;}
+.empty-state{color:var(--text3);font-size:11px;text-align:center;padding:20px;font-family:var(--mono);}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ══════ SIDEBAR ══════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-top">
+      <div class="brand-icon"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+      <div>
+        <div class="brand-name">IRIS FHIR Agents</div>
+        <div class="brand-ver">LIVE VITALS MONITOR</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="/" class="nav-link">
+      <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat
+    </a>
+    <a href="/dashboard" class="nav-link">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Analytics Dashboard
+    </a>
+    <a href="/vitals" class="nav-link active">
+      <svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals Monitor
+      <span class="nl-badge" style="color:var(--normal);border-color:rgba(52,211,153,.2);background:rgba(52,211,153,.06);">Active</span>
+    </a>
+    <a href="/fhir-agent" class="nav-link">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Server Agent
+      <span class="nl-badge" style="color:#6ee7b7;border-color:rgba(110,231,183,.2);background:rgba(110,231,183,.06);">New</span>
+    </a>
+  </div>
+
+  <div class="sec-lbl">Select Patient</div>
+  <div class="sb-patients" id="sbPatients">
+    <button class="sb-ptbtn on" onclick="selectPatient('pt-001',this)"><div class="sb-pip" id="sp-pt-001"></div>pt-001 · James Anderson</button>
+    <button class="sb-ptbtn" onclick="selectPatient('pt-002',this)"><div class="sb-pip" id="sp-pt-002"></div>pt-002 · Sarah Thompson</button>
+    <button class="sb-ptbtn" onclick="selectPatient('pt-003',this)"><div class="sb-pip" id="sp-pt-003"></div>pt-003 · Michael Williams</button>
+    <button class="sb-ptbtn" onclick="selectPatient('pt-008',this)"><div class="sb-pip" id="sp-pt-008"></div>pt-008 · Patricia Taylor</button>
+    <button class="sb-ptbtn" onclick="selectPatient('pt-009',this)"><div class="sb-pip" id="sp-pt-009"></div>pt-009 · Kevin Garcia</button>
+    <button class="sb-ptbtn" onclick="selectPatient('pt-010',this)"><div class="sb-pip" id="sp-pt-010"></div>pt-010 · Margaret Young</button>
+  </div>
+
+  <div class="sb-foot">
+    <div class="fhir-st"><div class="fhir-st-dot"></div>FHIR R4 · :32783</div>
+    <div class="stream-badge"><div class="sdot-sm"></div><span id="fhirWriteCount">0 writes</span></div>
+  </div>
+</aside>
+
+<!-- ══════ MAIN AREA ══════ -->
+<div class="main-area">
+
+  <!-- Header -->
+  <div class="hdr">
+    <div class="hdr-l">
+      <div>
+        <div class="hdr-title">Live Vitals Monitor</div>
+        <div class="hdr-sub">SSE Stream · Every reading saved to IRIS FHIR R4 · AI Critical Alerts</div>
+      </div>
+    </div>
+    <div class="hdr-r">
+      <div class="stream-status" id="streamStatus"><div class="sdot"></div><span>Streaming</span></div>
+      <button class="btn" onclick="cycleTheme()" id="themeBtn">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- Content -->
+  <div class="content">
+
+    <!-- Use case -->
+    <div class="usecase">
+      <div class="uc-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <div>
+        <div class="uc-title">AI-Powered Bedside Monitor</div>
+        <div class="uc-desc">Every vital sign reading is written as a FHIR Observation to IRIS. When vitals go critical, the AI Triage Agent is automatically triggered — no human intervention required.</div>
+        <div class="uc-flow">
+          <span class="fs">📡 SSE Stream</span><span class="fa">→</span>
+          <span class="fs">💾 FHIR Write</span><span class="fa">→</span>
+          <span class="fs">🚨 Critical Detection</span><span class="fa">→</span>
+          <span class="fs">🤖 AI Alert</span><span class="fa">→</span>
+          <span class="fs">📋 RAG Guidelines</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Status banner -->
+    <div class="status-banner normal" id="statusBanner">
+      <div class="sdot-lg"></div>
+      <span id="statusText">All vitals normal — monitoring active</span>
+      <span class="fhir-badge">FHIR ✓</span>
+      <span class="status-time" id="statusTime">—</span>
+    </div>
+
+    <!-- Vitals cards -->
+    <div class="vitals-grid">
+      <div class="vcard normal" id="card-hr">
+        <div class="vcard-status normal" id="status-hr">normal</div>
+        <div class="vcard-icon"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+        <div class="vcard-label">Heart Rate</div>
+        <div class="vcard-value" id="val-hr">—</div>
+        <div class="vcard-unit">beats / min</div>
+        <div class="sparkline" id="spark-hr"></div>
+      </div>
+      <div class="vcard normal" id="card-bp">
+        <div class="vcard-status normal" id="status-bp">normal</div>
+        <div class="vcard-icon"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg></div>
+        <div class="vcard-label">Blood Pressure</div>
+        <div class="vcard-value" id="val-bp">—</div>
+        <div class="vcard-unit">mmHg sys / dia</div>
+        <div class="sparkline" id="spark-bp"></div>
+      </div>
+      <div class="vcard normal" id="card-spo2">
+        <div class="vcard-status normal" id="status-spo2">normal</div>
+        <div class="vcard-icon"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/></svg></div>
+        <div class="vcard-label">SpO₂</div>
+        <div class="vcard-value" id="val-spo2">—</div>
+        <div class="vcard-unit">oxygen sat %</div>
+        <div class="sparkline" id="spark-spo2"></div>
+      </div>
+      <div class="vcard normal" id="card-temp">
+        <div class="vcard-status normal" id="status-temp">normal</div>
+        <div class="vcard-icon"><svg viewBox="0 0 24 24"><path d="M14 14.76V3.5a2.5 2.5 0 0 0-5 0v11.26a4.5 4.5 0 1 0 5 0z"/></svg></div>
+        <div class="vcard-label">Temperature</div>
+        <div class="vcard-value" id="val-temp">—</div>
+        <div class="vcard-unit">degrees Celsius</div>
+        <div class="sparkline" id="spark-temp"></div>
+      </div>
+      <div class="vcard normal" id="card-rr">
+        <div class="vcard-status normal" id="status-rr">normal</div>
+        <div class="vcard-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+        <div class="vcard-label">Respiratory Rate</div>
+        <div class="vcard-value" id="val-rr">—</div>
+        <div class="vcard-unit">breaths / min</div>
+        <div class="sparkline" id="spark-rr"></div>
+      </div>
+    </div>
+
+    <!-- Bottom grid -->
+    <div class="bottom-grid">
+      <div class="card">
+        <div class="card-hdr">
+          <div><div class="card-title">🤖 AI Critical Alert Feed</div><div class="card-sub">Auto-triggered when vitals go critical</div></div>
+          <span class="pill ai">AI Agent</span>
+        </div>
+        <div class="card-body scrollable" id="aiAlertLog">
+          <div class="empty-state">Monitoring... AI will auto-trigger on critical vitals</div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hdr">
+          <div><div class="card-title">💾 FHIR Observation Writes</div><div class="card-sub">Every reading saved to IRIS FHIR R4</div></div>
+          <span class="pill fhir">FHIR R4</span>
+        </div>
+        <div class="card-body scrollable" id="fhirLog">
+          <div class="empty-state">Waiting for first reading...</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- History table -->
+    <div class="card">
+      <div class="card-hdr">
+        <div><div class="card-title">Vitals History</div><div class="card-sub">Last 15 readings — all written to FHIR</div></div>
+        <div style="display:flex;gap:7px;align-items:center;">
+          <span class="pill live">Live</span>
+          <button class="btn" onclick="clearHistory()">Clear</button>
+        </div>
+      </div>
+      <div style="overflow-x:auto;">
+        <table class="tbl">
+          <thead><tr><th>Time</th><th>Heart Rate</th><th>Blood Pressure</th><th>SpO₂</th><th>Temp</th><th>RR</th><th>Status</th><th>FHIR</th></tr></thead>
+          <tbody id="historyTbl"></tbody>
+        </table>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script>
+const API='';
+let currentPatient='pt-001',es=null,history=[],sparkData={hr:[],bp:[],spo2:[],temp:[],rr:[]};
+let fhirWriteCount=0;
+const MAX_SPARK=20,MAX_HIST=15;
+
+function selectPatient(id,btn){
+  currentPatient=id;
+  document.querySelectorAll('.sb-ptbtn').forEach(b=>b.classList.remove('on'));
+  btn.classList.add('on');
+  sparkData={hr:[],bp:[],spo2:[],temp:[],rr:[]};
+  history=[]; renderHistory(); restartStream();
+}
+
+function restartStream(){
+  if(es){es.close();es=null;}
+  const url=`${API}/vitals/stream/${currentPatient}`;
+  es=new EventSource(url);
+  const st=document.getElementById('streamStatus');
+  st.className='stream-status';
+  st.innerHTML='<div class="sdot"></div><span>Streaming</span>';
+  es.onmessage=(e)=>{
+    const data=JSON.parse(e.data);
+    updateVitals(data);
+    if(data.ai_alert_triggered){showAIThinking(data.ai_alert_message);setTimeout(()=>pollAIAlerts(),3000);}
+  };
+  es.onerror=()=>{
+    const st=document.getElementById('streamStatus');
+    st.className='stream-status off';
+    st.innerHTML='<div class="sdot"></div><span>Reconnecting...</span>';
+    setTimeout(restartStream,3000);
+  };
+}
+
+function updateVitals(data){
+  const ts=new Date().toLocaleTimeString();
+  document.getElementById('statusTime').textContent=ts;
+  const banner=document.getElementById('statusBanner');
+  const statusText=document.getElementById('statusText');
+  banner.className=`status-banner ${data.overall_status}`;
+  if(data.overall_status==='critical') statusText.textContent='🚨 CRITICAL — AI Alert Triggered Automatically';
+  else if(data.overall_status==='warning') statusText.textContent='⚡ Warning — Abnormal vitals detected';
+  else statusText.textContent='✓ All vitals within normal range — monitoring active';
+  updateCard('hr',data.heart_rate.value,data.heart_rate.status,`${data.heart_rate.value}`,'hr');
+  updateCard('bp',data.blood_pressure.systolic,data.blood_pressure.status,`${data.blood_pressure.systolic}/${data.blood_pressure.diastolic}`,'bp');
+  updateCard('spo2',data.spo2.value,data.spo2.status,`${data.spo2.value}%`,'spo2');
+  updateCard('temp',data.temperature.value,data.temperature.status,`${data.temperature.value}°`,'temp');
+  updateCard('rr',data.respiratory_rate.value,data.respiratory_rate.status,`${data.respiratory_rate.value}`,'rr');
+  // Update sidebar pip for current patient
+  const pip=document.getElementById(`sp-${currentPatient}`);
+  if(pip){pip.className=`sb-pip ${data.overall_status==='critical'?'critical':data.overall_status==='warning'?'warning':''}`;}
+  fhirWriteCount++;
+  addFhirEntry(data,ts);
+  document.getElementById('fhirWriteCount').textContent=`${fhirWriteCount} writes`;
+  history.unshift({time:ts,hr:data.heart_rate.value,bp:`${data.blood_pressure.systolic}/${data.blood_pressure.diastolic}`,spo2:data.spo2.value,temp:data.temperature.value,rr:data.respiratory_rate.value,status:data.overall_status});
+  if(history.length>MAX_HIST)history.pop();
+  renderHistory();
+}
+
+function updateCard(key,numVal,status,displayVal,sparkKey){
+  document.getElementById(`card-${key}`).className=`vcard ${status}`;
+  const se=document.getElementById(`status-${key}`);se.className=`vcard-status ${status}`;se.textContent=status;
+  document.getElementById(`val-${key}`).textContent=displayVal;
+  sparkData[sparkKey].push(numVal);
+  if(sparkData[sparkKey].length>MAX_SPARK)sparkData[sparkKey].shift();
+  renderSparkline(sparkKey,status);
+}
+
+function renderSparkline(key,status){
+  const el=document.getElementById(`spark-${key}`);
+  const data=sparkData[key]; if(!data.length)return;
+  const min=Math.min(...data),max=Math.max(...data),range=max-min||1;
+  el.innerHTML=data.map(v=>{const h=Math.max(2,Math.round(((v-min)/range)*20));return `<div class="spark-bar" style="height:${h}px"></div>`;}).join('');
+}
+
+function addFhirEntry(data,ts){
+  const log=document.getElementById('fhirLog');
+  if(log.querySelector('.empty-state'))log.innerHTML='';
+  const item=document.createElement('div');item.className='fhir-item';
+  item.innerHTML=`<div class="fhir-dot"></div><span>HR:${data.heart_rate.value} BP:${data.blood_pressure.systolic}/${data.blood_pressure.diastolic} SpO2:${data.spo2.value}% T:${data.temperature.value}°</span><span class="fhir-time">${ts}</span>`;
+  log.prepend(item);
+  while(log.children.length>20)log.removeChild(log.lastChild);
+}
+
+function showAIThinking(message){
+  const log=document.getElementById('aiAlertLog');
+  if(log.querySelector('.empty-state'))log.innerHTML='';
+  const item=document.createElement('div');item.className='ai-alert-item critical';item.id='ai-thinking-item';
+  item.innerHTML=`<div class="ai-alert-header"><span style="font-size:11px;font-weight:700;color:var(--critical)">🚨 Critical Alert</span><span class="ai-alert-time">${new Date().toLocaleTimeString()}</span></div>
+    <div class="ai-alert-vitals">${message.replace(/CRITICAL VITALS ALERT for patient [^:]+: /,'')}</div>
+    <div class="ai-thinking"><span>🤖 AI Triage Agent analyzing</span><span class="ai-thinking-dots"><span>.</span><span>.</span><span>.</span></span></div>`;
+  log.prepend(item);
+}
+
+function pollAIAlerts(){
+  fetch(`${API}/vitals/alerts`).then(r=>r.json()).then(data=>{
+    const alerts=data.alerts||[];if(!alerts.length)return;
+    const latest=alerts[alerts.length-1];
+    if(latest.patient_id===currentPatient)updateAIAlert(latest);
+  }).catch(()=>{});
+}
+
+function updateAIAlert(alert){
+  const thinking=document.getElementById('ai-thinking-item');
+  if(thinking){
+    thinking.innerHTML=`<div class="ai-alert-header"><span style="font-size:11px;font-weight:700;color:var(--critical)">🚨 AI Critical Assessment</span><span class="ai-alert-time">${new Date(alert.timestamp).toLocaleTimeString()}</span></div>
+      <div class="ai-alert-vitals">HR:${alert.vitals.heart_rate} · BP:${alert.vitals.bp} · SpO2:${alert.vitals.spo2}% · T:${alert.vitals.temperature}°C</div>
+      <div class="ai-alert-response">${alert.ai_response}</div>`;
+    thinking.id='';
+  }
+}
+
+function renderHistory(){
+  document.getElementById('historyTbl').innerHTML=history.map(h=>`<tr><td>${h.time}</td><td>${h.hr} bpm</td><td>${h.bp}</td><td>${h.spo2}%</td><td>${h.temp}°C</td><td>${h.rr}</td><td><span class="badge ${h.status}">${h.status}</span></td><td style="color:#a78bfa;font-size:9px;">✓</td></tr>`).join('');
+}
+
+function clearHistory(){
+  history=[];renderHistory();fhirWriteCount=0;
+  document.getElementById('fhirWriteCount').textContent='0 writes';
+  document.getElementById('fhirLog').innerHTML='<div class="empty-state">Waiting for first reading...</div>';
+  document.getElementById('aiAlertLog').innerHTML='<div class="empty-state">Monitoring... AI will auto-trigger on critical vitals</div>';
+}
+
+setInterval(pollAIAlerts,5000);
+restartStream();
+
+const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
+let ti=0;
+function cycleTheme(){ti=(ti+1)%TH.length;const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;localStorage.setItem('fhir-theme',ti);}
+const st=localStorage.getItem('fhir-theme');
+if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;}
+</script>
+</body>
+</html>

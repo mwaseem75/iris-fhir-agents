@@ -1,0 +1,50 @@
+services:
+  iris:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: always
+    hostname: fhir-agents-iris
+    container_name: fhir-agents-iris
+    ports:
+      - 32782:1972
+      - 32783:52773
+      - 32784:53773
+    command:
+      - -a
+      - iris session iris -U%SYS '##class(Security.Users).UnExpireUserPasswords("*")'
+      - --check-caps false
+    volumes:
+      - ./data:/data
+      - ./fhirUI:/usr/irissys/csp/fhirUI:rw
+      - ./:/home/irisowner/irisdev
+      - iris-data:/usr/irissys/mgr
+    networks:
+      - fhir-agents-network
+
+  api:
+    build:
+      context: .
+      dockerfile: Dockerfile.api
+    container_name: fhir-agents-api
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./src/python:/app
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FHIR_BASE_URL=http://iris:52773/fhir/r4
+      - FHIR_USERNAME=_SYSTEM
+      - FHIR_PASSWORD=SYS
+      - PYTHONPATH=/app
+    depends_on:
+      - iris
+    command: uvicorn api.main:app --host 0.0.0.0 --port 8000 --reload --app-dir /app
+    networks:
+      - fhir-agents-network
+volumes:
+  iris-data:
+
+networks:
+  fhir-agents-network:
+    driver: bridge

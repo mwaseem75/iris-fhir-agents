@@ -1,0 +1,231 @@
+{
+  "resourceType": "Bundle",
+  "type": "transaction",
+  "entry": [
+    {
+      "resource": {
+        "resourceType": "Patient","id": "pt-003",
+        "name": [{"use": "official","family": "Williams","given": ["Michael","John"],"prefix": ["Mr."]}],
+        "gender": "male","birthDate": "1945-11-30",
+        "telecom": [{"system": "phone","value": "555-101-0003","use": "home"}],
+        "address": [{"line": ["789 Pine Road"],"city": "Houston","state": "TX","postalCode": "77001"}]
+      },
+      "request": {"method": "PUT","url": "Patient/pt-003"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition","id": "cond-pt003-1",
+        "subject": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Heart failure with reduced ejection fraction"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},
+        "severity": {"coding": [{"system": "http://snomed.info/sct","code": "24484000","display": "Severe"}]},
+        "onsetDateTime": "2019-08-22",
+        "note": [{"text": "EF 30% on echo. NYHA Class III. Daily weights required. Fluid restriction 1.5L/day."}]
+      },
+      "request": {"method": "PUT","url": "Condition/cond-pt003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition","id": "cond-pt003-2",
+        "subject": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct","code": "709044004","display": "Chronic kidney disease stage 3b"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},
+        "onsetDateTime": "2017-04-10",
+        "note": [{"text": "eGFR 32. Cardiorenal syndrome. Diuretic dosing challenging due to reduced renal perfusion."}]
+      },
+      "request": {"method": "PUT","url": "Condition/cond-pt003-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition","id": "cond-pt003-3",
+        "subject": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct","code": "44054006","display": "Type 2 diabetes mellitus"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},
+        "onsetDateTime": "2008-06-15",
+        "note": [{"text": "T2DM contributing to CKD progression. Metformin held due to eGFR below 30. On insulin."}]
+      },
+      "request": {"method": "PUT","url": "Condition/cond-pt003-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "Condition","id": "cond-pt003-4",
+        "subject": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://snomed.info/sct","code": "49436004","display": "Atrial fibrillation"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/condition-clinical","code": "active"}]},
+        "onsetDateTime": "2021-03-05",
+        "note": [{"text": "Persistent AFib. Rate controlled with Digoxin. CHA2DS2-VASc score 5."}]
+      },
+      "request": {"method": "PUT","url": "Condition/cond-pt003-4"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance","id": "allergy-pt003-1",
+        "patient": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "704","display": "Sulfonamide"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},
+        "type": "allergy","criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "271807003","display": "Stevens-Johnson syndrome"}]}],"severity": "severe","description": "Steven-Johnson syndrome requiring ICU admission."}]
+      },
+      "request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "AllergyIntolerance","id": "allergy-pt003-2",
+        "patient": {"reference": "Patient/pt-003"},
+        "code": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "1191","display": "NSAIDs"}]},
+        "clinicalStatus": {"coding": [{"system": "http://terminology.hl7.org/CodeSystem/allergyintolerance-clinical","code": "active"}]},
+        "type": "intolerance","criticality": "high",
+        "reaction": [{"manifestation": [{"coding": [{"system": "http://snomed.info/sct","code": "84114007","display": "Acute heart failure exacerbation"}]}],"severity": "severe","description": "NSAIDs cause sodium retention worsening heart failure. Absolutely contraindicated."}]
+      },
+      "request": {"method": "PUT","url": "AllergyIntolerance/allergy-pt003-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest","id": "med-pt003-1",
+        "status": "active","intent": "order",
+        "subject": {"reference": "Patient/pt-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "203160","display": "Furosemide 80mg"}]},
+        "dosageInstruction": [{"text": "80mg twice daily — monitor weight daily, hold if weight drops 2kg below dry weight"}],
+        "reasonCode": [{"text": "Heart failure — aggressive diuresis NYHA Class III"}]
+      },
+      "request": {"method": "PUT","url": "MedicationRequest/med-pt003-1"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest","id": "med-pt003-2",
+        "status": "active","intent": "order",
+        "subject": {"reference": "Patient/pt-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "197604","display": "Digoxin 0.125mg"}]},
+        "dosageInstruction": [{"text": "0.125mg once daily — check levels monthly, target 0.5-0.9 ng/mL for HF"}],
+        "reasonCode": [{"text": "Heart failure and atrial fibrillation — rate control and inotropy"}]
+      },
+      "request": {"method": "PUT","url": "MedicationRequest/med-pt003-2"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest","id": "med-pt003-3",
+        "status": "active","intent": "order",
+        "subject": {"reference": "Patient/pt-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "29046","display": "Lisinopril 2.5mg"}]},
+        "dosageInstruction": [{"text": "2.5mg once daily — low dose due to CKD stage 3b. Monitor creatinine."}],
+        "reasonCode": [{"text": "Heart failure — ACE inhibitor, dose reduced for CKD"}]
+      },
+      "request": {"method": "PUT","url": "MedicationRequest/med-pt003-3"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest","id": "med-pt003-4",
+        "status": "active","intent": "order",
+        "subject": {"reference": "Patient/pt-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "200031","display": "Carvedilol 3.125mg"}]},
+        "dosageInstruction": [{"text": "3.125mg twice daily — low dose, titrate slowly in heart failure"}],
+        "reasonCode": [{"text": "Heart failure with reduced EF — beta blockade reduces mortality"}]
+      },
+      "request": {"method": "PUT","url": "MedicationRequest/med-pt003-4"}
+    },
+    {
+      "resource": {
+        "resourceType": "MedicationRequest","id": "med-pt003-5",
+        "status": "active","intent": "order",
+        "subject": {"reference": "Patient/pt-003"},
+        "medicationCodeableConcept": {"coding": [{"system": "http://www.nlm.nih.gov/research/umls/rxnorm","code": "253182","display": "Insulin glargine 20 units"}]},
+        "dosageInstruction": [{"text": "20 units subcutaneous at bedtime — Metformin held due to CKD"}],
+        "reasonCode": [{"text": "Type 2 diabetes — insulin required due to renal impairment"}]
+      },
+      "request": {"method": "PUT","url": "MedicationRequest/med-pt003-5"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-digoxin",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "10535-3","display": "Digoxin level"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-05-15T07:00:00Z",
+        "valueQuantity": {"value": 0.8,"unit": "ng/mL"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code": "N","display": "Therapeutic — target 0.5-0.9 ng/mL for HF"}]}],
+        "referenceRange": [{"low": {"value": 0.5},"high": {"value": 0.9},"text": "Therapeutic range for HF 0.5-0.9 ng/mL"}]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-digoxin"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-potassium",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "2823-3","display": "Potassium"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-05-15T07:00:00Z",
+        "valueQuantity": {"value": 3.4,"unit": "mEq/L"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code": "L","display": "Low — CRITICAL: hypokalemia increases digoxin toxicity risk"}]}],
+        "referenceRange": [{"low": {"value": 3.5},"high": {"value": 5.0},"text": "Normal 3.5-5.0 mEq/L"}]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-potassium"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-egfr",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "62238-1","display": "eGFR"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-05-15T07:00:00Z",
+        "valueQuantity": {"value": 32,"unit": "mL/min/1.73m2"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code": "L","display": "CKD stage 3b — Metformin CONTRAINDICATED below 30"}]}]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-egfr"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-hba1c",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "laboratory"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "4548-4","display": "HbA1c"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-04-10T09:00:00Z",
+        "valueQuantity": {"value": 8.1,"unit": "%"},
+        "interpretation": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/v3-ObservationInterpretation","code": "H","display": "Above goal — consider insulin dose increase"}]}]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-hba1c"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-weight-trend",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "vital-signs"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "29463-7","display": "Body weight"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-05-28T07:00:00Z",
+        "valueQuantity": {"value": 82,"unit": "kg"},
+        "note": [{"text": "Weight up 3kg from dry weight of 79kg. Possible fluid retention. Consider diuretic adjustment."}]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-weight-trend"}
+    },
+    {
+      "resource": {
+        "resourceType": "Observation","id": "obs-pt003-bp",
+        "status": "final",
+        "category": [{"coding": [{"system": "http://terminology.hl7.org/CodeSystem/observation-category","code": "vital-signs"}]}],
+        "code": {"coding": [{"system": "http://loinc.org","code": "55284-4","display": "Blood pressure"}]},
+        "subject": {"reference": "Patient/pt-003"},
+        "effectiveDateTime": "2026-05-28T07:00:00Z",
+        "component": [
+          {"code": {"coding": [{"system": "http://loinc.org","code": "8480-6","display": "Systolic BP"}]},"valueQuantity": {"value": 108,"unit": "mmHg"}},
+          {"code": {"coding": [{"system": "http://loinc.org","code": "8462-4","display": "Diastolic BP"}]},"valueQuantity": {"value": 68,"unit": "mmHg"}}
+        ]
+      },
+      "request": {"method": "PUT","url": "Observation/obs-pt003-bp"}
+    },
+    {
+      "resource": {
+        "resourceType": "Procedure","id": "proc-pt003-1",
+        "subject": {"reference": "Patient/pt-003"},
+        "status": "completed",
+        "code": {"coding": [{"system": "http://snomed.info/sct","code": "40701008","display": "Echocardiography"}]},
+        "performedDateTime": "2026-02-20",
+        "note": [{"text": "TTE: EF 30%, dilated LV, moderate mitral regurgitation, elevated filling pressures. NYHA Class III."}]
+      },
+      "request": {"method": "PUT","url": "Procedure/proc-pt003-1"}
+    }
+  ]
+}

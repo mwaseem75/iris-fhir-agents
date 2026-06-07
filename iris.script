@@ -1,0 +1,3 @@
+    zn "USER"
+    zpm "load /home/irisowner/irisdev/ -v"
+    halt
