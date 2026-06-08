@@ -202,7 +202,7 @@ A full ranked bar chart of all active conditions across the population. Clicking
 <img width="1623"  alt="image" src="https://github.com/user-attachments/assets/d09e3cbb-3a81-452b-922d-64f9fe6d4da7" />
 
 **AI Observations**
-Every FHIR Observation resource written by the Triage Agent during chat sessions. Shows the symptom recorded, severity, patient reference, and timestamp. This tab is the live audit trail of AI clinical activity — judges can verify that the agents are genuinely writing structured FHIR data to IRIS, not just generating text.
+Every FHIR Observation resource written by the Triage Agent during chat sessions. Shows the symptom recorded, severity, patient reference, and timestamp. This tab is the live audit trail of AI clinical activity.
 <img width="1627"  alt="image" src="https://github.com/user-attachments/assets/3f9789d8-1480-4e97-9292-6b630c848c0e" />
 
 **Service Requests**
@@ -292,7 +292,7 @@ Every row confirms the FHIR write — this table is the live audit trail proving
 
 ---
 
-### How to demo the Live Vitals Monitor to judges
+### How to demo the Live Vitals Monitor
 
 **Step 1** — Open `http://localhost:8000/vitals`. The sidebar loads patients directly from IRIS — no hardcoded list.
 
