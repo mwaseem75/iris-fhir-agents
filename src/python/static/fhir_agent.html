@@ -130,7 +130,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 .w-title{font-family:var(--display);font-size:20px;font-weight:800;color:var(--text);letter-spacing:-.4px;}
 .w-sub{font-family:var(--mono);font-size:10px;color:var(--iris);letter-spacing:.5px;}
 .w-desc{font-size:13px;color:var(--text2);max-width:480px;line-height:1.7;}
-.cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:540px;}
+.cap-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;width:100%;max-width:600px;}
 .cap{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 12px;cursor:pointer;text-align:left;transition:all .15s;}
 .cap:hover{border-color:var(--iris-border);background:var(--iris-dim);transform:translateY(-1px);}
 .cap-icon{font-size:16px;margin-bottom:4px;}
@@ -318,7 +318,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <div class="brand">
     <div class="brand-top">
       <div class="brand-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
-      <div><div class="brand-name">IRIS FHIR Agents</div><div class="brand-ver">FHIR SERVER AGENT</div></div>
+      <div><div class="brand-name">IRIS FHIR AGENTS</div><div class="brand-ver">FHIR SERVER AGENT</div></div>
     </div>
     <button class="new-btn" onclick="newSession()">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Session
@@ -379,31 +379,44 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
   <!-- Tabs -->
   <div class="tabs">
-    <div class="tab on" onclick="switchTab('capability',this)" id="tab-capability">
-      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>
-      FHIR Capability
-      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--iris-dim);border:1px solid var(--iris-border);color:var(--iris);">Default</span>
-    </div>
-    <div class="tab" onclick="switchTab('chat',this)" id="tab-chat">
+    <div class="tab on" onclick="switchTab('chat',this)" id="tab-chat">
       <svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       AI Chat
-      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--adim);border:1px solid var(--border2);color:var(--accent);">GPT-4o</span>
+      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--adim);border:1px solid var(--border2);color:var(--accent);">GPT-4o-mini</span>
+    </div>
+    <div class="tab" onclick="switchTab('capability',this)" id="tab-capability">
+      <svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>
+      FHIR Capability Explorer
+      <span style="font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--iris-dim);border:1px solid var(--iris-border);color:var(--iris);">Live</span>
     </div>
   </div>
 
   <!-- ── CHAT TAB ── -->
-  <div class="tab-content" id="tc-chat">
+  <div class="tab-content on" id="tc-chat">
     <div class="msgs" id="msgs">
       <div class="welcome" id="welcomeScreen">
         <div class="w-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
-        <div class="w-title">FHIR Server Agent</div>
+        <div class="w-title">FHIR Server AGENT</div>
         <div class="w-sub">INTERSYSTEMS IRIS FOR HEALTH · FHIR R4</div>
         <div class="w-desc">Ask anything about your IRIS FHIR server — patients, conditions, labs, population analytics, capability statement, or direct SQL queries.</div>
         <div class="cap-grid">
+          <div class="cap" onclick="openCapabilityTab()" style="border-color:var(--iris-border);background:linear-gradient(135deg,var(--iris-dim),transparent);">
+            <div class="cap-icon">🗺️</div>
+            <div class="cap-title" style="color:var(--iris);">FHIR Capability Explorer</div>
+            <div class="cap-desc">Live visual map of what IRIS supports — resources, interactions, search params</div>
+          </div>
           <div class="cap" onclick="sq('Show me all patients on the IRIS FHIR server')"><div class="cap-icon">👥</div><div class="cap-title">Patient Queries</div><div class="cap-desc">Find and explore patient records</div></div>
           <div class="cap" onclick="sq('Show me the FHIR capability statement for this IRIS server')"><div class="cap-icon">📋</div><div class="cap-title">Capability Statement</div><div class="cap-desc">What the IRIS FHIR server supports</div></div>
           <div class="cap" onclick="sq('Show IRIS FHIR server statistics and resource counts')"><div class="cap-icon">📊</div><div class="cap-title">Server Statistics</div><div class="cap-desc">Resource counts and analytics</div></div>
           <div class="cap" onclick="sq('Find all patients with heart failure and show their medications')"><div class="cap-icon">🔬</div><div class="cap-title">Clinical Intelligence</div><div class="cap-desc">Cross-reference clinical data</div></div>
+        </div>
+        <div style="width:100%;max-width:540px;background:linear-gradient(135deg,var(--iris-dim),rgba(56,189,248,.04));border:1px solid var(--iris-border);border-radius:var(--r);padding:14px 16px;cursor:pointer;display:flex;align-items:center;gap:12px;" onclick="openCapabilityTab()">
+          <div style="width:40px;height:40px;background:var(--iris-dim);border:1px solid var(--iris-border);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;">🗺️</div>
+          <div>
+            <div style="font-family:var(--display);font-size:13px;font-weight:700;color:var(--iris);margin-bottom:2px;">FHIR Capability Explorer</div>
+            <div style="font-size:11px;color:var(--text2);font-family:var(--mono);">Live visual map of your IRIS FHIR server — resource cards, interaction matrix, search params, donut charts</div>
+          </div>
+          <div style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--iris);flex-shrink:0;">Open →</div>
         </div>
         <div class="sug-list">
           <div class="sug-item" onclick="sq('Show me the complete FHIR capability statement for this IRIS server')"><span class="sug-cat">Capability</span><span class="sug-text">Show complete FHIR capability statement</span></div>
@@ -416,6 +429,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     </div>
     <div class="input-area">
       <div class="sugs">
+        <div class="sug" onclick="openCapabilityTab()" style="background:var(--iris-dim);border-color:var(--iris-border);color:var(--iris);font-weight:700;">🗺️ Capability Explorer</div>
         <div class="sug" onclick="sq('Capability statement')">📋 Capability</div>
         <div class="sug" onclick="sq('List all patients')">👥 Patients</div>
         <div class="sug" onclick="sq('IRIS FHIR statistics')">📊 Stats</div>
@@ -438,7 +452,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   </div>
 
   <!-- ── CAPABILITY TAB ── -->
-  <div class="tab-content on" id="tc-capability">
+  <div class="tab-content" id="tc-capability">
     <div class="cap-tab" id="capContent">
       <div class="cap-loading"><div class="ld"><span></span><span></span><span></span></div><div class="ld-txt">Loading capability statement...</div></div>
     </div>
@@ -475,6 +489,12 @@ function catColor(i){return['#6ee7b7','#38bdf8','#a78bfa','#fbbf24','#ff6b6b','#
 function getCat(type){for(const[c,ts]of Object.entries(RESOURCE_CATS)){if(ts.includes(type))return c;}return'Other';}
 
 // ── Tab switching ──
+function openCapabilityTab() {
+  const btn = document.getElementById('tab-capability');
+  switchTab('capability', btn);
+  if (!capData) loadCapability();
+}
+
 function switchTab(name, btn) {
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('on'));
   btn.classList.add('on');
@@ -850,7 +870,7 @@ const st=localStorage.getItem('fhir-theme');
 if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=`${t.i} ${t.l}`;}
 
 checkStatus();
-loadCapability();
+// Capability loads on demand when tab is clicked
 </script>
 </body>
 </html>

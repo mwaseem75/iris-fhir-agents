@@ -53,6 +53,7 @@ ClassMethod SetupFHIRServer(ns = "FHIRSERVER", appKey = "/fhir/r4", testLoad = 1
         Write !,"=== RAG table note: ",$System.Status.GetErrorText(sc)
     }
     if testLoad {
+      // load test data from the JSON file
       set dir="/home/irisowner/irisdev/data/fhir/"
       write !," ====== Load test data in "_ns_" from "_dir
       set st=##class(HS.FHIRServer.Tools.DataLoader).SubmitResourceFiles(dir, "FHIRServer", appKey)
