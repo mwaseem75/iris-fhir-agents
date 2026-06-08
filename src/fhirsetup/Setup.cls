@@ -35,23 +35,7 @@ ClassMethod SetupFHIRServer(ns = "FHIRSERVER", appKey = "/fhir/r4", testLoad = 1
     set config = strategy.GetServiceConfigData()
     set config.DebugMode = 4
     do strategy.SaveServiceConfigData(config)
-    // Create RAG Vector Search table for clinical guidelines
-    Write !,"=== Creating RAG Vector Search table..."
-    zn namespace
-    Set createSQL = "CREATE TABLE RAG.ClinicalGuidelines ("_
-                "id VARCHAR(100) PRIMARY KEY, "_
-                "source VARCHAR(200), "_
-                "topic VARCHAR(200), "_
-                "content VARCHAR(8000), "_
-                "embedding VECTOR(DOUBLE, 1536))"
-    set stmt = ##class(%SQL.Statement).%New()
-    set sc = stmt.%Prepare(createSQL)
-    if $$$ISOK(sc) {
-        set rs = stmt.%Execute()
-        Write !,"=== RAG.ClinicalGuidelines table ready"
-    } else {
-        Write !,"=== RAG table note: ",$System.Status.GetErrorText(sc)
-    }
+   
     if testLoad {
       // load test data from the JSON file
       set dir="/home/irisowner/irisdev/data/fhir/"
