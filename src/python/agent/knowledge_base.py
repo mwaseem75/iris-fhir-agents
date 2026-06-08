@@ -18,6 +18,13 @@ How it works:
      fallback searches the in-memory CSV copy so agents are never left without
      any guidelines at all.
 
+Load path — two strategies tried in order:
+  PRIMARY:  Embedded Python (iris.sql.exec) — runs inside the IRIS process
+            with direct in-process SQL access. No HTTP, no network round-trips.
+            Only available when irispython is the interpreter (IRIS container).
+  FALLBACK: External REST (httpx → Atelier API) — runs from the API container.
+            Used when the iris module is not available.
+
 Why IRIS for vector search:
   Unlike a separate vector database (Pinecone, Weaviate), storing embeddings
   directly in IRIS means the guideline vectors live alongside the FHIR data in
@@ -38,21 +45,28 @@ from langchain.tools import tool
 from config import IRIS_BASE, FHIR_AUTH, EMBEDDING_MODEL, RAG_GUIDELINES_CSV
 
 # ── OpenAI client ─────────────────────────────────────────────────────────────
-# text-embedding-3-small produces 1536-dimensional vectors — the same dimension
-# we declared in the VECTOR(DOUBLE, 1536) column, so they align exactly.
 client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
-# ── IRIS connection ───────────────────────────────────────────────────────────
-# All SQL runs through the IRIS Atelier REST API rather than the native Python
-# driver. This keeps the container image small (no IRIS client libraries needed)
-# and works reliably across all IRIS versions that support Atelier.
-# Connection settings imported from config.py
-IRIS_AUTH = FHIR_AUTH  # Reuse the shared auth tuple
+# ── IRIS connection (REST path) ───────────────────────────────────────────────
+IRIS_AUTH = FHIR_AUTH
 
-# Guidelines CSV is mounted from the host at data/guidelines/ via docker-compose.
-# Keeping it outside the image means new guidelines can be added without
-# rebuilding — just edit the CSV and restart the API container.
-# RAG_GUIDELINES_CSV imported from config.py
+# ── Embedded Python availability flag ────────────────────────────────────────
+# Attempt to import the iris module — only succeeds when running inside the
+# IRIS process via irispython. When running in the external API container,
+# this import fails and we fall back to the REST path transparently.
+try:
+    import iris as _iris_module
+    # Verify iris.sql and iris.system are actually available.
+    # The iris __init__.py can be imported outside IRIS but iris.sql
+    # is a native C extension that only works inside the IRIS process.
+    _ = _iris_module.sql
+    _ = _iris_module.system
+    EMBEDDED_PYTHON_AVAILABLE = True
+    print("RAG: Embedded Python available — iris.sql confirmed (running inside IRIS process)")
+except (ImportError, AttributeError):
+    _iris_module = None
+    EMBEDDED_PYTHON_AVAILABLE = False
+    print("RAG: Embedded Python not available — using REST path (running in API container)")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -65,11 +79,7 @@ def load_guidelines_from_csv() -> list:
 
     The CSV has four columns: id, source, topic, content.
     All values are stripped of leading/trailing whitespace to prevent
-    embedding differences caused by invisible characters — a subtle bug
-    that would make identical guidelines appear dissimilar to the vector search.
-
-    Returns an empty list (rather than raising) so callers can decide
-    whether a missing CSV is fatal or recoverable.
+    embedding differences caused by invisible characters.
     """
     guidelines = []
     try:
@@ -98,13 +108,8 @@ def get_embedding(text: str) -> list:
     """
     Convert a text string into a 1536-dimensional embedding vector.
 
-    We use text-embedding-3-small rather than the larger ada-002 or 3-large
-    because it hits the right balance: fast enough for real-time query
-    embedding (~100ms), cheap enough to run 50 embeddings at startup, and
-    accurate enough for clinical text similarity.
-
-    The explicit float() cast is necessary — OpenAI returns Decimal-like
-    objects in some versions that IRIS rejects when passed to TO_VECTOR().
+    text-embedding-3-small: fast (~100ms), cheap, accurate for clinical text.
+    The explicit float() cast ensures IRIS accepts the values in TO_VECTOR().
     """
     response = client.embeddings.create(
         model=EMBEDDING_MODEL,
@@ -114,45 +119,204 @@ def get_embedding(text: str) -> list:
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  IRIS SQL HELPERS
+#  IRIS SQL HELPERS — REST path (API container)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 def iris_sql_query(query: str, params: list = None) -> list:
-    """
-    Run a SELECT query against IRIS via the Atelier REST API.
-
-    The Atelier endpoint accepts parameterised queries which protects against
-    SQL injection and lets IRIS cache the execution plan across repeated calls.
-    Raises on HTTP error or SQL error so callers see a clear exception rather
-    than silently receiving empty results.
-    """
+    """Run a SELECT via the Atelier REST API."""
     url = f"{IRIS_BASE}/api/atelier/v1/FHIRSERVER/action/query"
     payload = {"query": query, "parameters": params or []}
     r = httpx.post(url, json=payload, auth=IRIS_AUTH, timeout=30)
     r.raise_for_status()
     data = r.json()
-
-    # IRIS signals SQL errors in the response body, not the HTTP status code
     errors = data.get("status", {}).get("errors", [])
     if errors:
         raise Exception(f"SQL Error: {errors[0].get('error', 'Unknown')}")
-
     return data.get("result", {}).get("content", [])
 
 
 def iris_sql_execute(query: str, params: list = None):
-    """
-    Run a DDL or DML statement against IRIS (CREATE TABLE, INSERT, etc.).
-
-    Same transport as iris_sql_query — the Atelier API handles both reads
-    and writes through the same endpoint. We keep them as separate functions
-    to make call sites self-documenting.
-    """
+    """Run a DDL or DML statement via the Atelier REST API."""
     url = f"{IRIS_BASE}/api/atelier/v1/FHIRSERVER/action/query"
     payload = {"query": query, "parameters": params or []}
     r = httpx.post(url, json=payload, auth=IRIS_AUTH, timeout=30)
     r.raise_for_status()
     return r.json()
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  EMBEDDED PYTHON LOAD PATH — runs inside IRIS process
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _embedded_count() -> int:
+    """
+    Count existing guidelines using iris.sql — direct in-process SQL.
+    No HTTP round-trip — the query executes inside the IRIS SQL engine directly.
+    """
+    try:
+        rs = _iris_module.sql.exec(
+            "SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines"
+        )
+        for row in rs:
+            return int(row[0])
+    except Exception as e:
+        print(f"RAG: Embedded count error: {e}")
+    return 0
+
+
+def _embedded_row_exists(row_id: str) -> bool:
+    """Check if a guideline ID already exists — direct iris.sql."""
+    try:
+        rs = _iris_module.sql.exec(
+            "SELECT COUNT(*) FROM RAG.ClinicalGuidelines WHERE id = ?",
+            [row_id]
+        )
+        for row in rs:
+            return int(row[0]) > 0
+    except:
+        pass
+    return False
+
+
+def _embedded_insert(row_id: str, source: str, topic: str,
+                     content: str, embedding: list) -> None:
+    """
+    Insert one guideline directly into IRIS using Embedded Python iris.sql.
+
+    This is the key difference from the REST path:
+      REST path:     Python → HTTP → Atelier API → IRIS SQL engine
+      Embedded path: Python → iris.sql.exec() → IRIS SQL engine (in-process)
+
+    TO_VECTOR(?, DOUBLE) converts the JSON float array into an IRIS VECTOR type.
+    DOUBLE ensures 64-bit precision — without it IRIS may infer FLOAT32 and
+    silently truncate precision, corrupting similarity scores.
+    """
+    _iris_module.sql.exec(
+        "INSERT INTO RAG.ClinicalGuidelines "
+        "(id, source, topic, content, embedding) "
+        "VALUES (?, ?, ?, ?, TO_VECTOR(?, DOUBLE))",
+        [row_id, source, topic, content, json.dumps(embedding)]
+    )
+
+
+def load_via_embedded_python(guidelines: list) -> int:
+    """
+    PRIMARY load path — Embedded Python (iris.sql).
+
+    Runs inside the IRIS process with direct SQL engine access.
+    Called when `import iris` succeeds (irispython interpreter).
+
+    Returns the number of guidelines newly inserted.
+    """
+    print("RAG: PRIMARY path — Embedded Python iris.sql (in-process, no HTTP)")
+
+    # Switch to FHIRSERVER namespace — only possible via Embedded Python
+    try:
+        _iris_module.system.Process.SetNamespace("FHIRSERVER")
+        print("RAG: Embedded Python — switched to FHIRSERVER namespace")
+    except Exception as e:
+        print(f"RAG: Namespace switch warning: {e}")
+
+    existing = _embedded_count()
+    print(f"RAG: Embedded Python — {existing} / {len(guidelines)} guidelines already in IRIS")
+
+    if existing >= len(guidelines):
+        print(f"RAG: Embedded Python — knowledge base complete, skipping load")
+        return 0
+
+    loaded = 0
+    for g in guidelines:
+        try:
+            if _embedded_row_exists(g["id"]):
+                continue
+
+            # Call OpenAI from inside IRIS — Embedded Python reaching external API
+            embedding = get_embedding(g["content"])
+
+            # Write directly to IRIS SQL engine — zero HTTP overhead
+            _embedded_insert(
+                g["id"], g["source"], g["topic"],
+                g["content"], embedding
+            )
+            loaded += 1
+            print(f"  Embedded [{loaded}/{len(guidelines)}] {g['source']} — {g['topic']}")
+
+        except Exception as e:
+            print(f"  RAG: Embedded WARNING — could not load {g['id']}: {e}")
+
+    print(f"RAG: Embedded Python load complete — {loaded} guidelines inserted via iris.sql")
+    return loaded
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  REST LOAD PATH — runs from API container
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def load_via_rest(guidelines: list) -> int:
+    """
+    FALLBACK load path — external REST via Atelier API.
+
+    Used when the iris module is not available (API container).
+    Functionally identical outcome — same data in same table —
+    but goes through HTTP rather than direct in-process SQL.
+
+    Returns the number of guidelines newly inserted.
+    """
+    print("RAG: FALLBACK path — REST via Atelier API (HTTP from API container)")
+
+    # Create table if needed
+    try:
+        iris_sql_execute("""
+            CREATE TABLE RAG.ClinicalGuidelines (
+                id        VARCHAR(100) PRIMARY KEY,
+                source    VARCHAR(200),
+                topic     VARCHAR(200),
+                content   VARCHAR(8000),
+                embedding VECTOR(DOUBLE, 1536)
+            )
+        """)
+        print("RAG: Table RAG.ClinicalGuidelines created")
+    except Exception:
+        print("RAG: Table already exists — skipping CREATE")
+
+    # Check existing count
+    rows = iris_sql_query("SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines")
+    existing_count = int(rows[0].get("cnt", 0)) if rows else 0
+
+    if existing_count >= len(guidelines):
+        print(f"RAG: REST — knowledge base ready, {existing_count} guidelines already in IRIS")
+        return 0
+
+    print(f"RAG: REST — embedding {len(guidelines)} guidelines into IRIS Vector Search...")
+    loaded = 0
+    for g in guidelines:
+        try:
+            exists = iris_sql_query(
+                "SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines WHERE id = ?",
+                [g["id"]]
+            )
+            if int(exists[0].get("cnt", 0)) > 0:
+                continue
+
+            embedding = get_embedding(g["content"])
+
+            iris_sql_execute("""
+                INSERT INTO RAG.ClinicalGuidelines
+                    (id, source, topic, content, embedding)
+                VALUES (?, ?, ?, ?, TO_VECTOR(?, DOUBLE))
+            """, [
+                g["id"], g["source"], g["topic"], g["content"],
+                json.dumps(embedding)
+            ])
+
+            loaded += 1
+            print(f"  REST [{loaded}/{len(guidelines)}] {g['topic']}")
+
+        except Exception as e:
+            print(f"  RAG: REST WARNING — could not load {g['id']}: {e}")
+
+    print(f"RAG: REST load complete — {loaded} new guidelines embedded and stored")
+    return loaded
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -162,15 +326,7 @@ def iris_sql_execute(query: str, params: list = None):
 def keyword_search(query: str, guidelines: list) -> list:
     """
     Simple word-overlap search against the in-memory guidelines list.
-
-    This runs when IRIS Vector Search is unavailable — for example, if IRIS
-    is still initialising when the first chat message arrives. It's intentionally
-    simple: count how many query words (>3 chars) appear in each guideline's
-    topic and content, then return the top 3 by score.
-
-    The synthetic similarity score (0.5 + 0.05 per matching word, capped at 0.95)
-    is lower than a real vector similarity would be, which signals to the agent
-    that this result is less certain than a proper semantic match.
+    Runs when IRIS Vector Search is unavailable.
     """
     keywords = [w.lower() for w in query.split() if len(w) > 3]
     scored = []
@@ -192,18 +348,19 @@ def keyword_search(query: str, guidelines: list) -> list:
 
 def initialize_knowledge_base():
     """
-    Bootstrap the RAG.ClinicalGuidelines table and populate it from the CSV.
+    Bootstrap RAG.ClinicalGuidelines using the best available path.
 
-    Called automatically at the bottom of this file so the knowledge base is
-    ready before the first HTTP request arrives. The logic is idempotent:
-      - If the table doesn't exist, create it.
-      - If it already has as many rows as the CSV, skip loading.
-      - If it's partially loaded (e.g. previous startup was interrupted),
-        insert only the missing rows by checking each id individually.
+    Strategy:
+      1. Try Embedded Python (iris.sql) — direct in-process SQL inside IRIS.
+         This is the PRIMARY path and demonstrates InterSystems Embedded Python.
+      2. Fall back to REST (Atelier API) — if iris module not available.
 
-    This means the API container can be restarted without re-embedding
-    guidelines that are already in IRIS — each embedding costs an OpenAI
-    API call, so avoiding redundant work keeps startup fast and cheap.
+    Both paths produce identical results — 50 guidelines embedded as
+    VECTOR(DOUBLE, 1536) in RAG.ClinicalGuidelines, ready for VECTOR_COSINE
+    similarity search.
+
+    The load is idempotent — existing rows are skipped so container restarts
+    do not re-embed guidelines that are already in IRIS.
     """
     guidelines = load_guidelines_from_csv()
     if not guidelines:
@@ -211,74 +368,32 @@ def initialize_knowledge_base():
         return
 
     try:
-        # ── Create table if it doesn't exist ─────────────────────────────────
-        # We catch the exception rather than using IF NOT EXISTS because some
-        # IRIS versions don't support that DDL syntax via the Atelier API.
-        try:
-            iris_sql_execute("""
-                CREATE TABLE RAG.ClinicalGuidelines (
-                    id        VARCHAR(100) PRIMARY KEY,
-                    source    VARCHAR(200),
-                    topic     VARCHAR(200),
-                    content   VARCHAR(8000),
-                    embedding VECTOR(DOUBLE, 1536)
-                )
-            """)
-            print("RAG: Table RAG.ClinicalGuidelines created")
-        except Exception:
-            print("RAG: Table already exists — skipping CREATE")
+        if EMBEDDED_PYTHON_AVAILABLE:
+            # ── PRIMARY: Embedded Python ──────────────────────────────────────
+            # iris.sql.exec() runs inside the IRIS process — no HTTP required.
+            # Demonstrates InterSystems Embedded Python integration.
+            load_via_embedded_python(guidelines)
+        else:
+            # ── FALLBACK: REST via Atelier API ────────────────────────────────
+            # httpx → Atelier REST → IRIS SQL engine.
+            # Used when running in the external API container.
+            load_via_rest(guidelines)
 
-        # ── Check how many guidelines are already stored ──────────────────────
-        rows = iris_sql_query("SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines")
-        existing_count = int(rows[0].get("cnt", 0)) if rows else 0
-
-        if existing_count >= len(guidelines):
-            print(f"RAG: Knowledge base ready — {existing_count} guidelines already in IRIS")
-            return
-
-        # ── Embed and insert any missing guidelines ───────────────────────────
-        print(f"RAG: Embedding {len(guidelines)} guidelines into IRIS Vector Search...")
-        loaded = 0
-        for g in guidelines:
-            try:
-                # Skip rows that are already present (partial load recovery)
-                exists = iris_sql_query(
-                    "SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines WHERE id = ?",
-                    [g["id"]]
-                )
-                if int(exists[0].get("cnt", 0)) > 0:
-                    continue
-
-                # Embed the guideline content — this is what gets searched later
-                embedding = get_embedding(g["content"])
-
-                # TO_VECTOR(?, DOUBLE) tells IRIS the type explicitly.
-                # Without the DOUBLE qualifier some versions infer FLOAT32
-                # which silently truncates precision and corrupts similarity scores.
-                iris_sql_execute("""
-                    INSERT INTO RAG.ClinicalGuidelines
-                        (id, source, topic, content, embedding)
-                    VALUES (?, ?, ?, ?, TO_VECTOR(?, DOUBLE))
-                """, [
-                    g["id"], g["source"], g["topic"], g["content"],
-                    json.dumps(embedding)
-                ])
-
-                loaded += 1
-                print(f"  [{loaded}/{len(guidelines)}] {g['topic']}")
-
-            except Exception as e:
-                # Log and continue — one bad guideline shouldn't abort the whole load
-                print(f"  WARNING: Could not load {g['id']}: {e}")
-
-        print(f"RAG: Initialisation complete — {loaded} new guidelines embedded and stored")
+        print("RAG: Initialisation complete")
 
     except Exception as e:
         print(f"RAG: Initialisation error: {e}")
+        # Last resort — try the other path if primary failed
+        if EMBEDDED_PYTHON_AVAILABLE:
+            print("RAG: Embedded Python failed — trying REST fallback...")
+            try:
+                load_via_rest(guidelines)
+            except Exception as e2:
+                print(f"RAG: REST fallback also failed: {e2}")
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-#  LANGCHAIN TOOL — exposed to all three clinical agents
+#  LANGCHAIN TOOL — exposed to all clinical agents
 # ═══════════════════════════════════════════════════════════════════════════════
 
 @tool
@@ -292,11 +407,7 @@ def search_clinical_guidelines(query: str) -> str:
     try:
         print(f"RAG: Searching for '{query}'")
 
-        # ── Primary path: IRIS Vector Search ─────────────────────────────────
-        # Embed the query and find the top 3 guidelines by cosine similarity.
-        # VECTOR_COSINE returns values from -1 (opposite) to 1 (identical);
-        # we filter below 0.1 to exclude genuinely unrelated results that
-        # happen to share a few common medical words.
+        # ── Primary: IRIS Vector Search ───────────────────────────────────────
         try:
             query_embedding = get_embedding(query)
             embedding_str = json.dumps(query_embedding)
@@ -309,7 +420,6 @@ def search_clinical_guidelines(query: str) -> str:
                 ORDER BY VECTOR_COSINE(embedding, TO_VECTOR(?, DOUBLE)) DESC
             """, [embedding_str, embedding_str])
 
-            # Discard low-confidence matches
             rows = [r for r in rows if float(r.get("similarity", 0)) > 0.1]
             print(f"RAG: Vector search returned {len(rows)} relevant result(s)")
 
@@ -317,7 +427,7 @@ def search_clinical_guidelines(query: str) -> str:
             print(f"RAG: Vector search failed ({e}) — falling back to keyword search")
             rows = []
 
-        # ── Fallback: keyword search over in-memory CSV ───────────────────────
+        # ── Fallback: keyword search ──────────────────────────────────────────
         if not rows:
             guidelines = load_guidelines_from_csv()
             rows = keyword_search(query, guidelines)
@@ -325,9 +435,7 @@ def search_clinical_guidelines(query: str) -> str:
         if not rows:
             return "No relevant clinical guidelines found."
 
-        # ── Format results for the agent ──────────────────────────────────────
-        # The agent's system prompt instructs it to cite sources using this
-        # exact format, which the frontend then renders as a styled citation block.
+        # ── Format for agent ──────────────────────────────────────────────────
         output = []
         for row in rows:
             source    = row.get("source", "Unknown")
@@ -348,6 +456,5 @@ def search_clinical_guidelines(query: str) -> str:
         return f"Error searching guidelines: {str(e)}"
 
 
-# Run on import — the agents import this module, triggering initialisation
-# before the first chat message is processed.
+# Run on import — initialises before the first HTTP request arrives
 initialize_knowledge_base()

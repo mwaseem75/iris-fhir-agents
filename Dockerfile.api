@@ -1,7 +1,20 @@
 FROM python:3.11-slim
+
 WORKDIR /app
+
+# Install Python dependencies
 COPY src/python/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application source
 COPY src/python/ .
+
+# Install InterSystems iris module for Embedded Python support
+# This module enables iris.sql detection in knowledge_base.py
+# The iris folder is copied from the IRIS container once:
+#   docker cp fhir-agents-iris:/usr/irissys/lib/python/iris src/python/iris
+COPY src/python/iris /usr/local/lib/python3.11/site-packages/iris
+
 ENV PYTHONPATH=/app
+
 EXPOSE 8000

@@ -43,6 +43,7 @@ from pydantic import BaseModel
 # Agent layer lives in /app/agent — add to path before importing
 sys.path.insert(0, "/app/agent")
 from orchestrator import orchestrate
+from knowledge_base import search_clinical_guidelines  # triggers RAG initialisation on startup
 
 # ── FHIR connection settings ─────────────────────────────────────────────────
 # The base URL and credentials are injected via environment variables in
