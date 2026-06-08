@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-<title>IRIS FHIR AGENTS — Clinical Intelligence Platform</title>
+<title>IRIS FHIR Agents — Clinical Intelligence Platform</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'><polygon points='32,4 56,18 56,46 32,60 8,46 8,18' fill='%230b1525' stroke='%2338bdf8' stroke-width='2'/><polyline points='14,32 22,32 25,22 29,42 33,32 38,32 40,26 42,38 44,32 50,32' fill='none' stroke='%2338bdf8' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'/><circle cx='29' cy='42' r='2.5' fill='%2334d399'/></svg>"/>
 <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
 <style>
@@ -333,7 +333,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div class="brand-top">
       <div class="brand-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
       <div>
-        <div class="brand-name">IRIS FHIR AGENTS</div>
+        <div class="brand-name">IRIS FHIR Agents</div>
         <div class="brand-ver">v2.0 · MULTI-AGENT</div>
       </div>
     </div>
@@ -364,6 +364,11 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       FHIR Server Agent
       <span class="nl-badge" style="color:#6ee7b7;border-color:rgba(110,231,183,.2);background:rgba(110,231,183,.06);">New</span>
     </a>
+    <a href="/agent-builder" class="nav-link">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Agent Builder
+      <span class="nl-badge" style="color:#a78bfa;border-color:rgba(167,139,250,.2);background:rgba(167,139,250,.06);">New</span>
+    </a>
   </div>
 
   <!-- Agents -->
@@ -393,6 +398,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       </div>
       <div class="a-cnt" id="cnt-pharmacy">0</div>
     </div>
+    <div id="customAgentRoster"></div>
   </div>
 
   <!-- Patient context -->
@@ -458,7 +464,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
       <div style="display:flex;align-items:center;gap:16px;justify-content:center;padding-bottom:4px;overflow:visible;">
         <div class="w-icon" style="flex-shrink:0;"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
         <div style="text-align:left;">
-          <div class="w-title" style="text-align:left;overflow:visible;padding-bottom:3px;">IRIS FHIR AGENTS</div>
+          <div class="w-title" style="text-align:left;overflow:visible;padding-bottom:3px;">IRIS FHIR Agents</div>
           <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;margin-top:2px;">v2.0 · MULTI-AGENT · FHIR R4</div>
         </div>
       </div>
@@ -469,8 +475,13 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         <div class="w-chip pharmacy"><div class="w-chip-dot"></div>Pharmacy Agent</div>
       </div>
 
-      
-
+      <!--
+      <button onclick="openPicker()" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);color:var(--accent);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;" onmouseover="this.style.background='rgba(56,189,248,.15)'" onmouseout="this.style.background='var(--adim)'">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+        Browse Patients
+        <span style="font-family:var(--mono);font-size:9px;padding:1px 7px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text3);" id="pickerPatientCount">Loading...</span>
+      </button>
+      -->
       <!-- Prominent nav cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;width:100%;max-width:620px;">
         <a href="/dashboard" style="text-decoration:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
@@ -638,7 +649,7 @@ function newSession(){
   document.getElementById('msgs').innerHTML=`<div class="welcome" id="welcomeScreen">
     <div class="w-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
     <div class="w-title">IRIS FHIR Agents</div>
-    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator routes each message to the right specialist agent.</div>
+    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator routes each message to the right specialist agent — grounded by IRIS Vector Search RAG.</div>
     <div class="w-chips">
       <div class="w-chip triage"><div class="w-chip-dot"></div>Triage Agent</div>
       <div class="w-chip specialist"><div class="w-chip-dot"></div>Specialist Agent</div>
@@ -874,6 +885,72 @@ if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribu
   // Initialise mic on page load
   initMic();
 })();
+
+
+// ── Custom Agents — load into sidebar agent network ──────────────────────────
+async function loadCustomAgents() {
+  try {
+    const r = await fetch('http://localhost:8000/agents');
+    const d = await r.json();
+    const agents = d.agents || [];
+    const roster = document.getElementById('customAgentRoster');
+    if (!roster) return;
+    if (agents.length === 0) { roster.innerHTML = ''; return; }
+    roster.innerHTML = agents.map(a => `
+      <div class="a-row" id="row-${a.id}">
+        <div class="a-pip" id="pip-${a.id}" style="background:${a.color||'#a78bfa'}"></div>
+        <div class="a-info">
+          <div class="a-name" id="nm-${a.id}">${a.icon||'🤖'} ${a.name}</div>
+          <div class="a-desc">${a.specialty||'Custom'} · Custom Agent</div>
+        </div>
+        <div class="a-cnt" id="cnt-${a.id}">0</div>
+      </div>`).join('');
+    // Add custom agents to the AGENTS map for routing display
+    agents.forEach(a => {
+      const key = a.name.toUpperCase().replace(/\s+/g, '_');
+      AGENTS[key] = {
+        cls: a.id,
+        lbl: a.name,
+        svg: '<circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/>',
+        color: a.color || '#a78bfa',
+        custom: true,
+      };
+    });
+  } catch(e) { /* API not yet running */ }
+}
+
+// Override setAgent to handle custom agents
+const _origSetAgent = setAgent;
+window.setAgent = function(a) {
+  // Try built-in first
+  if (AGENTS[a]) {
+    const cfg = AGENTS[a];
+    if (cfg.custom) {
+      // Custom agent display
+      acc[a] = (acc[a] || 0) + 1;
+      const cntEl = document.getElementById(`cnt-${cfg.cls}`);
+      if (cntEl) cntEl.textContent = acc[a];
+      const badge = document.getElementById('agBadge');
+      badge.style.background = cfg.color + '22';
+      badge.style.borderColor = cfg.color + '55';
+      badge.style.color = cfg.color;
+      badge.querySelector('svg').innerHTML = cfg.svg;
+      document.getElementById('agTxt').textContent = cfg.lbl;
+      // Pulse the custom agent row
+      const row = document.getElementById(`row-${cfg.cls}`);
+      const pip = document.getElementById(`pip-${cfg.cls}`);
+      const nm  = document.getElementById(`nm-${cfg.cls}`);
+      if (row) { row.classList.add('on'); pip.classList.add('pulse'); if(nm) nm.classList.add('on'); }
+      setTimeout(() => { if(row){ row.classList.remove('on'); pip.classList.remove('pulse'); if(nm) nm.classList.remove('on'); } }, 2000);
+      document.getElementById('routeHint').textContent = `→ Routed to ${cfg.lbl}`;
+      return;
+    }
+  }
+  _origSetAgent(a);
+};
+
+// Load custom agents on page load
+loadCustomAgents();
 
 // ── Language Detection ───────────────────────────────────────────────────────
 // Detects language of typed/spoken message and updates the badge.

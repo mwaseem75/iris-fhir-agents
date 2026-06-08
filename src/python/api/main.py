@@ -18,6 +18,12 @@ Architecture note:
   network and avoids unnecessary round-trips through the host machine.
 """
 
+import sys, os
+# Ensure the agent directory is on the path regardless of where uvicorn is invoked from
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'agent'))
+sys.path.insert(0, '/app/agent')
+
+
 import httpx
 import asyncio
 import random
@@ -28,14 +34,14 @@ import sys
 from datetime import datetime
 
 from fastapi import FastAPI, HTTPException, Request
+from config import FHIR_BASE, FHIR_AUTH, FHIR_HEADERS, IRIS_BASE, APP_TITLE, APP_VERSION, APP_DESC
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
-from fastapi.responses import FileResponse, StreamingResponse
+from fastapi.responses import FileResponse, StreamingResponse, JSONResponse
 from pydantic import BaseModel
 
 # Agent layer lives in /app/agent — add to path before importing
 sys.path.insert(0, "/app/agent")
-from config import FHIR_BASE, FHIR_AUTH, FHIR_HEADERS, IRIS_BASE, APP_TITLE, APP_VERSION, APP_DESC
 from orchestrator import orchestrate
 
 # ── FHIR connection settings ─────────────────────────────────────────────────
@@ -82,6 +88,12 @@ def serve_vitals_monitor():
     """Live Vitals Monitor — SSE stream with AI-triggered critical alerts."""
     return FileResponse("/app/static/vitals.html")
 
+@app.get("/agent-builder")
+async def agent_builder_page():
+    """Serve the custom agent builder UI."""
+    return FileResponse("/app/static/agent_builder.html")
+
+
 @app.get("/fhir-agent")
 def serve_fhir_agent():
     """FHIR Server Agent — natural language interface to IRIS FHIR R4."""
@@ -91,6 +103,71 @@ def serve_fhir_agent():
 # ═══════════════════════════════════════════════════════════════════════════════
 #  HEALTH CHECK
 # ═══════════════════════════════════════════════════════════════════════════════
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+#  CUSTOM AGENT MANAGEMENT ENDPOINTS
+# ═══════════════════════════════════════════════════════════════════════════════
+
+@app.get("/agents")
+async def list_agents():
+    """Return all custom agents."""
+    from dynamic_agent import load_all_agents
+    agents = load_all_agents()
+    return {"agents": agents, "count": len(agents)}
+
+
+@app.post("/agents/create")
+async def create_agent(request: Request):
+    """Create or update a custom agent."""
+    import re
+    from dynamic_agent import save_agent
+    data = await request.json()
+    if not data.get("name") or not data.get("system_prompt"):
+        return JSONResponse({"error": "name and system_prompt are required"}, status_code=400)
+    agent_id = data.get("id") or re.sub(r"[^a-z0-9]+", "-", data["name"].lower()).strip("-")
+    config = {
+        "id":                  agent_id,
+        "name":                data["name"],
+        "description":         data.get("description", ""),
+        "specialty":           data.get("specialty", "custom"),
+        "system_prompt":       data["system_prompt"],
+        "temperature":         float(data.get("temperature", 0.2)),
+        "max_iterations":      int(data.get("max_iterations", 10)),
+        "tools":               data.get("tools", ["get_patient","get_patient_conditions","get_patient_allergies","get_patient_medications","search_clinical_guidelines"]),
+        "rag_enabled":         bool(data.get("rag_enabled", True)),
+        "routing_description": data.get("routing_description", f"For {data['name']} related questions"),
+        "color":               data.get("color", "#a78bfa"),
+        "icon":                data.get("icon", "🤖"),
+        "created_at":          data.get("created_at", ""),
+    }
+    save_agent(config)
+    print(f"Agent Builder: saved '{config['name']}' (id={agent_id})")
+    return {"success": True, "agent": config}
+
+
+@app.delete("/agents/{agent_id}")
+async def delete_agent_route(agent_id: str):
+    """Delete a custom agent."""
+    from dynamic_agent import delete_agent
+    if not delete_agent(agent_id):
+        return JSONResponse({"error": f"Agent not found: {agent_id}"}, status_code=404)
+    return {"success": True, "deleted": agent_id}
+
+
+@app.post("/agents/{agent_id}/test")
+async def test_agent(agent_id: str, request: Request):
+    """Test a custom agent with a single message."""
+    from dynamic_agent import run_custom_agent, get_agent_config, save_agent
+    data = await request.json()
+    # If config passed inline (not yet saved), save temporarily
+    if data.get("config"):
+        save_agent(data["config"])
+    message = data.get("message", "Hello, please introduce yourself.")
+    test_session = f"test-{agent_id}"
+    response = run_custom_agent(agent_id, test_session, message)
+    return {"response": response, "agent_id": agent_id}
+
 
 @app.get("/health")
 def health_check():

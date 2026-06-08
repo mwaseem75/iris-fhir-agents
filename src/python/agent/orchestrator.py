@@ -35,6 +35,7 @@ from langchain.schema import HumanMessage, SystemMessage
 from triage_agent    import chat          as triage_chat
 from specialist_agent import run_specialist
 from pharmacy_agent   import run_pharmacy
+from dynamic_agent    import run_custom_agent, load_all_agents
 
 # ── Routing LLM ──────────────────────────────────────────────────────────────
 # Temperature 0 is critical here — we need a deterministic single-word answer,
@@ -51,6 +52,28 @@ llm = ChatOpenAI(
 # prompt small to minimise latency and token cost. The agent descriptions are
 # written as decision criteria, not capability lists, so the LLM reasons about
 # fit rather than just pattern-matching on keywords.
+def _build_router_prompt() -> str:
+    """
+    Build the router system prompt dynamically, including any custom agents
+    that have been created by the user. Called on every orchestration turn
+    so newly created agents are available immediately without restarting.
+    """
+    custom_agents = load_all_agents()
+    custom_section = ""
+    if custom_agents:
+        custom_section = "\n" + "\n".join(
+            f"- {a['name'].upper().replace(' ', '_')}: {a.get('routing_description', a.get('description', 'Custom clinical agent'))}"
+            for a in custom_agents
+        )
+    return f"""You are a medical routing system. Analyze the user message and decide which agent should handle it.
+
+Agents available:
+- TRIAGE: For symptom assessment, urgency evaluation, new complaints, emergency situations, general health questions
+- SPECIALIST: For deep condition analysis, referral requests, chronic disease management, diagnostic questions, condition complications
+- PHARMACY: For medication questions, drug interactions, prescription queries, allergy-medication conflicts, dosage questions{custom_section}
+
+Respond with ONLY the agent name in uppercase (e.g. TRIAGE, SPECIALIST, PHARMACY{', or the custom agent name' if custom_agents else ''})."""
+
 ROUTER_PROMPT = """You are a medical routing system. Analyze the user message and decide which agent should handle it.
 
 Agents available:
@@ -118,13 +141,20 @@ def route_message(message: str) -> str:
     on the next turn.
     """
     response = llm.invoke([
-        SystemMessage(content=ROUTER_PROMPT),
+        SystemMessage(content=_build_router_prompt()),
         HumanMessage(content=message)
     ])
-    route = response.content.strip().upper()
+    route = response.content.strip().upper().replace(' ', '_')
 
-    if route not in ["TRIAGE", "SPECIALIST", "PHARMACY"]:
-        # Unexpected LLM output — log and default to Triage
+    # Accept built-in agent names or any registered custom agent name
+    built_in = {"TRIAGE", "SPECIALIST", "PHARMACY"}
+    custom_names = {
+        a["name"].upper().replace(" ", "_")
+        for a in load_all_agents()
+    }
+    valid_routes = built_in | custom_names
+
+    if route not in valid_routes:
         print(f"Orchestrator: unexpected route '{route}', defaulting to TRIAGE")
         route = "TRIAGE"
 
@@ -229,6 +259,21 @@ def orchestrate(session_id: str, message: str) -> dict:
         response = run_specialist(session_id, enriched_message)
     elif agent == "PHARMACY":
         response = run_pharmacy(session_id, enriched_message)
+    else:
+        # Custom agent — find by normalised name
+        custom_agents = load_all_agents()
+        matched = next(
+            (a for a in custom_agents
+             if a["name"].upper().replace(" ", "_") == agent),
+            None
+        )
+        if matched:
+            response = run_custom_agent(matched["id"], session_id, enriched_message)
+        else:
+            # Agent was deleted between routing and dispatch — fallback
+            print(f"Orchestrator: custom agent '{agent}' not found, falling back to TRIAGE")
+            response = triage_chat(session_id, enriched_message)
+            agent = "TRIAGE"
 
     return {
         "response":   response,

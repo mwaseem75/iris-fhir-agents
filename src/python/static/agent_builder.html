@@ -1,0 +1,1039 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>IRIS FHIR Agents — Agent Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=JetBrains+Mono:wght@400;500&family=Lato:wght@300;400;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+:root{
+  --bg:#060d18;--bg2:#0b1525;--bg3:#0f1e33;--surface:#132340;--surface2:#172a4c;
+  --border:rgba(56,189,248,0.09);--border2:rgba(56,189,248,0.18);--border3:rgba(56,189,248,0.32);
+  --accent:#38bdf8;--accent2:#0ea5e9;--accent3:#7dd3fc;
+  --adim:rgba(56,189,248,0.08);--adim2:rgba(56,189,248,0.04);
+  --text:#dbeafe;--text2:#7fa8cc;--text3:#3d6080;
+  --ok:#34d399;--warn:#fbbf24;--emg:#ff6b6b;--info:#a78bfa;
+  --builder:#a78bfa;--builder-dim:rgba(167,139,250,0.08);--builder-border:rgba(167,139,250,0.22);
+  --font:'Lato',sans-serif;--display:'Syne',sans-serif;--mono:'JetBrains Mono',monospace;
+  --r:10px;--rs:6px;
+}
+[data-theme="light"]{
+  --bg:#f4f7fb;--bg2:#fff;--bg3:#eaf0f8;--surface:#dde8f5;
+  --border:rgba(14,90,140,0.1);--border2:rgba(14,90,140,0.2);
+  --accent:#0369a1;--accent3:#0ea5e9;--adim:rgba(3,105,161,0.07);--adim2:rgba(3,105,161,0.03);
+  --text:#0c1a2e;--text2:#2d5577;--text3:#7fa8c8;
+  --builder:#7c3aed;--builder-dim:rgba(124,58,237,0.07);--builder-border:rgba(124,58,237,0.2);
+}
+[data-theme="clinical"]{
+  --bg:#050f0a;--bg2:#081810;--bg3:#0c2216;--surface:#0f2e1e;
+  --border:rgba(52,211,153,0.09);--border2:rgba(52,211,153,0.18);
+  --accent:#34d399;--accent3:#6ee7b7;--adim:rgba(52,211,153,0.08);--adim2:rgba(52,211,153,0.04);
+  --text:#d1fae5;--text2:#5eab80;--text3:#2d6b48;
+  --builder:#a78bfa;--builder-dim:rgba(167,139,250,0.08);--builder-border:rgba(167,139,250,0.22);
+}
+html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--font);font-size:14px;line-height:1.6;overflow:hidden;}
+::-webkit-scrollbar{width:3px;height:3px;}
+::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px;}
+.app{display:grid;grid-template-columns:272px 1fr;height:100vh;}
+
+/* ── Sidebar ── */
+.sidebar{background:var(--bg2);border-right:1px solid var(--border);display:flex;flex-direction:column;overflow:hidden;position:relative;}
+.sidebar::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--builder),transparent);opacity:.5;}
+.brand{padding:16px 16px 13px;border-bottom:1px solid var(--border);}
+.brand-top{display:flex;align-items:center;gap:10px;margin-bottom:11px;}
+.brand-icon{width:36px;height:36px;background:var(--builder-dim);border:1px solid var(--builder-border);border-radius:var(--r);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:18px;}
+.brand-name{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);}
+.brand-ver{font-family:var(--mono);font-size:9px;color:var(--builder);background:var(--builder-dim);border:1px solid var(--builder-border);border-radius:20px;padding:1px 7px;width:fit-content;letter-spacing:.5px;}
+.nav-links{display:flex;flex-direction:column;gap:2px;padding:10px 8px 0;}
+.nav-link{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:var(--rs);color:var(--text2);font-size:12px;font-weight:600;text-decoration:none;border:1px solid transparent;transition:all .15s;letter-spacing:.2px;}
+.nav-link:hover{background:var(--adim);color:var(--text);}
+.nav-link.active{background:var(--builder-dim);border-color:var(--builder-border);color:var(--builder);}
+.nav-link svg{width:13px;height:13px;stroke:currentColor;fill:none;stroke-width:2;flex-shrink:0;}
+.nl-badge{margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 6px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);}
+.sec-lbl{padding:10px 16px 4px;font-family:var(--mono);font-size:9px;font-weight:500;color:var(--text3);letter-spacing:1.2px;text-transform:uppercase;}
+
+/* Saved agents sidebar list */
+.agents-list{flex:1;overflow-y:auto;padding:0 8px;}
+.agent-card-mini{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:10px 11px;margin-bottom:5px;cursor:pointer;transition:all .2s;position:relative;}
+.agent-card-mini:hover{border-color:var(--builder-border);transform:translateX(2px);}
+.agent-card-mini.active-edit{border-color:var(--builder-border);background:var(--builder-dim);}
+.acm-head{display:flex;align-items:center;gap:8px;margin-bottom:4px;}
+.acm-icon{font-size:14px;}
+.acm-name{font-size:12px;font-weight:700;color:var(--text);font-family:var(--display);}
+.acm-spec{font-family:var(--mono);font-size:9px;color:var(--text3);text-transform:uppercase;letter-spacing:.5px;}
+.acm-del{position:absolute;top:8px;right:8px;width:20px;height:20px;border-radius:4px;background:var(--bg2);border:1px solid var(--border);display:none;align-items:center;justify-content:center;font-size:10px;cursor:pointer;color:var(--emg);}
+.agent-card-mini:hover .acm-del{display:flex;}
+.new-agent-btn{width:100%;padding:8px 12px;background:var(--builder-dim);border:1px dashed var(--builder-border);border-radius:var(--r);color:var(--builder);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:7px;transition:all .15s;margin-bottom:8px;}
+.new-agent-btn:hover{background:rgba(167,139,250,.15);}
+.sb-foot{padding:10px 16px;border-top:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.fhir-st{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:10px;color:var(--text3);}
+.fhir-st-dot{width:5px;height:5px;border-radius:50%;background:var(--ok);}
+
+/* ── Main Area ── */
+.main-area{display:flex;flex-direction:column;background:var(--bg);overflow:hidden;position:relative;}
+.main-area::before{content:'';position:absolute;inset:0;background-image:linear-gradient(var(--border) 1px,transparent 1px),linear-gradient(90deg,var(--border) 1px,transparent 1px);background-size:40px 40px;opacity:.25;pointer-events:none;}
+.hdr{padding:12px 24px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;background:var(--bg2);position:relative;z-index:2;flex-shrink:0;}
+.hdr::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--builder),transparent);opacity:.25;}
+.hdr-left{display:flex;align-items:center;gap:14px;}
+.hdr-title{font-family:var(--display);font-size:16px;font-weight:700;color:var(--text);white-space:nowrap;overflow:visible;padding-bottom:2px;}
+.hdr-sub{font-family:var(--mono);font-size:10px;color:var(--text3);}
+.builder-badge{display:flex;align-items:center;gap:6px;padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;background:var(--builder-dim);border:1px solid var(--builder-border);color:var(--builder);letter-spacing:.3px;}
+.hdr-right{display:flex;align-items:center;gap:7px;}
+.hdr-btn{display:flex;align-items:center;gap:5px;padding:5px 11px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text2);font-size:11px;font-weight:600;font-family:var(--font);cursor:pointer;transition:all .15s;text-decoration:none;white-space:nowrap;}
+.hdr-btn:hover{border-color:var(--border2);color:var(--text);}
+.hdr-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ── Builder Scroll Area ── */
+.builder-scroll{flex:1;overflow-y:auto;padding:24px;position:relative;z-index:1;}
+
+/* ── Empty State ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:20px;text-align:center;padding:40px;animation:efade .4s ease;}
+@keyframes efade{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.empty-icon{font-size:56px;line-height:1;}
+.empty-title{font-family:var(--display);font-size:22px;font-weight:800;color:var(--text);}
+.empty-desc{font-size:13px;color:var(--text2);max-width:440px;line-height:1.7;}
+.template-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;width:100%;max-width:640px;}
+.tpl-card{background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;cursor:pointer;text-align:left;transition:all .2s;}
+.tpl-card:hover{border-color:var(--builder-border);background:var(--builder-dim);transform:translateY(-2px);}
+.tpl-icon{font-size:22px;margin-bottom:8px;}
+.tpl-name{font-family:var(--display);font-size:12px;font-weight:700;color:var(--text);margin-bottom:4px;}
+.tpl-desc{font-size:11px;color:var(--text2);line-height:1.4;}
+.start-btn{display:flex;align-items:center;gap:8px;padding:11px 24px;background:var(--builder-dim);border:1px solid var(--builder-border);border-radius:var(--r);color:var(--builder);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.start-btn:hover{background:rgba(167,139,250,.18);}
+.start-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;}
+
+/* ── Form ── */
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:1100px;}
+.form-section{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:20px;position:relative;overflow:hidden;}
+.form-section::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--builder),transparent);}
+.form-section.full{grid-column:1/-1;}
+.fs-title{font-family:var(--display);font-size:13px;font-weight:700;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:8px;}
+.fs-title .fs-icon{font-size:14px;}
+.field{margin-bottom:14px;}
+.field:last-child{margin-bottom:0;}
+.lbl{font-family:var(--mono);font-size:10px;color:var(--text3);letter-spacing:.5px;text-transform:uppercase;margin-bottom:5px;display:flex;align-items:center;gap:6px;}
+.lbl-req{color:var(--emg);font-size:8px;}
+.inp{width:100%;padding:9px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);color:var(--text);font-family:var(--font);font-size:13px;outline:none;transition:border-color .15s;}
+.inp:focus{border-color:var(--builder-border);box-shadow:0 0 0 3px var(--builder-dim);}
+.inp::placeholder{color:var(--text3);}
+.inp-mono{font-family:var(--mono);font-size:12px;}
+textarea.inp{resize:vertical;min-height:120px;line-height:1.6;}
+textarea.inp.tall{min-height:200px;}
+select.inp{cursor:pointer;}
+.inp-row{display:flex;gap:8px;}
+.inp-row .inp{flex:1;}
+
+/* Temperature slider */
+.slider-wrap{display:flex;align-items:center;gap:12px;}
+.slider{flex:1;-webkit-appearance:none;height:4px;border-radius:2px;background:var(--bg3);outline:none;cursor:pointer;}
+.slider::-webkit-slider-thumb{-webkit-appearance:none;width:16px;height:16px;border-radius:50%;background:var(--builder);cursor:pointer;transition:transform .15s;}
+.slider::-webkit-slider-thumb:hover{transform:scale(1.2);}
+.slider-val{font-family:var(--mono);font-size:12px;color:var(--builder);min-width:28px;text-align:right;}
+.temp-hint{font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;}
+
+/* Tool checkboxes */
+.tool-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.tool-check{display:flex;align-items:center;gap:8px;padding:7px 10px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);cursor:pointer;transition:all .15s;user-select:none;}
+.tool-check:hover{border-color:var(--border2);}
+.tool-check.checked{background:var(--builder-dim);border-color:var(--builder-border);}
+.tool-check input{display:none;}
+.tool-check-box{width:14px;height:14px;border-radius:3px;border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .15s;}
+.tool-check.checked .tool-check-box{background:var(--builder);border-color:var(--builder);}
+.tool-check-box svg{width:9px;height:9px;stroke:white;fill:none;stroke-width:3;display:none;}
+.tool-check.checked .tool-check-box svg{display:block;}
+.tool-check-name{font-family:var(--mono);font-size:10px;color:var(--text2);}
+.tool-check.checked .tool-check-name{color:var(--builder);}
+
+/* Color + icon pickers */
+.color-row{display:flex;gap:8px;flex-wrap:wrap;}
+.color-opt{width:24px;height:24px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:all .15s;}
+.color-opt:hover,.color-opt.sel{border-color:white;transform:scale(1.1);}
+.icon-row{display:flex;gap:6px;flex-wrap:wrap;}
+.icon-opt{width:32px;height:32px;border-radius:var(--rs);background:var(--bg3);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:14px;cursor:pointer;transition:all .15s;}
+.icon-opt:hover,.icon-opt.sel{background:var(--builder-dim);border-color:var(--builder-border);}
+
+/* Toggle */
+.toggle-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;}
+.toggle-lbl{font-size:12px;color:var(--text2);}
+.toggle{position:relative;width:36px;height:20px;cursor:pointer;}
+.toggle input{display:none;}
+.toggle-track{width:100%;height:100%;background:var(--bg3);border:1px solid var(--border);border-radius:10px;transition:all .2s;}
+.toggle input:checked + .toggle-track{background:var(--builder);border-color:var(--builder);}
+.toggle-thumb{position:absolute;top:3px;left:3px;width:14px;height:14px;border-radius:50%;background:white;transition:left .2s;}
+.toggle input:checked ~ .toggle-thumb{left:19px;}
+
+/* Action bar */
+.action-bar{display:flex;align-items:center;gap:10px;padding:16px 24px;border-top:1px solid var(--border);background:var(--bg2);position:relative;z-index:2;flex-shrink:0;}
+.save-btn{display:flex;align-items:center;gap:7px;padding:10px 22px;background:var(--builder);border:none;border-radius:var(--r);color:white;font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;}
+.save-btn:hover{filter:brightness(1.15);transform:translateY(-1px);}
+.save-btn:disabled{background:var(--surface);cursor:not-allowed;transform:none;}
+.save-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2.5;}
+.test-btn{display:flex;align-items:center;gap:7px;padding:10px 18px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);color:var(--accent);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;}
+.test-btn:hover{background:rgba(56,189,248,.15);}
+.test-btn svg{width:14px;height:14px;stroke:currentColor;fill:none;stroke-width:2;}
+.discard-btn{display:flex;align-items:center;gap:6px;padding:10px 16px;background:transparent;border:1px solid var(--border);border-radius:var(--r);color:var(--text3);font-family:var(--font);font-size:12px;cursor:pointer;transition:all .15s;margin-left:auto;}
+.discard-btn:hover{border-color:var(--emg);color:var(--emg);}
+.save-status{font-family:var(--mono);font-size:11px;color:var(--text3);padding:0 8px;}
+
+/* ── Test Panel (slide-in) ── */
+.test-panel{position:fixed;right:0;top:0;bottom:0;width:420px;background:var(--bg2);border-left:1px solid var(--builder-border);display:flex;flex-direction:column;z-index:100;transform:translateX(100%);transition:transform .3s ease;box-shadow:-8px 0 32px rgba(0,0,0,.4);}
+.test-panel.open{transform:translateX(0);}
+.test-hdr{padding:16px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.test-hdr-title{font-family:var(--display);font-size:14px;font-weight:700;color:var(--text);}
+.test-close{width:28px;height:28px;border-radius:var(--rs);background:var(--bg3);border:1px solid var(--border);cursor:pointer;display:flex;align-items:center;justify-content:center;color:var(--text3);font-size:14px;}
+.test-close:hover{color:var(--text);border-color:var(--border2);}
+.test-msgs{flex:1;overflow-y:auto;padding:14px 16px;display:flex;flex-direction:column;gap:10px;}
+.test-msg{padding:10px 13px;border-radius:var(--r);font-size:13px;line-height:1.6;max-width:90%;}
+.test-msg.user{background:var(--adim2);border:1px solid var(--border2);align-self:flex-end;color:var(--text);}
+.test-msg.ai{background:var(--builder-dim);border:1px solid var(--builder-border);color:var(--text);border-top-left-radius:3px;}
+.test-msg.ai strong{color:var(--builder);}
+.test-typing{display:flex;gap:4px;padding:12px 13px;background:var(--builder-dim);border:1px solid var(--builder-border);border-radius:var(--r);border-top-left-radius:3px;width:fit-content;}
+.test-typing span{width:5px;height:5px;background:var(--builder);border-radius:50%;animation:tdot 1.3s infinite;}
+.test-typing span:nth-child(2){animation-delay:.2s;}
+.test-typing span:nth-child(3){animation-delay:.4s;}
+@keyframes tdot{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-5px)}}
+.test-inp-area{padding:12px 16px;border-top:1px solid var(--border);flex-shrink:0;}
+.test-inp-wrap{display:flex;gap:8px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:8px 10px;}
+.test-inp-wrap:focus-within{border-color:var(--builder-border);}
+.test-inp{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:var(--font);font-size:13px;resize:none;max-height:80px;min-height:20px;}
+.test-inp::placeholder{color:var(--text3);}
+.test-send{width:30px;height:30px;background:var(--builder);border:none;border-radius:var(--rs);cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.test-send:hover{filter:brightness(1.15);}
+.test-send svg{width:13px;height:13px;stroke:white;fill:none;stroke-width:2.5;}
+.test-hint{font-family:var(--mono);font-size:10px;color:var(--text3);margin-top:5px;text-align:center;}
+
+/* Toast */
+.toast{position:fixed;bottom:80px;right:18px;background:var(--bg3);border-radius:var(--r);padding:9px 13px;font-size:11px;display:flex;align-items:center;gap:7px;animation:tin .3s ease,tout .3s ease 2.7s forwards;z-index:200;max-width:280px;}
+.toast.ok{border:1px solid rgba(52,211,153,.3);color:var(--ok);}
+.toast.err{border:1px solid rgba(255,107,107,.3);color:var(--emg);}
+@keyframes tin{from{transform:translateX(18px);opacity:0}to{transform:translateX(0);opacity:1}}
+@keyframes tout{to{opacity:0;transform:translateX(12px)}}
+</style>
+</head>
+<body>
+<div class="app">
+
+<!-- ═══════ SIDEBAR ═══════ -->
+<aside class="sidebar">
+  <div class="brand">
+    <div class="brand-top">
+      <div class="brand-icon">🧠</div>
+      <div><div class="brand-name">IRIS FHIR Agents</div><div class="brand-ver">AGENT BUILDER</div></div>
+    </div>
+  </div>
+
+  <div class="nav-links">
+    <a href="/" class="nav-link"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat</a>
+    <a href="/dashboard" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Analytics Dashboard</a>
+    <a href="/vitals" class="nav-link"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals Monitor</a>
+    <a href="/fhir-agent" class="nav-link"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Server Agent</a>
+    <a href="/agent-builder" class="nav-link active"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>Agent Builder<span class="nl-badge" style="color:var(--builder);border-color:var(--builder-border);background:var(--builder-dim);">New</span></a>
+  </div>
+
+  <div class="sec-lbl">Built-in Agents</div>
+  <div style="padding:0 8px;margin-bottom:6px;">
+    <div style="display:flex;flex-direction:column;gap:3px;">
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs);font-size:11px;color:var(--text3);">
+        <div style="width:6px;height:6px;border-radius:50%;background:#38bdf8;flex-shrink:0;"></div>
+        <span style="font-family:var(--mono);">Triage Agent</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);">locked</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs);font-size:11px;color:var(--text3);">
+        <div style="width:6px;height:6px;border-radius:50%;background:#a78bfa;flex-shrink:0;"></div>
+        <span style="font-family:var(--mono);">Specialist Agent</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);">locked</span>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px;padding:6px 10px;border-radius:var(--rs);font-size:11px;color:var(--text3);">
+        <div style="width:6px;height:6px;border-radius:50%;background:#34d399;flex-shrink:0;"></div>
+        <span style="font-family:var(--mono);">Pharmacy Agent</span>
+        <span style="margin-left:auto;font-family:var(--mono);font-size:9px;padding:1px 5px;border-radius:10px;background:var(--bg3);border:1px solid var(--border);">locked</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sec-lbl">Custom Agents</div>
+  <div class="agents-list" id="agentsList">
+    <button class="new-agent-btn" onclick="startNew()">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+      Create New Agent
+    </button>
+    <div id="agentsMiniList"></div>
+  </div>
+
+  <div class="sb-foot">
+    <div class="fhir-st"><div class="fhir-st-dot"></div>FHIR R4 · :32783</div>
+    <button class="hdr-btn" onclick="cycleTheme()" id="themeBtn" style="border:none;background:none;padding:0;font-size:11px;">🌙</button>
+  </div>
+</aside>
+
+<!-- ═══════ MAIN ═══════ -->
+<main class="main-area">
+  <div class="hdr">
+    <div class="hdr-left">
+      <div>
+        <div class="hdr-title">Agent Builder</div>
+        <div class="hdr-sub">Design · Configure · Test · Deploy — Custom FHIR Clinical Agents</div>
+      </div>
+      <div class="builder-badge">🧠 <span id="builderState">Ready</span></div>
+    </div>
+    <div class="hdr-right">
+      <a href="/" class="hdr-btn">
+        <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat
+      </a>
+      <button class="hdr-btn" onclick="cycleTheme()" id="themeBtn2">🌙 Dark</button>
+    </div>
+  </div>
+
+  <!-- Empty State -->
+  <div class="builder-scroll" id="mainContent">
+    <div class="empty-state" id="emptyState">
+      <div class="empty-icon">🧠</div>
+      <div class="empty-title">Build Your Own Clinical Agent</div>
+      <div class="empty-desc">Design a custom AI agent with its own clinical expertise, FHIR tool access, and RAG guidelines. Your agent integrates directly into the Triage Chat alongside the built-in agents.</div>
+      <div class="template-grid">
+        <div class="tpl-card" onclick="loadTemplate('oncology')">
+          <div class="tpl-icon">🎗️</div>
+          <div class="tpl-name">Oncology Agent</div>
+          <div class="tpl-desc">Cancer drug interactions, chemo protocols, tumour board referrals, dosing adjustments</div>
+        </div>
+        <div class="tpl-card" onclick="loadTemplate('geriatrics')">
+          <div class="tpl-icon">👴</div>
+          <div class="tpl-name">Geriatrics Agent</div>
+          <div class="tpl-desc">Polypharmacy safety, fall risk, dementia medication safety, Beers Criteria</div>
+        </div>
+        <div class="tpl-card" onclick="loadTemplate('pediatrics')">
+          <div class="tpl-icon">👶</div>
+          <div class="tpl-name">Pediatrics Agent</div>
+          <div class="tpl-desc">Weight-based dosing, developmental milestones, paediatric normal ranges</div>
+        </div>
+        <div class="tpl-card" onclick="loadTemplate('cardiology')">
+          <div class="tpl-icon">❤️</div>
+          <div class="tpl-name">Cardiology Agent</div>
+          <div class="tpl-desc">Heart failure management, arrhythmia, ACS protocols, cardiac medications</div>
+        </div>
+        <div class="tpl-card" onclick="loadTemplate('nutrition')">
+          <div class="tpl-icon">🥗</div>
+          <div class="tpl-name">Nutrition Agent</div>
+          <div class="tpl-desc">Dietary guidance for chronic disease, drug-nutrient interactions, BMI assessment</div>
+        </div>
+        <div class="tpl-card" onclick="startNew()">
+          <div class="tpl-icon">✨</div>
+          <div class="tpl-name">Blank Agent</div>
+          <div class="tpl-desc">Start from scratch with a completely custom system prompt and tool configuration</div>
+        </div>
+      </div>
+      <button class="start-btn" onclick="startNew()">
+        <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        Create New Agent
+      </button>
+    </div>
+
+    <!-- Builder Form (hidden until startNew/loadTemplate) -->
+    <div id="builderForm" style="display:none;">
+      <div class="form-grid">
+
+        <!-- Identity -->
+        <div class="form-section">
+          <div class="fs-title"><span class="fs-icon">🪪</span>Agent Identity</div>
+          <div class="field">
+            <div class="lbl">Agent Name <span class="lbl-req">*</span></div>
+            <input class="inp" id="f-name" placeholder="e.g. Oncology Agent" oninput="updatePreview()"/>
+          </div>
+          <div class="field">
+            <div class="lbl">Short Description</div>
+            <input class="inp" id="f-desc" placeholder="e.g. Cancer drug interactions and chemo protocols" oninput="updatePreview()"/>
+          </div>
+          <div class="field">
+            <div class="lbl">Clinical Specialty</div>
+            <select class="inp" id="f-specialty">
+              <option value="oncology">🎗️ Oncology</option>
+              <option value="geriatrics">👴 Geriatrics</option>
+              <option value="pediatrics">👶 Pediatrics</option>
+              <option value="cardiology">❤️ Cardiology</option>
+              <option value="nephrology">🫘 Nephrology</option>
+              <option value="neurology">🧠 Neurology</option>
+              <option value="endocrinology">⚗️ Endocrinology</option>
+              <option value="psychiatry">💭 Psychiatry</option>
+              <option value="nutrition">🥗 Nutrition</option>
+              <option value="custom" selected>✨ Custom</option>
+            </select>
+          </div>
+          <div class="field">
+            <div class="lbl">Routing Description</div>
+            <input class="inp" id="f-routing" placeholder="e.g. For cancer and chemotherapy questions"/>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:4px;">The orchestrator uses this to decide when to route messages to your agent</div>
+          </div>
+        </div>
+
+        <!-- Appearance -->
+        <div class="form-section">
+          <div class="fs-title"><span class="fs-icon">🎨</span>Appearance</div>
+          <div class="field">
+            <div class="lbl">Agent Icon</div>
+            <div class="icon-row" id="iconRow">
+              <div class="icon-opt sel" data-icon="🤖" onclick="selectIcon(this)">🤖</div>
+              <div class="icon-opt" data-icon="🎗️" onclick="selectIcon(this)">🎗️</div>
+              <div class="icon-opt" data-icon="👴" onclick="selectIcon(this)">👴</div>
+              <div class="icon-opt" data-icon="👶" onclick="selectIcon(this)">👶</div>
+              <div class="icon-opt" data-icon="❤️" onclick="selectIcon(this)">❤️</div>
+              <div class="icon-opt" data-icon="🧠" onclick="selectIcon(this)">🧠</div>
+              <div class="icon-opt" data-icon="⚗️" onclick="selectIcon(this)">⚗️</div>
+              <div class="icon-opt" data-icon="💭" onclick="selectIcon(this)">💭</div>
+              <div class="icon-opt" data-icon="🔬" onclick="selectIcon(this)">🔬</div>
+              <div class="icon-opt" data-icon="🥗" onclick="selectIcon(this)">🥗</div>
+              <div class="icon-opt" data-icon="🫘" onclick="selectIcon(this)">🫘</div>
+              <div class="icon-opt" data-icon="✨" onclick="selectIcon(this)">✨</div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="lbl">Agent Color</div>
+            <div class="color-row" id="colorRow">
+              <div class="color-opt sel" data-color="#a78bfa" style="background:#a78bfa" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#38bdf8" style="background:#38bdf8" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#34d399" style="background:#34d399" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#fbbf24" style="background:#fbbf24" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#ff6b6b" style="background:#ff6b6b" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#6ee7b7" style="background:#6ee7b7" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#f472b6" style="background:#f472b6" onclick="selectColor(this)"></div>
+              <div class="color-opt" data-color="#fb923c" style="background:#fb923c" onclick="selectColor(this)"></div>
+            </div>
+          </div>
+          <div class="field" style="margin-top:16px;">
+            <div class="lbl">Preview</div>
+            <div style="display:flex;align-items:center;gap:10px;padding:10px 12px;background:var(--bg3);border:1px solid var(--border);border-radius:var(--rs);">
+              <div id="preview-pip" style="width:7px;height:7px;border-radius:50%;background:#a78bfa;flex-shrink:0;"></div>
+              <div id="preview-icon" style="font-size:14px;">🤖</div>
+              <div>
+                <div id="preview-name" style="font-size:12px;font-weight:700;color:var(--text);font-family:var(--display);">My Agent</div>
+                <div id="preview-desc" style="font-size:10px;color:var(--text3);font-family:var(--mono);">Custom Clinical Agent</div>
+              </div>
+              <div style="margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--text3);background:var(--bg2);border:1px solid var(--border);padding:1px 6px;border-radius:10px;">0</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- System Prompt -->
+        <div class="form-section full">
+          <div class="fs-title"><span class="fs-icon">📝</span>System Prompt <span style="font-family:var(--mono);font-size:9px;color:var(--text3);font-weight:400;margin-left:8px;">Defines how your agent thinks and responds</span></div>
+          <div class="field">
+            <textarea class="inp inp-mono tall" id="f-prompt" placeholder="You are a clinical [specialty] AI assistant...&#10;&#10;Your responsibilities:&#10;1. ...&#10;2. ...&#10;&#10;Always cite clinical guidelines before making recommendations."></textarea>
+          </div>
+          <div style="font-size:10px;color:var(--text3);font-family:var(--mono);">
+            💡 Tip: Start with what the agent specialises in, then list its responsibilities, then any clinical rules. The platform automatically appends patient ID injection rules and language detection — you don't need to include those.
+          </div>
+        </div>
+
+        <!-- Behaviour -->
+        <div class="form-section">
+          <div class="fs-title"><span class="fs-icon">⚙️</span>Behaviour</div>
+          <div class="field">
+            <div class="lbl">Temperature</div>
+            <div class="slider-wrap">
+              <input type="range" class="slider" id="f-temp" min="0" max="1" step="0.05" value="0.2"
+                oninput="document.getElementById('tempVal').textContent=parseFloat(this.value).toFixed(2)"/>
+              <div class="slider-val" id="tempVal">0.20</div>
+            </div>
+            <div class="temp-hint" id="tempHint">0.2 — Consistent clinical recommendations</div>
+          </div>
+          <div class="field">
+            <div class="lbl">Max Tool Iterations</div>
+            <input class="inp" id="f-maxiter" type="number" min="3" max="20" value="10"/>
+            <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:3px;">Higher = more thorough but slower (10 is recommended)</div>
+          </div>
+          <div class="field">
+            <div class="lbl">RAG Clinical Guidelines</div>
+            <div class="toggle-row">
+              <span class="toggle-lbl">Search IRIS Vector Knowledge Base</span>
+              <label class="toggle">
+                <input type="checkbox" id="f-rag" checked/>
+                <div class="toggle-track"></div>
+                <div class="toggle-thumb"></div>
+              </label>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tools -->
+        <div class="form-section">
+          <div class="fs-title"><span class="fs-icon">🔧</span>FHIR Tools</div>
+          <div style="font-size:11px;color:var(--text2);margin-bottom:10px;">Select which FHIR tools your agent can use</div>
+          <div class="tool-grid" id="toolGrid">
+            <div class="tool-check checked" onclick="toggleTool(this,'get_patient')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">get_patient</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'get_patient_conditions')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">get_conditions</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'get_patient_medications')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">get_medications</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'get_patient_allergies')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">get_allergies</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'create_triage_observation')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">write_observation</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'create_service_request')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">write_service_req</div></div>
+            <div class="tool-check checked" onclick="toggleTool(this,'search_clinical_guidelines')"><input type="checkbox" checked/><div class="tool-check-box"><svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"/></svg></div><div class="tool-check-name">search_guidelines</div></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Action Bar (hidden until form is shown) -->
+  <div class="action-bar" id="actionBar" style="display:none;">
+    <button class="save-btn" onclick="saveAgent()" id="saveBtn">
+      <svg viewBox="0 0 24 24"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+      Save Agent
+    </button>
+    <button class="test-btn" onclick="openTestPanel()">
+      <svg viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+      Test Agent
+    </button>
+    <span class="save-status" id="saveStatus"></span>
+    <button class="discard-btn" onclick="discardForm()">
+      Discard
+    </button>
+  </div>
+</main>
+</div>
+
+<!-- ═══════ TEST PANEL ═══════ -->
+<div class="test-panel" id="testPanel">
+  <div class="test-hdr">
+    <div>
+      <div class="test-hdr-title" id="testPanelTitle">Test Agent</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--mono);margin-top:2px;">Agent must be saved before testing</div>
+    </div>
+    <div class="test-close" onclick="closeTestPanel()">✕</div>
+  </div>
+  <div class="test-msgs" id="testMsgs">
+    <div style="text-align:center;padding:30px;color:var(--text3);font-family:var(--mono);font-size:11px;">
+      Start a conversation to test your agent.<br/>Try: "My patient ID is demo-001"
+    </div>
+  </div>
+  <div class="test-inp-area">
+    <div class="test-inp-wrap">
+      <textarea class="test-inp" id="testInp" placeholder="Type a test message..." rows="1"
+        onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendTest();}"
+        oninput="this.style.height='auto';this.style.height=Math.min(this.scrollHeight,80)+'px'"></textarea>
+      <button class="test-send" onclick="sendTest()">
+        <svg viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+    <div class="test-hint">Testing live against your IRIS FHIR server</div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:8000';
+let currentAgentId = null;
+let editingExisting = false;
+let testLoading = false;
+
+// ── Template definitions ──────────────────────────────────────────────────────
+const TEMPLATES = {
+  oncology: {
+    name: 'Oncology Agent',
+    description: 'Cancer drug interactions, chemo protocols, tumour board referrals',
+    specialty: 'oncology', icon: '🎗️', color: '#f472b6',
+    routing_description: 'For cancer, chemotherapy, oncology and tumour-related questions',
+    temperature: 0.15, rag_enabled: true,
+    system_prompt: `You are a clinical oncology AI assistant with expertise in cancer care.
+
+Your responsibilities:
+1. If message contains [Context: Patient ID is X], IMMEDIATELY fetch all patient data — demographics, conditions, medications, and allergies
+2. Assess cancer type, staging, and current treatment protocol
+3. Check chemotherapy drug interactions with ALL current medications
+4. Identify allergy conflicts with proposed chemo agents
+5. Review contraindications based on organ function (renal, hepatic, cardiac)
+6. Recommend tumour board referral when appropriate
+7. Create FHIR ServiceRequests for oncology referrals
+
+MANDATORY WORKFLOW:
+1. Fetch full patient data first
+2. Call search_clinical_guidelines with cancer type + drug name
+3. Apply NCCN / ASCO guidelines to assessment
+4. Flag any HIGH RISK interactions immediately
+5. Cite every guideline with source and relevance score
+
+SPECIAL RULES:
+- Always check for haematological toxicity risk (CBC parameters)
+- Flag platinum compounds in patients with previous nephrotoxicity
+- Check cardiac function before anthracycline therapy
+- Identify hormonal therapy implications in breast/prostate cancer
+- If patient is pregnant: flag teratogenic risk for all cytotoxic agents`
+  },
+  geriatrics: {
+    name: 'Geriatrics Agent',
+    description: 'Polypharmacy safety, fall risk, dementia medication safety, Beers Criteria',
+    specialty: 'geriatrics', icon: '👴', color: '#fbbf24',
+    routing_description: 'For elderly patients, polypharmacy, dementia, fall risk and Beers Criteria questions',
+    temperature: 0.2, rag_enabled: true,
+    system_prompt: `You are a clinical geriatrics AI assistant specialising in care of older adults.
+
+Your responsibilities:
+1. If message contains [Context: Patient ID is X], IMMEDIATELY fetch all patient data
+2. Screen all medications against the Beers Criteria for potentially inappropriate medication use in older adults
+3. Assess fall risk based on medications (sedatives, antihypertensives, diuretics)
+4. Evaluate cognitive impact of prescribed medications
+5. Identify polypharmacy burden (5+ medications = polypharmacy; 10+ = excessive)
+6. Recommend dose adjustments for age-related pharmacokinetic changes
+7. Flag anticholinergic burden — cumulative anticholinergic load in elderly
+
+MANDATORY WORKFLOW:
+1. Fetch full patient data including all medications
+2. Calculate medication count — flag if ≥5 drugs
+3. Check each drug against Beers Criteria
+4. Calculate anticholinergic burden score
+5. Assess for drug-drug interactions that are especially risky in elderly
+6. Recommend Comprehensive Geriatric Assessment if >3 flags
+
+SPECIAL RULES:
+- Age ≥75: halve starting dose recommendation for most medications
+- Avoid: tricyclic antidepressants, first-generation antihistamines, benzodiazepines (long-term)
+- Caution: NSAIDs (GI bleeding), opioids (falls/confusion), anticholinergics (delirium)
+- Always assess for orthostatic hypotension risk with antihypertensives
+- Flag any medication started after a hospitalisation — delirium-associated prescribing`
+  },
+  pediatrics: {
+    name: 'Pediatrics Agent',
+    description: 'Weight-based dosing, developmental milestones, paediatric normal ranges',
+    specialty: 'pediatrics', icon: '👶', color: '#38bdf8',
+    routing_description: 'For paediatric patients, weight-based dosing, children and infants',
+    temperature: 0.1, rag_enabled: true,
+    system_prompt: `You are a clinical paediatrics AI assistant with expertise in children's medicine.
+
+Your responsibilities:
+1. If message contains [Context: Patient ID is X], IMMEDIATELY fetch all patient data
+2. Calculate age from date of birth and classify: neonate (<28 days), infant (<1yr), child (1-12yr), adolescent (13-17yr)
+3. Calculate weight-based dosing for all medications (mg/kg)
+4. Apply paediatric normal ranges for all vitals and lab values — adult ranges do NOT apply
+5. Screen for medications that are contraindicated in children (e.g. aspirin under 16 — Reye syndrome)
+6. Flag off-label medication use in paediatric patients
+7. Assess developmental appropriateness of symptoms
+
+MANDATORY WORKFLOW:
+1. Fetch patient data and calculate precise age
+2. Note weight if available for dose calculations
+3. Apply age-appropriate normal ranges to all observations
+4. Check each medication for paediatric approval and age-appropriate dosing
+5. Cite BNF for Children / AAP guidelines for every recommendation
+
+SPECIAL RULES:
+- NEVER recommend aspirin for children <16 (Reye syndrome risk)
+- Codeine is contraindicated in children <12 and post-tonsillectomy
+- Fluoroquinolones: avoid in children — cartilage toxicity
+- Tetracyclines: avoid under 8 — dental staining
+- All doses must be expressed as mg/kg/day with maximum dose ceiling
+- Flag any adult-dose medication prescribed to a paediatric patient`
+  },
+  cardiology: {
+    name: 'Cardiology Agent',
+    description: 'Heart failure management, arrhythmia, ACS protocols, cardiac medications',
+    specialty: 'cardiology', icon: '❤️', color: '#ff6b6b',
+    routing_description: 'For heart failure, arrhythmia, coronary disease, cardiac medications and ECG questions',
+    temperature: 0.15, rag_enabled: true,
+    system_prompt: `You are a clinical cardiology AI assistant with expertise in cardiac care.
+
+Your responsibilities:
+1. If message contains [Context: Patient ID is X], IMMEDIATELY fetch all patient data
+2. Assess cardiac conditions — HFrEF vs HFpEF, arrhythmia type, CAD risk
+3. Review cardiac medication appropriateness — ACE/ARB, beta-blockers, diuretics, antiarrhythmics
+4. Identify dangerous drug combinations: QT-prolonging drugs, digoxin + electrolyte imbalances
+5. Evaluate electrolyte status — K+ and Mg2+ are critical with digoxin and diuretics
+6. Apply AHA/ACC heart failure guidelines to every recommendation
+7. Create FHIR ServiceRequests for cardiology referrals
+
+MANDATORY WORKFLOW:
+1. Fetch all patient data including observations (BNP, electrolytes, creatinine)
+2. Call search_clinical_guidelines with cardiac condition + drug name
+3. Check for DANGEROUS combinations immediately: digoxin + hypokalaemia, warfarin + NSAIDs
+4. Apply NYHA functional classification if HF present
+5. Flag any missed guideline-directed medical therapy (GDMT)
+
+SPECIAL RULES:
+- Digoxin + K+ <3.5 = HIGH RISK arrhythmia — always flag
+- Warfarin + any new drug = check INR impact
+- BNP >500 = decompensated HF — escalate
+- Systolic BP <90 = hold ACE/ARB/beta-blocker — flag
+- Potassium >5.5 with ACE/ARB/spironolactone = DANGER hyperkalaemia`
+  },
+  nutrition: {
+    name: 'Nutrition Agent',
+    description: 'Dietary guidance, drug-nutrient interactions, BMI and metabolic assessment',
+    specialty: 'nutrition', icon: '🥗', color: '#34d399',
+    routing_description: 'For dietary advice, drug-nutrient interactions, weight management and metabolic questions',
+    temperature: 0.3, rag_enabled: true,
+    system_prompt: `You are a clinical nutrition AI assistant with expertise in medical nutrition therapy.
+
+Your responsibilities:
+1. If message contains [Context: Patient ID is X], IMMEDIATELY fetch all patient data
+2. Assess nutritional status from available observations (BMI, albumin, HbA1c, lipids)
+3. Identify drug-nutrient interactions in current medications
+4. Provide disease-specific dietary guidance based on active conditions
+5. Recommend appropriate nutritional support based on clinical state
+6. Screen for malnutrition risk using available clinical data
+
+MANDATORY WORKFLOW:
+1. Fetch patient data — conditions, medications, and observations
+2. Call search_clinical_guidelines with condition + dietary aspect
+3. Apply condition-specific dietary guidelines (ADA for diabetes, KDOQI for CKD, etc)
+4. Check drug-nutrient interactions for all medications
+5. Provide structured dietary recommendations with clinical justification
+
+DISEASE-SPECIFIC RULES:
+- Diabetes: carbohydrate consistency, glycaemic index, HbA1c targets
+- CKD: protein restriction, potassium/phosphate limits based on eGFR
+- Heart failure: sodium <2g/day, fluid restriction if congested
+- Warfarin: consistent vitamin K intake — advise on green vegetables
+- Hypothyroidism: avoid excessive iodine, consistent soy intake
+- All recommendations must align with retrieved clinical guidelines`
+  }
+};
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let selectedIcon = '🤖';
+let selectedColor = '#a78bfa';
+let savedAgents = [];
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+loadSavedAgents();
+
+async function loadSavedAgents() {
+  try {
+    const r = await fetch(`${API}/agents`);
+    const d = await r.json();
+    savedAgents = d.agents || [];
+    renderMiniList();
+    if (savedAgents.length === 0) {
+      document.getElementById('emptyState').style.display = 'flex';
+      document.getElementById('builderForm').style.display = 'none';
+      document.getElementById('actionBar').style.display = 'none';
+    }
+  } catch(e) {
+    console.warn('Could not load agents:', e);
+  }
+}
+
+function renderMiniList() {
+  const el = document.getElementById('agentsMiniList');
+  el.innerHTML = savedAgents.map(a => `
+    <div class="agent-card-mini${currentAgentId===a.id?' active-edit':''}" onclick="editAgent('${a.id}')">
+      <div class="acm-head">
+        <span class="acm-icon">${a.icon||'🤖'}</span>
+        <div>
+          <div class="acm-name">${a.name}</div>
+          <div class="acm-spec">${a.specialty||'custom'}</div>
+        </div>
+      </div>
+      <div class="acm-del" onclick="event.stopPropagation();deleteAgent('${a.id}')">✕</div>
+    </div>
+  `).join('');
+}
+
+// ── Template Loading ──────────────────────────────────────────────────────────
+function loadTemplate(key) {
+  const t = TEMPLATES[key];
+  if (!t) return;
+  showForm();
+  document.getElementById('f-name').value = t.name;
+  document.getElementById('f-desc').value = t.description;
+  document.getElementById('f-specialty').value = t.specialty;
+  document.getElementById('f-routing').value = t.routing_description;
+  document.getElementById('f-prompt').value = t.system_prompt;
+  document.getElementById('f-temp').value = t.temperature;
+  document.getElementById('tempVal').textContent = t.temperature.toFixed(2);
+  document.getElementById('f-rag').checked = t.rag_enabled;
+  // Set icon and color
+  selectIconByValue(t.icon);
+  selectColorByValue(t.color);
+  updatePreview();
+  currentAgentId = null;
+  editingExisting = false;
+}
+
+function startNew() {
+  showForm();
+  document.getElementById('f-name').value = '';
+  document.getElementById('f-desc').value = '';
+  document.getElementById('f-specialty').value = 'custom';
+  document.getElementById('f-routing').value = '';
+  document.getElementById('f-prompt').value = '';
+  document.getElementById('f-temp').value = 0.2;
+  document.getElementById('tempVal').textContent = '0.20';
+  document.getElementById('f-rag').checked = true;
+  selectIconByValue('🤖');
+  selectColorByValue('#a78bfa');
+  updatePreview();
+  currentAgentId = null;
+  editingExisting = false;
+}
+
+function editAgent(id) {
+  const agent = savedAgents.find(a => a.id === id);
+  if (!agent) return;
+  showForm();
+  currentAgentId = id;
+  editingExisting = true;
+  document.getElementById('f-name').value = agent.name;
+  document.getElementById('f-desc').value = agent.description || '';
+  document.getElementById('f-specialty').value = agent.specialty || 'custom';
+  document.getElementById('f-routing').value = agent.routing_description || '';
+  document.getElementById('f-prompt').value = agent.system_prompt;
+  document.getElementById('f-temp').value = agent.temperature || 0.2;
+  document.getElementById('tempVal').textContent = (agent.temperature||0.2).toFixed(2);
+  document.getElementById('f-rag').checked = agent.rag_enabled !== false;
+  document.getElementById('f-maxiter').value = agent.max_iterations || 10;
+  selectIconByValue(agent.icon || '🤖');
+  selectColorByValue(agent.color || '#a78bfa');
+  // Restore tool checks
+  const toolMap = {
+    'get_patient':'get_patient','get_patient_conditions':'get_patient_conditions',
+    'get_patient_medications':'get_patient_medications','get_patient_allergies':'get_patient_allergies',
+    'create_triage_observation':'create_triage_observation','create_service_request':'create_service_request',
+    'search_clinical_guidelines':'search_clinical_guidelines'
+  };
+  document.querySelectorAll('#toolGrid .tool-check').forEach(el => {
+    const toolId = el.dataset.tool || el.querySelector('.tool-check-name').textContent.replace('write_','create_').replace('get_','get_patient_').replace('search_guidelines','search_clinical_guidelines');
+    const enabled = (agent.tools||[]).some(t => el.onclick.toString().includes(t) || Object.keys(toolMap).some(k => el.onclick.toString().includes(k) && (agent.tools||[]).includes(k)));
+    // Simple: check all by default if editing
+    el.classList.add('checked');
+    el.querySelector('input').checked = true;
+  });
+  updatePreview();
+  renderMiniList();
+}
+
+function showForm() {
+  document.getElementById('emptyState').style.display = 'none';
+  document.getElementById('builderForm').style.display = 'block';
+  document.getElementById('actionBar').style.display = 'flex';
+}
+
+function discardForm() {
+  if (savedAgents.length === 0) {
+    document.getElementById('emptyState').style.display = 'flex';
+    document.getElementById('builderForm').style.display = 'none';
+    document.getElementById('actionBar').style.display = 'none';
+  } else {
+    document.getElementById('builderForm').style.display = 'none';
+    document.getElementById('actionBar').style.display = 'none';
+    document.getElementById('emptyState').style.display = savedAgents.length === 0 ? 'flex' : 'none';
+  }
+  currentAgentId = null;
+  editingExisting = false;
+  renderMiniList();
+}
+
+// ── Icon / Color pickers ───────────────────────────────────────────────────────
+function selectIcon(el) {
+  document.querySelectorAll('.icon-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedIcon = el.dataset.icon;
+  updatePreview();
+}
+function selectIconByValue(icon) {
+  document.querySelectorAll('.icon-opt').forEach(e => {
+    e.classList.toggle('sel', e.dataset.icon === icon);
+  });
+  selectedIcon = icon;
+}
+function selectColor(el) {
+  document.querySelectorAll('.color-opt').forEach(e => e.classList.remove('sel'));
+  el.classList.add('sel');
+  selectedColor = el.dataset.color;
+  updatePreview();
+}
+function selectColorByValue(color) {
+  document.querySelectorAll('.color-opt').forEach(e => {
+    e.classList.toggle('sel', e.dataset.color === color);
+  });
+  selectedColor = color;
+}
+
+function toggleTool(el, toolId) {
+  el.classList.toggle('checked');
+  el.querySelector('input').checked = el.classList.contains('checked');
+}
+
+function updatePreview() {
+  const name = document.getElementById('f-name').value || 'My Agent';
+  const desc = document.getElementById('f-desc').value || 'Custom Clinical Agent';
+  document.getElementById('preview-name').textContent = name;
+  document.getElementById('preview-desc').textContent = desc;
+  document.getElementById('preview-icon').textContent = selectedIcon;
+  document.getElementById('preview-pip').style.background = selectedColor;
+}
+
+// Temperature hint
+document.getElementById('f-temp').addEventListener('input', function() {
+  const v = parseFloat(this.value);
+  const hints = v <= 0.1 ? 'Very precise — drug safety, strict protocols' : v <= 0.2 ? 'Consistent clinical recommendations' : v <= 0.4 ? 'Balanced — good for specialist assessments' : v <= 0.6 ? 'More creative — suitable for counselling' : 'High variability — not recommended for clinical use';
+  document.getElementById('tempHint').textContent = `${v.toFixed(2)} — ${hints}`;
+});
+
+// ── Save ──────────────────────────────────────────────────────────────────────
+async function saveAgent() {
+  const name = document.getElementById('f-name').value.trim();
+  const prompt = document.getElementById('f-prompt').value.trim();
+  if (!name) { toast('Agent name is required', 'err'); return; }
+  if (!prompt) { toast('System prompt is required', 'err'); return; }
+
+  const tools = [];
+  const toolMap = {
+    'get_patient': 'get_patient',
+    'get_conditions': 'get_patient_conditions',
+    'get_medications': 'get_patient_medications',
+    'get_allergies': 'get_patient_allergies',
+    'write_observation': 'create_triage_observation',
+    'write_service_req': 'create_service_request',
+    'search_guidelines': 'search_clinical_guidelines',
+  };
+  document.querySelectorAll('#toolGrid .tool-check.checked .tool-check-name').forEach(el => {
+    const mapped = toolMap[el.textContent.trim()];
+    if (mapped) tools.push(mapped);
+  });
+
+  const config = {
+    id:                  currentAgentId || null,
+    name,
+    description:         document.getElementById('f-desc').value.trim(),
+    specialty:           document.getElementById('f-specialty').value,
+    system_prompt:       prompt,
+    temperature:         parseFloat(document.getElementById('f-temp').value),
+    max_iterations:      parseInt(document.getElementById('f-maxiter').value),
+    tools,
+    rag_enabled:         document.getElementById('f-rag').checked,
+    routing_description: document.getElementById('f-routing').value.trim(),
+    color:               selectedColor,
+    icon:                selectedIcon,
+    created_at:          new Date().toISOString(),
+  };
+
+  const btn = document.getElementById('saveBtn');
+  btn.disabled = true;
+  document.getElementById('saveStatus').textContent = 'Saving...';
+  document.getElementById('builderState').textContent = 'Saving...';
+
+  try {
+    const r = await fetch(`${API}/agents/create`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify(config)
+    });
+    const d = await r.json();
+    if (d.success) {
+      currentAgentId = d.agent.id;
+      editingExisting = true;
+      await loadSavedAgents();
+      document.getElementById('saveStatus').textContent = `✓ Saved as "${name}"`;
+      document.getElementById('builderState').textContent = 'Agent Saved';
+      toast(`✓ "${name}" saved — now available in Triage Chat`, 'ok');
+      // Update test panel title
+      document.getElementById('testPanelTitle').textContent = `Test: ${name}`;
+    } else {
+      throw new Error(d.error || 'Save failed');
+    }
+  } catch(e) {
+    toast('Save failed: ' + e.message, 'err');
+    document.getElementById('saveStatus').textContent = '';
+    document.getElementById('builderState').textContent = 'Error';
+  }
+  btn.disabled = false;
+  setTimeout(() => document.getElementById('builderState').textContent = 'Ready', 3000);
+}
+
+async function deleteAgent(id) {
+  const agent = savedAgents.find(a => a.id === id);
+  if (!agent) return;
+  if (!confirm(`Delete "${agent.name}"? This cannot be undone.`)) return;
+  try {
+    await fetch(`${API}/agents/${id}`, {method: 'DELETE'});
+    await loadSavedAgents();
+    if (currentAgentId === id) discardForm();
+    toast(`Deleted "${agent.name}"`, 'ok');
+  } catch(e) {
+    toast('Delete failed', 'err');
+  }
+}
+
+// ── Test Panel ────────────────────────────────────────────────────────────────
+function openTestPanel() {
+  if (!currentAgentId) {
+    toast('Save the agent first, then test it', 'err');
+    return;
+  }
+  document.getElementById('testPanel').classList.add('open');
+  document.getElementById('testInp').focus();
+}
+function closeTestPanel() {
+  document.getElementById('testPanel').classList.remove('open');
+}
+
+async function sendTest() {
+  if (testLoading || !currentAgentId) return;
+  const inp = document.getElementById('testInp');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  inp.style.height = 'auto';
+
+  addTestMsg('user', msg);
+  const typingEl = addTestMsg('typing', '');
+  testLoading = true;
+
+  try {
+    const r = await fetch(`${API}/agents/${currentAgentId}/test`, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({message: msg})
+    });
+    const d = await r.json();
+    typingEl.remove();
+    addTestMsg('ai', d.response || 'No response');
+  } catch(e) {
+    typingEl.remove();
+    addTestMsg('ai', 'Error: Could not reach API at localhost:8000');
+  }
+  testLoading = false;
+}
+
+function addTestMsg(role, content) {
+  const msgs = document.getElementById('testMsgs');
+  const el = document.createElement('div');
+  if (role === 'typing') {
+    el.className = 'test-typing';
+    el.innerHTML = '<span></span><span></span><span></span>';
+  } else {
+    el.className = `test-msg ${role}`;
+    el.innerHTML = content
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/`(.*?)`/g, '<code style="font-family:var(--mono);font-size:11px;background:var(--surface);padding:1px 4px;border-radius:3px;">$1</code>')
+      .replace(/\n/g, '<br>');
+    if (role === 'ai') el.style.alignSelf = 'flex-start';
+  }
+  msgs.appendChild(el);
+  msgs.scrollTop = msgs.scrollHeight;
+  return el;
+}
+
+// ── Toast ─────────────────────────────────────────────────────────────────────
+function toast(txt, type='ok') {
+  const ex = document.querySelector('.toast'); if (ex) ex.remove();
+  const t = document.createElement('div');
+  t.className = `toast ${type}`;
+  t.textContent = txt;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3200);
+}
+
+// ── Theme ─────────────────────────────────────────────────────────────────────
+const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
+let ti=0;
+function cycleTheme(){
+  ti=(ti+1)%TH.length;
+  const t=TH[ti];
+  document.documentElement.setAttribute('data-theme',t.key);
+  document.getElementById('themeBtn').textContent=t.i;
+  document.getElementById('themeBtn2').textContent=`${t.i} ${t.l}`;
+  localStorage.setItem('fhir-theme',ti);
+}
+const st=localStorage.getItem('fhir-theme');
+if(st!==null){ti=parseInt(st);const t=TH[ti];document.documentElement.setAttribute('data-theme',t.key);document.getElementById('themeBtn').textContent=t.i;document.getElementById('themeBtn2').textContent=`${t.i} ${t.l}`;}
+</script>
+</body>
+</html>

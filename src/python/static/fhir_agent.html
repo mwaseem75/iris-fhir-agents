@@ -318,7 +318,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <div class="brand">
     <div class="brand-top">
       <div class="brand-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
-      <div><div class="brand-name">IRIS FHIR AGENTS</div><div class="brand-ver">FHIR SERVER AGENT</div></div>
+      <div><div class="brand-name">IRIS FHIR Agents</div><div class="brand-ver">FHIR SERVER AGENT</div></div>
     </div>
     <button class="new-btn" onclick="newSession()">
       <svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Session
@@ -327,9 +327,14 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
   <div class="nav-links">
     <a href="/" class="nav-link"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>Triage Chat</a>
-    <a href="/dashboard" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Dashboard</a>
-    <a href="/vitals" class="nav-link"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals</a>
+    <a href="/dashboard" class="nav-link"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>Analytics Dashboard</a>
+    <a href="/vitals" class="nav-link"><svg viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>Live Vitals Monitor</a>
     <a href="/fhir-agent" class="nav-link active"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg>FHIR Server Agent<span class="nl-badge" style="color:var(--iris);border-color:var(--iris-border);background:var(--iris-dim);">New</span></a>
+    <a href="/agent-builder" class="nav-link">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg>
+      Agent Builder
+      <span class="nl-badge" style="color:#a78bfa;border-color:rgba(167,139,250,.2);background:rgba(167,139,250,.06);">New</span>
+    </a>
   </div>
 
   <div class="sec-lbl">IRIS Server</div>
@@ -396,7 +401,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
     <div class="msgs" id="msgs">
       <div class="welcome" id="welcomeScreen">
         <div class="w-icon"><svg viewBox="0 0 24 24"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
-        <div class="w-title">FHIR Server AGENT</div>
+        <div class="w-title">FHIR Server Agent</div>
         <div class="w-sub">INTERSYSTEMS IRIS FOR HEALTH · FHIR R4</div>
         <div class="w-desc">Ask anything about your IRIS FHIR server — patients, conditions, labs, population analytics, capability statement, or direct SQL queries.</div>
         <div class="cap-grid">
