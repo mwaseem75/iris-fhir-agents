@@ -224,12 +224,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
   <div class="sec-lbl">Select Patient</div>
   <div class="sb-patients" id="sbPatients">
-    <button class="sb-ptbtn on" onclick="selectPatient('pt-001',this)"><div class="sb-pip" id="sp-pt-001"></div>pt-001 · James Anderson</button>
-    <button class="sb-ptbtn" onclick="selectPatient('pt-002',this)"><div class="sb-pip" id="sp-pt-002"></div>pt-002 · Sarah Thompson</button>
-    <button class="sb-ptbtn" onclick="selectPatient('pt-003',this)"><div class="sb-pip" id="sp-pt-003"></div>pt-003 · Michael Williams</button>
-    <button class="sb-ptbtn" onclick="selectPatient('pt-008',this)"><div class="sb-pip" id="sp-pt-008"></div>pt-008 · Patricia Taylor</button>
-    <button class="sb-ptbtn" onclick="selectPatient('pt-009',this)"><div class="sb-pip" id="sp-pt-009"></div>pt-009 · Kevin Garcia</button>
-    <button class="sb-ptbtn" onclick="selectPatient('pt-010',this)"><div class="sb-pip" id="sp-pt-010"></div>pt-010 · Margaret Young</button>
+    <div id="ptLoadingMsg" style="padding:10px 12px;font-family:var(--mono);font-size:10px;color:var(--text3);">Loading patients...</div>
   </div>
 
   <div class="sb-foot">
@@ -371,7 +366,7 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
 
 <script>
 const API='';
-let currentPatient='pt-001',es=null,history=[],sparkData={hr:[],bp:[],spo2:[],temp:[],rr:[]};
+let currentPatient=null,es=null,history=[],sparkData={hr:[],bp:[],spo2:[],temp:[],rr:[]};
 let fhirWriteCount=0;
 const MAX_SPARK=20,MAX_HIST=15;
 
@@ -493,7 +488,44 @@ function clearHistory(){
 }
 
 setInterval(pollAIAlerts,5000);
-restartStream();
+loadPatients();
+
+
+// ── Dynamic patient loader ───────────────────────────────────────────────────
+// Fetches the patient roster live from IRIS via /analytics/patients
+// so the sidebar always reflects whoever is actually in the FHIR server.
+async function loadPatients() {
+  const container = document.getElementById('sbPatients');
+  try {
+    const r = await fetch(`${API}/analytics/patients`);
+    const d = await r.json();
+    const patients = d.patients || [];
+    if (!patients.length) {
+      container.innerHTML = '<div style="padding:10px 12px;font-family:var(--mono);font-size:10px;color:var(--text3);">No patients found in IRIS</div>';
+      return;
+    }
+    // Build buttons
+    container.innerHTML = patients.map((p, i) => {
+      const name = p.name || p.id;
+      // Shorten name to "Firstname Surname" for display
+      const parts = name.trim().split(' ');
+      const label = parts.length >= 2 ? parts[0] + ' ' + parts[parts.length-1] : name;
+      const isFirst = i === 0;
+      return `<button class="sb-ptbtn${isFirst ? ' on' : ''}" onclick="selectPatient('${p.id}',this)">
+        <div class="sb-pip" id="sp-${p.id}"></div>${p.id} · ${label}
+      </button>`;
+    }).join('');
+    // Auto-select first patient
+    const first = patients[0];
+    if (first) {
+      currentPatient = first.id;
+      restartStream();
+    }
+  } catch(e) {
+    container.innerHTML = '<div style="padding:10px 12px;font-family:var(--mono);font-size:10px;color:var(--text3);">Could not load patients — check API</div>';
+    console.warn('loadPatients error:', e);
+  }
+}
 
 const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
 let ti=0;
