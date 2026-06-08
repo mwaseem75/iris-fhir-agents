@@ -1,14 +1,6 @@
 # IRIS FHIR Agents
 
 > A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.
-
-[![InterSystems IRIS](https://img.shields.io/badge/InterSystems-IRIS%20for%20Health-blue)](https://www.intersystems.com/products/intersystems-iris-for-health/)
-[![FHIR R4](https://img.shields.io/badge/FHIR-R4-orange)](https://hl7.org/fhir/R4/)
-[![LangChain](https://img.shields.io/badge/LangChain-Agents-green)](https://python.langchain.com/)
-[![GPT-4o-mini](https://img.shields.io/badge/OpenAI-GPT--4o--mini-purple)](https://openai.com/)
-[![Docker](https://img.shields.io/badge/Docker-Compose-2496ED)](https://www.docker.com/)
-[![Python](https://img.shields.io/badge/Python-3.11-3776AB)](https://www.python.org/)
-
 IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work together to deliver clinical intelligence directly on top of a live FHIR R4 server:
 
 | Agent | Role | Key Capability |
@@ -35,7 +27,7 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 ---
 
 ## Architecture
-<img width="1500" height="1979" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/ca85e584-8fcc-45f2-940a-e909f4931bc2" />
+<img width="1500" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/ca85e584-8fcc-45f2-940a-e909f4931bc2" />
 
 ## Tech Stack
 
