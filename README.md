@@ -9,6 +9,7 @@ IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work tog
 | **Specialist Agent** | Condition analysis | Comorbidity review · Referral planning · ServiceRequest writes |
 | **Pharmacy Agent** | Medication safety | Drug interaction checks · Allergy conflict detection · MedicationRequest writes |
 | **FHIR Server Agent** | FHIR exploration | Natural language FHIR queries · IRIS SQL · Capability explorer |
+| **Custom Agents** |  User-defined specialty | No-code Agent Builder · Configurable tools · 5 clinical templates · Routes automatically via orchestrator  |
 
 Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines from CDC, AHA, FDA, WHO, and KDIGO embedded into IRIS and retrieved semantically at query time. No guideline citation means no recommendation.
 
@@ -16,13 +17,17 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 
 ## Features at a Glance
 
-- **Multi-agent orchestration** — a zero-temperature LLM router classifies every message and dispatches to the correct agent automatically
-- **IRIS Vector Search RAG** — guidelines stored as `VECTOR(DOUBLE, 1536)` in IRIS; queried with `VECTOR_COSINE` for semantic similarity
-- **Live vitals monitoring** — SSE stream writes every reading to FHIR as a coded Observation; critical vitals auto-trigger the Triage Agent
-- **FHIR Capability Explorer** — visual breakdown of what the IRIS FHIR server supports: interaction matrix, resource cards, search param charts
-- **Full FHIR R4 write path** — agents create Observations, ServiceRequests, and MedicationRequests directly in IRIS
-- **Four-page frontend** — consistent sidebar navigation, three themes (Dark / Light / Clinical), live agent network panel
-- **10 rich demo patients** — covering CAD, HFrEF, T2DM, CKD, sepsis, and complex polypharmacy scenarios
+- **Dynamic multi-agent orchestration** — a zero-temperature LLM router classifies every message and dispatches to the correct agent automatically — including user-created custom agents
+- **No-code Agent Builder** — design, configure, and test custom clinical agents via a visual UI; five built-in templates (Oncology, Geriatrics, Pediatrics, Cardiology, Nutrition); deployed instantly into the orchestrator
+- **IRIS Vector Search RAG** — 50 clinical guidelines stored as `VECTOR(DOUBLE, 1536)` in IRIS; queried with `VECTOR_COSINE` for semantic similarity; every agent recommendation is guideline-grounded
+- **Full FHIR R4 write path** — agents create Observations, ServiceRequests, and MedicationRequests directly in IRIS with proper SNOMED CT and RxNorm coding
+- **Live vitals monitoring** — SSE stream writes every reading to FHIR as a coded Observation; critical vitals auto-trigger the Triage Agent with a 30-second AI alert cooldown
+- **FHIR Capability Explorer** — visual breakdown of what the IRIS FHIR server supports: interaction matrix, resource cards, donut charts, search param rankings
+- **Voice input** — Web Speech API integration in Triage Chat and FHIR Agent; auto-detects language and switches voice recognition accordingly; auto-sends on final transcript
+- **Multi-language support** — agents automatically detect and respond in the patient's language (English, Spanish, French, Mandarin); drug safety warnings appear in both languages; English handoff summary always included for clinical staff
+- **Patient Picker** — modal browser loading live from IRIS FHIR; real-time search; clinical hints per patient; one-click session start
+- **Five-page frontend** — consistent sidebar navigation, three themes (Dark / Light / Clinical), live agent network panel, language badge
+- **20 rich demo patients** — covering CAD, HFrEF, T2DM, CKD, sepsis, oncology, geriatrics, paediatrics, and complex polypharmacy scenarios across demo-001 to demo-029
 
 ---
 
@@ -62,6 +67,7 @@ iris-fhir-template/
 │   │
 │   ├── agent/
 │   │   ├── config.py             ← centralised configuration
+│   │   ├── dynamic_agent.py      ← create custom agent
 │   │   ├── orchestrator.py       ← LLM router + session management
 │   │   ├── triage_agent.py       ← patient intake agent
 │   │   ├── specialist_agent.py   ← condition analysis agent
@@ -74,7 +80,8 @@ iris-fhir-template/
 │       ├── index.html            ← Triage Chat
 │       ├── dashboard.html        ← Analytics Dashboard
 │       ├── vitals.html           ← Live Vitals Monitor
-│       └── fhir_agent.html       ← FHIR Server Agent
+│       ├── fhir_agent.html       ← FHIR Server Agent
+        └── agent_builder.html       ← Build Custom Agent
 │
 └── data/
     ├── fhir/
@@ -124,8 +131,8 @@ docker-compose up -d --build
 ```
 
 This starts two containers:
-- `fhir-template` — InterSystems IRIS for Health on ports `32782 / 32783 / 32784`
-- `fhir-triage-api` — FastAPI application on port `8000`
+- `fhir-agents-iris` — InterSystems IRIS for Health on ports `32782 / 32783 / 32784`
+- `fhir-agents-api` — FastAPI application on port `8000`
 
 First startup takes some time while IRIS initialises and the RAG knowledge base embeds 50 guidelines into IRIS Vector Search. Watch the logs:
 
@@ -146,14 +153,6 @@ INFO:     Uvicorn running on http://0.0.0.0:8000
 
 Synthetic FHIR data is loaded during container build from the data/fhir/demo_patients.json file.
 
-The data can also be loaded using the following cURL command:
-```bash
-curl -X POST http://localhost:32783/fhir/r4 \
-  -H "Content-Type: application/fhir+json" \
-  -u _SYSTEM:SYS \
-  -d @data/fhir/demo_patients.json
-```
-
 ### 5. Open the application
 
 | Page | URL |
@@ -162,6 +161,7 @@ curl -X POST http://localhost:32783/fhir/r4 \
 | Analytics Dashboard | http://localhost:8000/dashboard |
 | Live Vitals Monitor | http://localhost:8000/vitals |
 | FHIR Server Agent | http://localhost:8000/fhir-agent |
+| Agent Builder | http://localhost:8000/agent-builder |
 
 ---
 
@@ -209,26 +209,59 @@ The same IRIS instance that stores FHIR patient data also stores the clinical gu
 
 ## API Reference
 
+### Pages
+
 | Method | Endpoint | Description |
 |---|---|---|
-| `GET` | `/` | Triage Chat page |
-| `GET` | `/dashboard` | Analytics Dashboard page |
-| `GET` | `/vitals` | Live Vitals Monitor page |
-| `GET` | `/fhir-agent` | FHIR Server Agent page |
+| `GET` | `/` | Triage Chat |
+| `GET` | `/dashboard` | Analytics Dashboard |
+| `GET` | `/vitals` | Live Vitals Monitor |
+| `GET` | `/fhir-agent` | FHIR Server Agent |
+| `GET` | `/agent-builder` | Agent Builder |
 | `GET` | `/health` | Service health check |
-| `POST` | `/chat` | Multi-agent clinical chat |
-| `GET` | `/session/{id}/new` | Clear session context |
+
+### Clinical Chat
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/chat` | Multi-agent clinical chat — routed to built-in or custom agents |
+| `GET` | `/session/{id}/new` | Clear session context and memory |
+
+### Analytics
+
+| Method | Endpoint | Description |
+|---|---|---|
 | `GET` | `/analytics/summary` | FHIR resource counts |
-| `GET` | `/analytics/conditions` | Top active conditions |
+| `GET` | `/analytics/conditions` | Top active conditions across all patients |
 | `GET` | `/analytics/observations` | AI-created triage observations |
 | `GET` | `/analytics/service-requests` | AI-created service requests |
-| `GET` | `/analytics/patients` | Patient roster |
-| `GET` | `/vitals/stream/{patient_id}` | SSE vitals stream |
-| `GET` | `/vitals/alerts` | AI-triggered critical alerts |
+| `GET` | `/analytics/patients` | Patient roster — used by Patient Picker modal |
+
+### Live Vitals
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/vitals/stream/{patient_id}` | SSE real-time vitals stream |
+| `GET` | `/vitals/alerts` | AI-triggered critical alert feed |
 | `GET` | `/vitals/snapshot/{patient_id}` | Single vitals reading |
-| `POST` | `/fhir-agent/chat` | FHIR Server Agent chat |
-| `GET` | `/fhir-agent/status` | IRIS server status |
+
+### FHIR Server Agent
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `POST` | `/fhir-agent/chat` | FHIR Server Agent natural language chat |
+| `GET` | `/fhir-agent/status` | IRIS server connectivity check |
 | `GET` | `/fhir/metadata` | FHIR CapabilityStatement proxy |
+
+### Custom Agent Builder
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/agents` | List all custom agents |
+| `POST` | `/agents/create` | Create or update a custom agent |
+| `GET` | `/agents/{agent_id}` | Get a single agent config by ID |
+| `DELETE` | `/agents/{agent_id}` | Delete a custom agent |
+| `POST` | `/agents/{agent_id}/test` | Test a custom agent with a single message against live IRIS |
 
 ---
 
