@@ -2,6 +2,7 @@
 
 > A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.
 IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work together to deliver clinical intelligence directly on top of a live FHIR R4 server:
+<img width="1627" alt="image" src="https://github.com/user-attachments/assets/410b2ffa-3af6-43d0-944e-60e463ca8b00" />
 
 | Agent | Role | Key Capability |
 |---|---|---|
@@ -32,7 +33,7 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 ---
 
 ## Architecture
-<img width="1141" height="1601" alt="iris_fhir_agents_architecture_updated" src="https://github.com/user-attachments/assets/68110d3d-ff95-4888-9e02-b0f226171611" />
+<img width="1141"  alt="iris_fhir_agents_architecture_updated" src="https://github.com/user-attachments/assets/68110d3d-ff95-4888-9e02-b0f226171611" />
 
 ## Tech Stack
 
@@ -165,23 +166,152 @@ Synthetic FHIR data is loaded during container build from the data/fhir/demo_pat
 
 ---
 
-## Demo Walkthrough
+### Demo Patients & Use Cases
 
-### Triage Chat — try these patients
+| Patient ID | Name | Conditions | Key Demo |
+|---|---|---|---|
+| `demo-010` | James Anderson, M/68 | CAD · Hypertension · Atrial Fibrillation | **Pharmacy** — Warfarin on board + **Aspirin allergy** (high) · Antiplatelet alternative needed |
+| `demo-011` | Maria Gonzalez, F/37 | T1DM · Septicaemia · DKA | **Emergency** — BP 88/54 · Lactate 4.2 · Glucose 22.4 · pH 7.22 · ICU critical care |
+| `demo-012` | Robert Davis, M/60 | T2DM · HTN · Diabetic Retinopathy · CKD3 | **Specialist** — HbA1c 7.8% · eGFR 38 · Microalbuminuria · Nephrology + ophthalmology referrals |
+| `demo-013` | Patricia Taylor, F/75 | HFrEF · T2DM · CKD3 · Hypertension | **Emergency** — BNP 845 · BP 96 hypotension · eGFR 42 · EF 28% · Decompensated HF |
 
-| Patient ID | Name | Condition | Key Demo |
-|------------|------|-----------|----------|
-| `demo-001` | Sarah Rahman | T2DM · Hypertension · Hypothyroidism | Specialist — HbA1c 8.2% above target, Metformin + Lisinopril interaction with Potassium supplements |
-| `demo-002` | Ahmed Khan | CAD · Asthma · Atrial Fibrillation | Pharmacy — Warfarin + Aspirin HIGH RISK bleeding combo. Sub-therapeutic INR 1.6 flagged |
-| `demo-003` | Mohammed Al-Farsi | HFrEF · CKD Stage 3 | Emergency — BNP 845, creatinine 2.1, weight +4kg. Digoxin toxicity risk with worsening CKD |
+Click on Browse patients to select the patient OR Type `My patient ID is demo-010` to start.
+<img width="1625"  alt="image" src="https://github.com/user-attachments/assets/636468fc-e15d-43c1-9725-1060de238506" />
+<img width="1631"  alt="image" src="https://github.com/user-attachments/assets/e843f7a6-3c5a-4113-b9ff-810b3ecd9747" />
+<img width="1631"  alt="image" src="https://github.com/user-attachments/assets/9a52f333-281c-42c6-91d7-6e61fcd52be6" />
 
-Type `My patient ID is pt-001` to start.
+## Analytics Dashboard
 
-### Live Vitals Monitor
+The Analytics Dashboard (`/dashboard`) provides a real-time population-level view of all clinical data in IRIS, alongside a live record of every FHIR resource written by the AI agents during triage sessions.
 
-Select any patient from the sidebar. Vitals stream every 2 seconds. Occasional critical spikes automatically trigger the Triage Agent — watch the AI Alert Feed panel on the left for the real-time assessment.
+### Five tabs
 
-### FHIR Server Agent
+**Overview**
+The landing view — four summary stat cards showing total counts of Patients, Conditions, Medications, and Allergies queried live from IRIS FHIR R4. Beneath them, three panels sit side by side:
+<img width="1632"  alt="image" src="https://github.com/user-attachments/assets/dd479df3-1432-4d2d-9bb3-a94be888403f" />
+- **Top Active Conditions** — horizontal bar chart ranked by frequency across all patients. Click any bar to open a Condition Detail panel showing exactly which patients carry that condition with a direct link to open each in Triage Chat.
+- **Gender Distribution** — donut chart of patient demographics.
+- **Recent Triage Observations** — the last AI-written FHIR Observations from triage sessions, showing symptom, severity, and the patient they belong to.
+
+**Patients**
+A paginated roster of every patient in IRIS. Each row shows Patient ID, name, date of birth, and gender. Click any patient to expand an inline detail panel with four sub-sections: Demographics, Active Conditions, Known Allergies, and Current Medications — all fetched live from FHIR. An **Open in Triage Chat** button starts a session for that patient directly.
+<img width="1632"  alt="image" src="https://github.com/user-attachments/assets/04fafbaf-b33f-4ac0-a963-d86786aa2f0d" />
+
+**Conditions**
+A full ranked bar chart of all active conditions across the population. Clicking a condition bar drills down to a list of affected patients with their IDs and names. Useful for population analytics queries such as "how many patients have both diabetes and CKD?".
+<img width="1623"  alt="image" src="https://github.com/user-attachments/assets/d09e3cbb-3a81-452b-922d-64f9fe6d4da7" />
+
+**AI Observations**
+Every FHIR Observation resource written by the Triage Agent during chat sessions. Shows the symptom recorded, severity, patient reference, and timestamp. This tab is the live audit trail of AI clinical activity — judges can verify that the agents are genuinely writing structured FHIR data to IRIS, not just generating text.
+<img width="1627"  alt="image" src="https://github.com/user-attachments/assets/3f9789d8-1480-4e97-9292-6b630c848c0e" />
+
+**Service Requests**
+Every FHIR ServiceRequest written by the Triage and Specialist agents. Shows the referral type, priority (routine / urgent / asap), patient reference, and the clinical reason recorded. Demonstrates the full FHIR write pipeline end to end.
+<img width="1627"  alt="image" src="https://github.com/user-attachments/assets/3e767f69-2f89-4b60-b4e1-3edf48ec7607" />
+
+---
+## Live Vitals Monitor
+
+The Live Vitals Monitor (`/vitals`) is a real-time bedside monitoring simulation that streams patient vitals via Server-Sent Events (SSE), writes every reading to IRIS as a FHIR Observation, and automatically triggers the Triage Agent when critical values are detected — without any user action required.
+<img width="1627" alt="image" src="https://github.com/user-attachments/assets/787830c2-2f22-4680-84cd-f59c2df87cc7" />
+
+---
+
+### What it shows
+
+Five vital sign cards update every 2 seconds, each with a colour-coded status indicator and a mini sparkline chart showing the trend of the last 20 readings:
+
+| Vital | Unit | Status colours |
+|---|---|---|
+| **Heart Rate** | beats/min | 🟢 Normal · 🟡 Warning · 🔴 Critical |
+| **Blood Pressure** | systolic/diastolic mmHg | 🟢 Normal · 🟡 Warning · 🔴 Critical |
+| **SpO₂** | oxygen saturation % | 🟢 Normal · 🟡 Warning · 🔴 Critical |
+| **Temperature** | degrees Celsius | 🟢 Normal · 🟡 Warning · 🔴 Critical |
+| **Respiratory Rate** | breaths/min | 🟢 Normal · 🟡 Warning · 🔴 Critical |
+
+A status banner at the top reflects the overall patient state in real time:
+---
+
+### Dynamic patient selection
+
+The patient sidebar loads **live from IRIS FHIR R4** on every page open via `GET /analytics/patients`. Whoever is in your FHIR server appears automatically — no hardcoding, no configuration needed. Add new patients to IRIS and they appear on the next page refresh.
+
+Each patient pip in the sidebar turns amber or red as their vitals status changes, giving a at-a-glance overview of all monitored patients simultaneously.
+
+---
+
+### How the streaming works
+
+Each reading arrives via `GET /vitals/stream/{patient_id}` — a long-lived SSE connection. The backend generates a realistic reading every 2 seconds with occasional simulated spikes to demonstrate critical escalation. Every reading — normal or critical — is immediately written to IRIS as a FHIR Observation.
+
+The **FHIR Write Counter** in the sidebar footer increments with each reading, confirming live persistence to IRIS. The **FHIR Observation Writes** panel on the right shows the last 20 readings in real time with HR, BP, SpO₂, Temperature, and timestamp per row.
+
+---
+
+### AI auto-trigger
+
+When any vital crosses a critical threshold, the platform automatically dispatches an assessment to the Triage Agent — no user input needed. A **30-second cooldown** prevents repeated alerts from the same sustained critical episode.
+
+The complete flow per critical reading:
+SSE reading arrives → FHIR Observation written to IRIS
+↓
+Critical threshold crossed → Triage Agent dispatched
+↓
+RAG searches IRIS Vector Knowledge Base for relevant guidelines
+↓
+AI assessment returned → AI Critical Alert Feed panel updated
+↓
+FHIR ServiceRequest written if referral is warranted
+
+The **AI Critical Alert Feed** panel shows each automated assessment with:
+- The critical vital values that triggered it
+- The Triage Agent's urgency classification
+- The clinical reasoning with RAG guideline citations
+- Timestamp of the automated trigger
+
+AI alert polling runs every 5 seconds via `GET /vitals/alerts` so assessments appear immediately.
+
+---
+
+### Vitals History table
+
+Below the vital cards, a scrollable history table shows the last 15 readings with full detail:
+
+| Column | Description |
+|---|---|
+| Time | Reading timestamp |
+| Heart Rate | bpm |
+| Blood Pressure | systolic/diastolic |
+| SpO₂ | percentage |
+| Temperature | degrees Celsius |
+| Respiratory Rate | breaths/min |
+| Status | Normal / Warning / Critical badge |
+| FHIR | ✓ confirming write to IRIS |
+
+Every row confirms the FHIR write — this table is the live audit trail proving that every vital sign is persisted as a structured FHIR Observation in IRIS.
+
+---
+
+### How to demo the Live Vitals Monitor to judges
+
+**Step 1** — Open `http://localhost:8000/vitals`. The sidebar loads patients directly from IRIS — no hardcoded list.
+
+**Step 2** — Select `demo-003` (Mohammed Al-Farsi — HFrEF + BNP 845). His cardiac profile makes critical vital spikes produce particularly detailed Triage Agent assessments.
+
+**Step 3** — Wait for a critical spike. The status banner flashes `🚨 CRITICAL — AI Alert Triggered Automatically` and within a few seconds the AI Critical Alert Feed panel updates with the Triage Agent's assessment — zero user input.
+
+**Step 4** — Point to the FHIR write counter in the sidebar footer. Show it incrementing every 2 seconds — live proof of continuous writes to IRIS.
+
+**Step 5** — Scroll down to the Vitals History table. Show that every reading is captured and every row has a FHIR ✓ confirmation.
+
+**Step 6** — Switch to `pt-003` (Michael Williams — HFrEF + Digoxin + K⁺ low). Any cardiac critical reading triggers an AI alert that specifically references the Digoxin toxicity risk — demonstrating that the AI is reading and reasoning from the patient's actual FHIR record, not generating generic responses.
+
+**Step 7** — Switch themes using the Dark / Light / Clinical button to show the UI adapts cleanly across modes.
+
+```
+
+
+## FHIR Server Agent
 
 Opens on the **FHIR Capability** tab by default — a full visual breakdown of what the IRIS server supports. Switch to **AI Chat** and try:
 
