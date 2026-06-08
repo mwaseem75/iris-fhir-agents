@@ -377,10 +377,6 @@ The sidebar **Tools Used** panel tracks which tools have been called in the curr
 
 ---
 
-### Example queries
-
-**Patient and population queries:**
-
 ## Agent Builder — Create Your Own Clinical Agent
 
 One of the platform's most powerful features is the **Agent Builder** (`/agent-builder`) — a no-code interface that lets anyone design, configure, and deploy a custom AI clinical agent without writing a single line of code. Every custom agent integrates directly into the Triage Chat orchestrator and appears in the Agent Network sidebar alongside the built-in agents.
