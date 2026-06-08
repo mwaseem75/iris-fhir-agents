@@ -308,18 +308,78 @@ Every row confirms the FHIR write — this table is the live audit trail proving
 
 **Step 7** — Switch themes using the Dark / Light / Clinical button to show the UI adapts cleanly across modes.
 
-```
-
 
 ## FHIR Server Agent
 
-Opens on the **FHIR Capability** tab by default — a full visual breakdown of what the IRIS server supports. Switch to **AI Chat** and try:
+The FHIR Server Agent (`/fhir-agent`) provides two complementary ways to explore your InterSystems IRIS FHIR R4 server — a **live visual Capability Explorer** and a **natural language AI chat** interface that can query patients, run IRIS SQL, and cross-reference clinical guidelines.
 
-```
-Which patients have both diabetes and kidney disease?
-Show me a complete clinical summary for pt-010
-Run this SQL: SELECT COUNT(*) FROM HSFHIR_X0001_S.Patient
-```
+---
+
+### Two tabs
+
+**AI Chat** (default tab)
+A conversational interface powered by GPT-4o-mini with 11 FHIR tools. Ask anything about your IRIS data in plain English — the agent fetches, analyses, and synthesises responses grounded in live FHIR data.
+<img width="1625"  alt="image" src="https://github.com/user-attachments/assets/b4029dd3-5f9d-4d48-9a44-724c300e9a74" />
+
+
+**FHIR Capability Explorer**
+A live visual breakdown of everything your IRIS FHIR server supports — loaded directly from the CapabilityStatement at startup. No static data — every chart and table reflects the actual server configuration.
+<img width="1620"  alt="image" src="https://github.com/user-attachments/assets/c8863b7f-421c-4876-8553-be159da586f7" />
+
+---
+
+### FHIR Capability Explorer
+
+Opens automatically when you navigate to the page. Fetches `GET /fhir/metadata` and renders the CapabilityStatement into five visual components:
+
+**Server info cards**
+Four cards showing Software name and version, FHIR version, server kind, and endpoint address.
+
+**Summary stats row**
+Five counters: Resource Types supported · Total Interactions · Supported Formats · Operations · Search Parameters.
+
+**Interaction Coverage donut chart**
+A proportional donut showing the breakdown of interaction types (read, search-type, create, update, delete, patch) across all resources.
+
+**Resource Categories donut chart**
+Groups all supported resources into Clinical, Patient, Administrative, Financial, and Infrastructure categories with proportional slicing.
+
+**Top Search Parameters bar chart**
+Horizontal bars showing which resources have the most search parameters — useful for understanding query capability.
+
+**Interaction Matrix**
+A table showing the eight key clinical resources (Patient, Condition, MedicationRequest, Observation, AllergyIntolerance, ServiceRequest, Procedure, Encounter) against all six interaction types with ✓ / · indicators and search parameter counts.
+
+**All Supported Resources grid**
+Every resource the server supports rendered as a card showing its type, interaction tags (read, search-type, create, update, delete, patch), and search parameter count. Includes:
+- Real-time search filter — type any resource name to narrow the grid
+- Category filter buttons — Clinical / Patient / Administrative / Financial / Infrastructure
+- Click any card to expand a detail panel showing all interactions, every search parameter with type, and capability flags (ReadHistory, UpdateCreate, ConditionalCreate, ConditionalUpdate)
+
+---
+
+### AI Chat — 11 FHIR tools
+
+The FHIR Server Agent has access to 11 tools that it calls automatically based on your question:
+
+| Tool | What it does |
+|---|---|
+| `get_patient_list` | Fetch all patients from IRIS |
+| `get_conditions` | Get conditions for a patient |
+| `get_medications` | Get active medications for a patient |
+| `get_observations` | Get observations and lab results |
+| `get_capability` | Fetch the CapabilityStatement |
+| `query_iris_sql` | Run direct SQL against IRIS via Atelier REST API |
+| `get_fhir_statistics` | Resource counts across the server |
+| `search_guidelines` | RAG search of the clinical knowledge base |
+
+The sidebar **Tools Used** panel tracks which tools have been called in the current session, with a call counter and a pulsing indicator when a tool is actively running.
+
+---
+
+### Example queries
+
+**Patient and population queries:**
 
 ## Agent Builder — Create Your Own Clinical Agent
 
@@ -335,10 +395,11 @@ Test against live IRIS FHIR data → Save → Available instantly in Triage Chat
 
 ---
 
-### Built-in Templates
+## Agent Builder
+The Agent Builder (`/agent-builder`) is a no-code interface for designing, configuring, and deploying custom AI clinical agents. Every agent created here integrates directly into the Triage Chat orchestrator, appears in the Agent Network sidebar, and is callable from the same conversation interface as the built-in agents — without writing a single line of code.
+<img width="1627" alt="image" src="https://github.com/user-attachments/assets/d9c7da8a-6420-4d5e-8daa-724f603f6e46" />
 
-Five clinical templates are provided as starting points — each pre-configured with a clinically accurate system prompt, recommended temperature, and appropriate tool set:
-
+### Five clinical templates
 | Template | Specialty | Key Capabilities |
 |---|---|---|
 | 🎗️ **Oncology Agent** | Oncology | Chemotherapy drug interactions, platinum compound contraindications, tumour board referrals, NCCN/ASCO guideline citations |
