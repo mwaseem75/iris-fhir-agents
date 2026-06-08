@@ -27,7 +27,7 @@ Every agent is grounded by **IRIS Vector Search RAG** — 50 clinical guidelines
 ---
 
 ## Architecture
-<img width="1500" alt="iris_fhir_agents_architecture_v2_white_bg" src="https://github.com/user-attachments/assets/ca85e584-8fcc-45f2-940a-e909f4931bc2" />
+<img width="1141" height="1601" alt="iris_fhir_agents_architecture_updated" src="https://github.com/user-attachments/assets/68110d3d-ff95-4888-9e02-b0f226171611" />
 
 ## Tech Stack
 
