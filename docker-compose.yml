@@ -31,6 +31,7 @@ services:
       - "8000:8000"
     volumes:
       - ./src/python:/app
+      - ./data:/app/data 
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - FHIR_BASE_URL=http://iris:52773/fhir/r4

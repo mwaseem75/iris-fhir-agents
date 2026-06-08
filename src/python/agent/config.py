@@ -22,12 +22,12 @@ import os
 # Internal Docker network address — used by all server-side FHIR calls.
 # The browser-facing address (localhost:32783) is only used in the HTML
 # frontend; all Python code uses this internal address.
-FHIR_BASE = os.getenv("FHIR_BASE_URL", "http://fhir-template:52773/fhir/r4")
+FHIR_BASE = os.getenv("FHIR_BASE_URL", "http://fhir-agents-iris:52773/fhir/r4")
 
 # IRIS Atelier REST API base — without /fhir/r4 suffix.
 # Used by knowledge_base.py and fhir_agent.py for direct SQL queries
 # via the /api/atelier/v1/FHIRSERVER/action/query endpoint.
-IRIS_BASE = os.getenv("IRIS_BASE_URL", "http://fhir-template:52773")
+IRIS_BASE = os.getenv("IRIS_BASE_URL", "http://fhir-agents-iris:52773")
 
 # IRIS credentials — same account used for both FHIR REST and Atelier SQL
 FHIR_USERNAME = os.getenv("FHIR_USERNAME", "_SYSTEM")
@@ -67,7 +67,7 @@ TEMP_ROUTER     = float(os.getenv("TEMP_ROUTER",     "0.0"))
 # can be updated without rebuilding the image.
 RAG_GUIDELINES_CSV = os.getenv(
     "RAG_GUIDELINES_CSV",
-    "/home/irisowner/irisdev/data/RAG/clinical_rag_guidelines.csv"
+    "/app/data/RAG/clinical_rag_guidelines.csv"
 )
 
 # OpenAI embedding model — must match the VECTOR(DOUBLE, 1536) column

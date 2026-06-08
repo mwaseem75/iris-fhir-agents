@@ -9,7 +9,7 @@ How it works:
   1. On startup, clinical guidelines are loaded from clinical_rag_guidelines.csv
      (50 guidelines from CDC, WHO, AHA, FDA, KDIGO and other authorities).
   2. Each guideline's content is embedded into a 1536-dimensional vector using
-     OpenAI text-embedding-3-small and stored in RAG.VectorKnowledgeBase on IRIS.
+     OpenAI text-embedding-3-small and stored in RAG.ClinicalGuidelines on IRIS.
   3. When an agent calls search_clinical_guidelines(), the query is embedded
      the same way and IRIS finds the most semantically similar guidelines using
      cosine similarity — so "chest tightness and sweating" retrieves AHA chest
@@ -192,7 +192,7 @@ def keyword_search(query: str, guidelines: list) -> list:
 
 def initialize_knowledge_base():
     """
-    Bootstrap the RAG.VectorKnowledgeBase table and populate it from the CSV.
+    Bootstrap the RAG.ClinicalGuidelines table and populate it from the CSV.
 
     Called automatically at the bottom of this file so the knowledge base is
     ready before the first HTTP request arrives. The logic is idempotent:
@@ -216,7 +216,7 @@ def initialize_knowledge_base():
         # IRIS versions don't support that DDL syntax via the Atelier API.
         try:
             iris_sql_execute("""
-                CREATE TABLE RAG.VectorKnowledgeBase (
+                CREATE TABLE RAG.ClinicalGuidelines (
                     id        VARCHAR(100) PRIMARY KEY,
                     source    VARCHAR(200),
                     topic     VARCHAR(200),
@@ -224,12 +224,12 @@ def initialize_knowledge_base():
                     embedding VECTOR(DOUBLE, 1536)
                 )
             """)
-            print("RAG: Table RAG.VectorKnowledgeBase created")
+            print("RAG: Table RAG.ClinicalGuidelines created")
         except Exception:
             print("RAG: Table already exists — skipping CREATE")
 
         # ── Check how many guidelines are already stored ──────────────────────
-        rows = iris_sql_query("SELECT COUNT(*) AS cnt FROM RAG.VectorKnowledgeBase")
+        rows = iris_sql_query("SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines")
         existing_count = int(rows[0].get("cnt", 0)) if rows else 0
 
         if existing_count >= len(guidelines):
@@ -243,7 +243,7 @@ def initialize_knowledge_base():
             try:
                 # Skip rows that are already present (partial load recovery)
                 exists = iris_sql_query(
-                    "SELECT COUNT(*) AS cnt FROM RAG.VectorKnowledgeBase WHERE id = ?",
+                    "SELECT COUNT(*) AS cnt FROM RAG.ClinicalGuidelines WHERE id = ?",
                     [g["id"]]
                 )
                 if int(exists[0].get("cnt", 0)) > 0:
@@ -256,7 +256,7 @@ def initialize_knowledge_base():
                 # Without the DOUBLE qualifier some versions infer FLOAT32
                 # which silently truncates precision and corrupts similarity scores.
                 iris_sql_execute("""
-                    INSERT INTO RAG.VectorKnowledgeBase
+                    INSERT INTO RAG.ClinicalGuidelines
                         (id, source, topic, content, embedding)
                     VALUES (?, ?, ?, ?, TO_VECTOR(?, DOUBLE))
                 """, [
@@ -305,7 +305,7 @@ def search_clinical_guidelines(query: str) -> str:
                 SELECT TOP 3
                     id, source, topic, content,
                     VECTOR_COSINE(embedding, TO_VECTOR(?, DOUBLE)) AS similarity
-                FROM RAG.VectorKnowledgeBase
+                FROM RAG.ClinicalGuidelines
                 ORDER BY VECTOR_COSINE(embedding, TO_VECTOR(?, DOUBLE)) DESC
             """, [embedding_str, embedding_str])
 
