@@ -468,17 +468,21 @@ The Agent Network sidebar in Triage Chat highlights the active agent in real tim
 
 ---
 
-## How the RAG Works
+## RAG — Clinical Guidelines with IRIS Vector Search
 
-1. On startup, `knowledge_base.py` loads `clinical_rag_guidelines.csv` (50 guidelines)
-2. Each guideline is embedded with `text-embedding-3-small` → 1536-dimensional vector
-3. Vectors are stored in IRIS: `INSERT INTO RAG.VectorKnowledgeBase ... TO_VECTOR(?, DOUBLE)`
-4. At query time, the agent's question is embedded the same way
-5. IRIS finds the closest guidelines: `VECTOR_COSINE(embedding, TO_VECTOR(?, DOUBLE))`
-6. Results above 0.1 similarity are returned with relevance scores
-7. If IRIS is unavailable, keyword search over the in-memory CSV provides fallback coverage
+Every agent recommendation is grounded by **50 clinical guidelines** stored as `VECTOR(DOUBLE, 1536)` embeddings in IRIS — the same instance that holds your FHIR patient data. No external vector database required.
 
-The same IRIS instance that stores FHIR patient data also stores the clinical guideline vectors — no separate vector database required.
+### How to see it working
+
+**Step 1 — Load a patient and ask a clinical question:**
+```
+My patient ID is demo-012
+```
+Then ask the below:
+"My HbA1c is 7.8% and my kidney function has been declining. What should I do?"
+<img width="1621" alt="image" src="https://github.com/user-attachments/assets/ba02da39-cf0c-41d2-82ea-b83b7bab4431" />
+
+The relevance score is the actual `VECTOR_COSINE` similarity value returned by IRIS — not a hallucinated reference.
 
 ---
 
@@ -537,31 +541,6 @@ The same IRIS instance that stores FHIR patient data also stores the clinical gu
 | `GET` | `/agents/{agent_id}` | Get a single agent config by ID |
 | `DELETE` | `/agents/{agent_id}` | Delete a custom agent |
 | `POST` | `/agents/{agent_id}/test` | Test a custom agent with a single message against live IRIS |
-
----
-
-## Environment Variables
-
-| Variable | Default | Description |
-|---|---|---|
-| `OPENAI_API_KEY` | — | **Required.** Your OpenAI API key |
-| `OPENAI_MODEL` | `gpt-4o-mini` | LLM model for all agents |
-| `EMBEDDING_MODEL` | `text-embedding-3-small` | Embedding model for RAG |
-| `FHIR_BASE_URL` | `http://fhir-template:52773/fhir/r4` | Internal IRIS FHIR endpoint |
-| `IRIS_BASE_URL` | `http://fhir-template:52773` | Internal IRIS base (for SQL) |
-| `FHIR_USERNAME` | `_SYSTEM` | IRIS credentials |
-| `FHIR_PASSWORD` | `SYS` | IRIS credentials |
-| `RAG_GUIDELINES_CSV` | `/home/irisowner/.../clinical_rag_guidelines.csv` | Path to guidelines CSV |
-| `TEMP_TRIAGE` | `0.3` | Triage Agent temperature |
-| `TEMP_SPECIALIST` | `0.2` | Specialist Agent temperature |
-| `TEMP_PHARMACY` | `0.1` | Pharmacy Agent temperature |
-| `TEMP_ROUTER` | `0.0` | Orchestrator router temperature |
-
----
-
-## License
-
-MIT License — see [LICENSE](LICENSE) for details.
 
 ---
 
