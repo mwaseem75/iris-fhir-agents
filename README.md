@@ -191,6 +191,90 @@ Show me a complete clinical summary for pt-010
 Run this SQL: SELECT COUNT(*) FROM HSFHIR_X0001_S.Patient
 ```
 
+## Agent Builder — Create Your Own Clinical Agent
+
+One of the platform's most powerful features is the **Agent Builder** (`/agent-builder`) — a no-code interface that lets anyone design, configure, and deploy a custom AI clinical agent without writing a single line of code. Every custom agent integrates directly into the Triage Chat orchestrator and appears in the Agent Network sidebar alongside the built-in agents.
+
+---
+### How it works
+Open Agent Builder → Choose template or start blank → Write system prompt
+↓
+Configure tools · Set temperature · Enable RAG
+↓
+Test against live IRIS FHIR data → Save → Available instantly in Triage Chat
+
+---
+
+### Built-in Templates
+
+Five clinical templates are provided as starting points — each pre-configured with a clinically accurate system prompt, recommended temperature, and appropriate tool set:
+
+| Template | Specialty | Key Capabilities |
+|---|---|---|
+| 🎗️ **Oncology Agent** | Oncology | Chemotherapy drug interactions, platinum compound contraindications, tumour board referrals, NCCN/ASCO guideline citations |
+| 👴 **Geriatrics Agent** | Geriatrics | Beers Criteria screening, anticholinergic burden, fall risk, polypharmacy review (≥5 drugs flagged) |
+| 👶 **Pediatrics Agent** | Pediatrics | Weight-based dosing (mg/kg), age-appropriate normal ranges, contraindicated medications (aspirin, codeine, fluoroquinolones) |
+| ❤️ **Cardiology Agent** | Cardiology | HFrEF/HFpEF management, digoxin + electrolyte danger detection, GDMT gap identification, AHA/ACC guidelines |
+| 🥗 **Nutrition Agent** | Nutrition | Drug-nutrient interactions, disease-specific dietary guidance (ADA, KDOQI), warfarin + vitamin K counselling |
+
+---
+
+### Demo — Building an Oncology Agent
+
+**Step 1 — Open the Agent Builder:**
+http://localhost:8000/agent-builder
+
+**Step 2 — Click the Oncology Agent template.** The system prompt auto-fills with a complete clinical prompt covering chemo drug interactions, NCCN guideline citations, and contraindication checks.
+
+**Step 3 — Configure:**
+- Temperature: `0.15` — precise and consistent for drug safety
+- Tools: all FHIR read tools + `search_clinical_guidelines` + `create_service_request`
+- RAG: enabled — retrieves NCCN/ASCO guidelines from IRIS Vector Search
+
+**Step 4 — Click Test Agent.** The slide-in test panel opens. Type:
+My patient ID is demo-022. Can she receive platinum-based chemotherapy?
+
+The agent fetches Susan Lee's record from IRIS, finds her **Platinum compounds allergy** (criticality: high), and responds:
+⚠ HIGH RISK: Platinum compound allergy documented for this patient.
+Carboplatin and Cisplatin are CONTRAINDICATED.
+According to NCCN Guidelines (Relevance: 94%) — patients with prior
+platinum hypersensitivity should receive alternative regimens.
+Recommend: Oncology MDT review for non-platinum alternative.
+--- ENGLISH HANDOFF SUMMARY ---
+Patient: Susan Lee (demo-022) | Breast cancer Stage IIB | Platinum allergy HIGH
+Assessment: Platinum-based chemo CONTRAINDICATED — allergy on record
+Action: ServiceRequest written to IRIS — oncology MDT referral
+
+---
+**Step 5 — Save.** The Oncology Agent is now available in:
+- **Triage Chat sidebar** — appears in the Agent Network panel
+- **Orchestrator** — messages about cancer and chemotherapy route to it automatically
+- **API** — callable via `POST /agents/oncology-agent/test`
+
+---
+
+### What makes a good custom agent
+
+| Setting | Guidance |
+|---|---|
+| **Temperature** | `0.1` for drug safety and strict protocols · `0.2` for clinical assessments · `0.3` for counselling and dietary advice |
+| **System prompt** | Start with the specialty, list responsibilities, add clinical rules. The platform auto-appends patient ID injection, language detection, and guideline citation rules. |
+| **Routing description** | One sentence telling the orchestrator when to route to this agent. Be specific: *"For cancer, chemotherapy, and oncology questions"* works better than *"For complex patients"*. |
+| **Tools** | Enable `create_service_request` if the agent should write referrals. Enable `create_triage_observation` if it should record clinical findings. Disable write tools for read-only advisory agents. |
+| **RAG** | Keep enabled for any clinical agent — guideline grounding prevents hallucinated recommendations. |
+
+---
+
+### Custom agent in action — Triage Chat routing
+
+Once saved, the orchestrator's router prompt is updated dynamically. If a user types:
+'''
+My patient has breast cancer and is asking about Tamoxifen side effects
+'''
+The zero-temperature router recognises this as an oncology question and routes it to the **Oncology Agent** rather than the built-in Specialist Agent — without any configuration change.
+
+The Agent Network sidebar in Triage Chat highlights the active agent in real time, showing the custom agent name, icon, colour, and call count alongside the built-in agents.
+
 ---
 
 ## How the RAG Works
