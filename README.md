@@ -1,7 +1,9 @@
 # IRIS FHIR Agents
 
-> A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.
-IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work together to deliver clinical intelligence directly on top of a live FHIR R4 server:
+A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, pharmacy safety, and FHIR server exploration — all grounded by IRIS Vector Search RAG. Includes a no-code Agent Builder that lets you design and deploy custom clinical agents without writing a single line of code.
+
+IRIS FHIR Agents orchestrates five LangChain-powered AI agents that work together to deliver clinical intelligence directly on top of a live FHIR R4 server
+
 <img width="1627" alt="image" src="https://github.com/user-attachments/assets/410b2ffa-3af6-43d0-944e-60e463ca8b00" />
 
 | Agent | Role | Key Capability |
@@ -62,6 +64,12 @@ iris-fhir-template/
 ├── merge.cpf                     ← iris
 ├── module.xml                    ← ZPM 
 │
+├── iris_module/
+│   └── __init__.py               ← For Embedded python
+│
+├── src/fhirsetup/
+│   └── Setup.cls                 ← Setup FHIR server
+│
 ├── src/python/
 │   ├── api/
 │   │   └── main.py               ← FastAPI server, all HTTP routes
@@ -82,7 +90,7 @@ iris-fhir-template/
 │       ├── dashboard.html        ← Analytics Dashboard
 │       ├── vitals.html           ← Live Vitals Monitor
 │       ├── fhir_agent.html       ← FHIR Server Agent
-        └── agent_builder.html       ← Build Custom Agent
+│       └── agent_builder.html       ← Build Custom Agent
 │
 └── data/
     ├── fhir/
@@ -107,7 +115,7 @@ iris-fhir-template/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/iris-fhir-agents.git
+git clone https://github.com/mwaseem75/iris-fhir-agents.git
 cd iris-fhir-agents
 ```
 
@@ -125,7 +133,7 @@ OPENAI_API_KEY=sk-your-real-key-here
 
 All other defaults work out of the box with the Docker setup.
 
-### 3. Start the platform
+### 3. Start the containers
 
 ```bash
 docker-compose up -d --build
@@ -230,6 +238,7 @@ Five vital sign cards update every 2 seconds, each with a colour-coded status in
 | **Respiratory Rate** | breaths/min | 🟢 Normal · 🟡 Warning · 🔴 Critical |
 
 A status banner at the top reflects the overall patient state in real time:
+
 ---
 
 ### Dynamic patient selection
