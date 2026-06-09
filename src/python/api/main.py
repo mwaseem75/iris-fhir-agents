@@ -319,7 +319,7 @@ def get_recent_observations():
     so operators can see real triage activity rather than static demo data.
     """
     try:
-        url = f"{FHIR_BASE}/Observation?_count=10&_sort=-date&category=survey"
+        url = f"{FHIR_BASE}/Observation?_count=20&category=survey&_sort=-_lastUpdated"
         r = httpx.get(url, auth=FHIR_AUTH, headers=FHIR_HEADERS, timeout=10)
         entries = r.json().get("entry", [])
 
@@ -350,7 +350,7 @@ def get_service_requests():
     ServiceRequest. This endpoint exposes those back to the dashboard.
     """
     try:
-        url = f"{FHIR_BASE}/ServiceRequest?_count=10&_sort=-authored"
+        url = f"{FHIR_BASE}/ServiceRequest?_count=50&_sort=-_lastUpdated"
         r = httpx.get(url, auth=FHIR_AUTH, headers=FHIR_HEADERS, timeout=10)
         entries = r.json().get("entry", [])
 

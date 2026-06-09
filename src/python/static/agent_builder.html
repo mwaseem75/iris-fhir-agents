@@ -555,7 +555,13 @@ SPECIAL RULES:
 - Flag platinum compounds in patients with previous nephrotoxicity
 - Check cardiac function before anthracycline therapy
 - Identify hormonal therapy implications in breast/prostate cancer
-- If patient is pregnant: flag teratogenic risk for all cytotoxic agents`
+- If patient is pregnant: flag teratogenic risk for all cytotoxic agents
+
+MANDATORY FHIR WRITES — ALWAYS DO BOTH WHEN A CLINICAL ISSUE IS FOUND:
+1. Call create_triage_observation with the allergy conflict or clinical finding details
+2. Call create_service_request with priority "urgent" for the MDT or specialist referral
+A response WITHOUT calling both tools when a clinical issue exists is INCOMPLETE.
+Never end your response without writing the clinical findings and referral to FHIR.`
   },
   geriatrics: {
     name: 'Geriatrics Agent',
@@ -587,7 +593,12 @@ SPECIAL RULES:
 - Avoid: tricyclic antidepressants, first-generation antihistamines, benzodiazepines (long-term)
 - Caution: NSAIDs (GI bleeding), opioids (falls/confusion), anticholinergics (delirium)
 - Always assess for orthostatic hypotension risk with antihypertensives
-- Flag any medication started after a hospitalisation — delirium-associated prescribing`
+- Flag any medication started after a hospitalisation — delirium-associated prescribing
+
+MANDATORY FHIR WRITES — ALWAYS DO BOTH WHEN A CLINICAL ISSUE IS FOUND:
+1. Call create_triage_observation with the clinical finding details
+2. Call create_service_request with appropriate priority for any referral needed
+Never end your response without writing clinical findings and referrals to FHIR.`
   },
   pediatrics: {
     name: 'Pediatrics Agent',
@@ -619,7 +630,12 @@ SPECIAL RULES:
 - Fluoroquinolones: avoid in children — cartilage toxicity
 - Tetracyclines: avoid under 8 — dental staining
 - All doses must be expressed as mg/kg/day with maximum dose ceiling
-- Flag any adult-dose medication prescribed to a paediatric patient`
+- Flag any adult-dose medication prescribed to a paediatric patient
+
+MANDATORY FHIR WRITES — ALWAYS DO BOTH WHEN A CLINICAL ISSUE IS FOUND:
+1. Call create_triage_observation with the clinical finding details
+2. Call create_service_request with appropriate priority for any referral needed
+Never end your response without writing clinical findings and referrals to FHIR.`
   },
   cardiology: {
     name: 'Cardiology Agent',
@@ -650,7 +666,12 @@ SPECIAL RULES:
 - Warfarin + any new drug = check INR impact
 - BNP >500 = decompensated HF — escalate
 - Systolic BP <90 = hold ACE/ARB/beta-blocker — flag
-- Potassium >5.5 with ACE/ARB/spironolactone = DANGER hyperkalaemia`
+- Potassium >5.5 with ACE/ARB/spironolactone = DANGER hyperkalaemia
+
+MANDATORY FHIR WRITES — ALWAYS DO BOTH WHEN A CLINICAL ISSUE IS FOUND:
+1. Call create_triage_observation with the clinical finding details
+2. Call create_service_request with appropriate priority for any referral needed
+Never end your response without writing clinical findings and referrals to FHIR.`
   },
   nutrition: {
     name: 'Nutrition Agent',
@@ -681,7 +702,12 @@ DISEASE-SPECIFIC RULES:
 - Heart failure: sodium <2g/day, fluid restriction if congested
 - Warfarin: consistent vitamin K intake — advise on green vegetables
 - Hypothyroidism: avoid excessive iodine, consistent soy intake
-- All recommendations must align with retrieved clinical guidelines`
+- All recommendations must align with retrieved clinical guidelines
+
+MANDATORY FHIR WRITES — ALWAYS DO BOTH WHEN A CLINICAL ISSUE IS FOUND:
+1. Call create_triage_observation with the clinical finding details
+2. Call create_service_request with appropriate priority for any referral needed
+Never end your response without writing clinical findings and referrals to FHIR.`
   }
 };
 
