@@ -238,6 +238,7 @@ Five vital sign cards update every 2 seconds, each with a colour-coded status in
 | **Respiratory Rate** | breaths/min | 🟢 Normal · 🟡 Warning · 🔴 Critical |
 
 A status banner at the top reflects the overall patient state in real time:
+
 ---
 
 ### Dynamic patient selection
