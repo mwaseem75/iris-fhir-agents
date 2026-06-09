@@ -386,20 +386,6 @@ The sidebar **Tools Used** panel tracks which tools have been called in the curr
 
 ---
 
-## Agent Builder — Create Your Own Clinical Agent
-
-One of the platform's most powerful features is the **Agent Builder** (`/agent-builder`) — a no-code interface that lets anyone design, configure, and deploy a custom AI clinical agent without writing a single line of code. Every custom agent integrates directly into the Triage Chat orchestrator and appears in the Agent Network sidebar alongside the built-in agents.
-
----
-### How it works
-Open Agent Builder → Choose template or start blank → Write system prompt
-↓
-Configure tools · Set temperature · Enable RAG
-↓
-Test against live IRIS FHIR data → Save → Available instantly in Triage Chat
-
----
-
 ## Agent Builder
 The Agent Builder (`/agent-builder`) is a no-code interface for designing, configuring, and deploying custom AI clinical agents. Every agent created here integrates directly into the Triage Chat orchestrator, appears in the Agent Network sidebar, and is callable from the same conversation interface as the built-in agents — without writing a single line of code.
 <img width="1627" alt="image" src="https://github.com/user-attachments/assets/d9c7da8a-6420-4d5e-8daa-724f603f6e46" />
@@ -414,35 +400,32 @@ The Agent Builder (`/agent-builder`) is a no-code interface for designing, confi
 | 🥗 **Nutrition Agent** | Nutrition | Drug-nutrient interactions, disease-specific dietary guidance (ADA, KDOQI), warfarin + vitamin K counselling |
 
 ---
+### How it works
+Open Agent Builder 
 
+
+Choose template or start blank → Write system promptConfigure tools · Set temperature · Enable RAG
+
+
+Test against live IRIS FHIR data → Save → Available instantly in Triage Chat
+
+---
 ### Demo — Building an Oncology Agent
 
 **Step 1 — Open the Agent Builder:**
 http://localhost:8000/agent-builder
+<img width="1526"  alt="image" src="https://github.com/user-attachments/assets/a101b287-0313-4112-8ba7-c230cf6ea9b2" />
 
-**Step 2 — Click the Oncology Agent template.** The system prompt auto-fills with a complete clinical prompt covering chemo drug interactions, NCCN guideline citations, and contraindication checks.
+**Step 2 — Click and configure Oncology Agent template.** The system prompt auto-fills with a complete clinical prompt covering chemo drug interactions, NCCN guideline citations, and contraindication checks.
+<img width="1183"  alt="image" src="https://github.com/user-attachments/assets/fb5e186f-6212-421b-874d-baedf29c548d" />
 
-**Step 3 — Configure:**
-- Temperature: `0.15` — precise and consistent for drug safety
-- Tools: all FHIR read tools + `search_clinical_guidelines` + `create_service_request`
-- RAG: enabled — retrieves NCCN/ASCO guidelines from IRIS Vector Search
-
-**Step 4 — Click Test Agent.** The slide-in test panel opens. Type:
+**Step 3 — Save the agent and click Test Agent button.** The slide-in test panel opens. Type:
 My patient ID is demo-022. Can she receive platinum-based chemotherapy?
+<img width="1523" alt="image" src="https://github.com/user-attachments/assets/10e7ae5e-d7bb-4760-b472-a3a9396296e9" />
 
-The agent fetches Susan Lee's record from IRIS, finds her **Platinum compounds allergy** (criticality: high), and responds:
-⚠ HIGH RISK: Platinum compound allergy documented for this patient.
-Carboplatin and Cisplatin are CONTRAINDICATED.
-According to NCCN Guidelines (Relevance: 94%) — patients with prior
-platinum hypersensitivity should receive alternative regimens.
-Recommend: Oncology MDT review for non-platinum alternative.
---- ENGLISH HANDOFF SUMMARY ---
-Patient: Susan Lee (demo-022) | Breast cancer Stage IIB | Platinum allergy HIGH
-Assessment: Platinum-based chemo CONTRAINDICATED — allergy on record
-Action: ServiceRequest written to IRIS — oncology MDT referral
+The agent fetches Susan Lee's record from IRIS, finds her **Platinum compounds allergy** (criticality: high), and responds
 
----
-**Step 5 — Save.** The Oncology Agent is now available in:
+**The Oncology Agent is now available in:**
 - **Triage Chat sidebar** — appears in the Agent Network panel
 - **Orchestrator** — messages about cancer and chemotherapy route to it automatically
 - **API** — callable via `POST /agents/oncology-agent/test`
@@ -464,12 +447,8 @@ Action: ServiceRequest written to IRIS — oncology MDT referral
 ### Custom agent in action — Triage Chat routing
 
 Once saved, the orchestrator's router prompt is updated dynamically. If a user types:
-'''
-My patient has breast cancer and is asking about Tamoxifen side effects
-'''
-The zero-temperature router recognises this as an oncology question and routes it to the **Oncology Agent** rather than the built-in Specialist Agent — without any configuration change.
-
 The Agent Network sidebar in Triage Chat highlights the active agent in real time, showing the custom agent name, icon, colour, and call count alongside the built-in agents.
+<img width="1528" alt="image" src="https://github.com/user-attachments/assets/484bfb12-9a59-4ce7-bdfd-4a91e1dbc92a" />
 
 ---
 
