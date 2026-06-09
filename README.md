@@ -1,7 +1,9 @@
 # IRIS FHIR Agents
 
-> A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.
-IRIS FHIR Agents orchestrates **four LangChain-powered AI agents** that work together to deliver clinical intelligence directly on top of a live FHIR R4 server:
+A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, pharmacy safety, and FHIR server exploration — all grounded by IRIS Vector Search RAG. Includes a no-code Agent Builder that lets you design and deploy custom clinical agents without writing a single line of code.
+
+IRIS FHIR Agents orchestrates five LangChain-powered AI agents that work together to deliver clinical intelligence directly on top of a live FHIR R4 server
+
 <img width="1627" alt="image" src="https://github.com/user-attachments/assets/410b2ffa-3af6-43d0-944e-60e463ca8b00" />
 
 | Agent | Role | Key Capability |
