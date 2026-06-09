@@ -115,7 +115,7 @@ iris-fhir-template/
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/iris-fhir-agents.git
+git clone https://github.com/mwaseem75/iris-fhir-agents.git
 cd iris-fhir-agents
 ```
 
@@ -133,7 +133,7 @@ OPENAI_API_KEY=sk-your-real-key-here
 
 All other defaults work out of the box with the Docker setup.
 
-### 3. Start the platform
+### 3. Start the containers
 
 ```bash
 docker-compose up -d --build
