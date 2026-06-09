@@ -447,7 +447,8 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
   <!-- Header -->
   <div class="chat-hdr">
     <div class="hdr-left">
-       <div class="agent-badge triage" id="agBadge">
+     
+      <div class="agent-badge triage" id="agBadge">
         <svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
         <span id="agTxt">Orchestrator Ready</span>
       </div>
@@ -475,14 +476,6 @@ html,body{height:100%;background:var(--bg);color:var(--text);font-family:var(--f
         <div class="w-chip pharmacy"><div class="w-chip-dot"></div>Pharmacy Agent</div>
       </div>
 
-      <!--
-      <button onclick="openPicker()" style="display:flex;align-items:center;gap:8px;padding:10px 20px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);color:var(--accent);font-family:var(--font);font-size:13px;font-weight:700;cursor:pointer;transition:all .2s;letter-spacing:.3px;" onmouseover="this.style.background='rgba(56,189,248,.15)'" onmouseout="this.style.background='var(--adim)'">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
-        Browse Patients
-        <span style="font-family:var(--mono);font-size:9px;padding:1px 7px;border-radius:20px;background:var(--bg3);border:1px solid var(--border);color:var(--text3);" id="pickerPatientCount">Loading...</span>
-      </button>
-      -->
-      <!-- Prominent nav cards -->
       <!-- Prominent nav cards -->
       <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;max-width:780px;">
         <a href="/dashboard" style="text-decoration:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
@@ -655,16 +648,46 @@ function newSession(){
   document.getElementById('agBadge').className='agent-badge triage';
   document.getElementById('agTxt').textContent='Orchestrator Ready';
   document.getElementById('agBadge').querySelector('svg').innerHTML='<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>';
+  clearSavedSession();
   document.getElementById('msgs').innerHTML=`<div class="welcome" id="welcomeScreen">
-    <div class="w-icon"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
-    <div class="w-title">IRIS FHIR Agents</div>
-    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator routes each message to the right specialist agent — grounded by IRIS Vector Search RAG.</div>
+    <div style="display:flex;align-items:center;gap:16px;justify-content:center;padding-bottom:4px;overflow:visible;">
+      <div class="w-icon" style="flex-shrink:0;"><svg viewBox="0 0 24 24"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg></div>
+      <div style="text-align:left;">
+        <div class="w-title" style="text-align:left;overflow:visible;padding-bottom:3px;">IRIS FHIR Agents</div>
+        <div style="font-family:var(--mono);font-size:10px;color:var(--accent);letter-spacing:1px;margin-top:2px;">v2.0 · MULTI-AGENT · FHIR R4</div>
+      </div>
+    </div>
+    <div class="w-desc">A multi-agent clinical intelligence platform. The Orchestrator automatically routes each message to the right specialist agent.</div>
     <div class="w-chips">
       <div class="w-chip triage"><div class="w-chip-dot"></div>Triage Agent</div>
       <div class="w-chip specialist"><div class="w-chip-dot"></div>Specialist Agent</div>
       <div class="w-chip pharmacy"><div class="w-chip-dot"></div>Pharmacy Agent</div>
     </div>
-    <button onclick="openPicker()" style="display:flex;align-items:center;gap:8px;padding:9px 18px;background:var(--adim);border:1px solid var(--border2);border-radius:var(--r);color:var(--accent);font-family:var(--font);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.3px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Browse Patients</button>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:8px;width:100%;max-width:780px;">
+      <a href="/dashboard" style="text-decoration:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='var(--border2)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:36px;height:36px;background:var(--adim);border:1px solid var(--border2);border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>
+        <div style="font-family:var(--display);font-size:12px;font-weight:700;color:var(--text)">Dashboard</div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;font-family:var(--mono)">Analytics &amp; FHIR data</div>
+      </a>
+      <a href="/vitals" style="text-decoration:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(52,211,153,.3)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:36px;height:36px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--ok)" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></div>
+        <div style="font-family:var(--display);font-size:12px;font-weight:700;color:var(--text)">Live Vitals</div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;font-family:var(--mono)">Real-time monitor</div>
+        <span style="font-size:9px;padding:1px 7px;border-radius:20px;background:rgba(52,211,153,.08);border:1px solid rgba(52,211,153,.2);color:var(--ok);font-family:var(--mono);">● Live</span>
+      </a>
+      <a href="/fhir-agent" style="text-decoration:none;background:var(--bg3);border:1px solid var(--border);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(110,231,183,.3)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='var(--border)';this.style.transform='translateY(0)'">
+        <div style="width:36px;height:36px;background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.2);border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6ee7b7" stroke-width="2"><ellipse cx="12" cy="12" rx="10" ry="4"/><path d="M2 12c0 2.21 4.48 4 10 4s10-1.79 10-4"/><path d="M2 12v5c0 2.21 4.48 4 10 4s10-1.79 10-4v-5"/></svg></div>
+        <div style="font-family:var(--display);font-size:12px;font-weight:700;color:var(--text)">FHIR Server</div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;font-family:var(--mono)">IRIS FHIR Agent</div>
+        <span style="font-size:9px;padding:1px 7px;border-radius:20px;background:rgba(110,231,183,.08);border:1px solid rgba(110,231,183,.2);color:#6ee7b7;font-family:var(--mono);">New</span>
+      </a>
+      <a href="/agent-builder" style="text-decoration:none;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:var(--r);padding:14px;display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;transition:all .2s;" onmouseover="this.style.borderColor='rgba(167,139,250,.35)';this.style.transform='translateY(-2px)'" onmouseout="this.style.borderColor='rgba(167,139,250,.15)';this.style.transform='translateY(0)'">
+        <div style="width:36px;height:36px;background:rgba(167,139,250,.1);border:1px solid rgba(167,139,250,.25);border-radius:9px;display:flex;align-items:center;justify-content:center;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M4.93 4.93a10 10 0 0 0 0 14.14"/></svg></div>
+        <div style="font-family:var(--display);font-size:12px;font-weight:700;color:var(--text)">Agent Builder</div>
+        <div style="font-size:10px;color:var(--text3);text-align:center;font-family:var(--mono)">Build custom agents</div>
+        <span style="font-size:9px;padding:1px 7px;border-radius:20px;background:rgba(167,139,250,.08);border:1px solid rgba(167,139,250,.2);color:#a78bfa;font-family:var(--mono);">New</span>
+      </a>
+    </div>
     <div class="qs-grid">
       <div class="qs" onclick="sq('Hello, I need help with my symptoms')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Start a new symptom assessment</div></div>
       <div class="qs" onclick="sq('My patient ID is demo-002')"><div class="qs-agent" style="color:var(--triage)">Triage Agent</div><div class="qs-text">Load James Chen — CAD + Warfarin risk</div></div>
@@ -756,9 +779,23 @@ function ctx(text){
   } else if(lo.includes('routine')){
     ub.className='urg ok';document.getElementById('urgTxt').textContent='🟢 ROUTINE';ub.classList.remove('gone');
   }
-  if(lo.includes('observation created')){addFhir('Observation');toast('FHIR Observation written');}
-  if(lo.includes('servicerequest created')){addFhir('ServiceRequest');toast('FHIR ServiceRequest written');}
-  if(lo.includes('medicationrequest created')){addFhir('MedicationRequest');toast('FHIR MedicationRequest written');}
+  // Detect FHIR writes — broad patterns to catch all agent response phrasings
+  if(lo.includes('observation created')||lo.includes('created an observation')||
+     lo.includes('triage observation')||lo.includes('fhir observation')||
+     lo.includes('symptom has been recorded')||lo.includes('observation has been')){
+    addFhir('Observation');toast('FHIR Observation written');
+  }
+  if(lo.includes('servicerequest created')||lo.includes('service request created')||
+     lo.includes('created a service request')||lo.includes('created an emergency service')||
+     lo.includes('created a referral')||lo.includes('referral has been created')||
+     lo.includes('service request has been')||lo.includes('created the service request')||
+     lo.includes('emergency service request')){
+    addFhir('ServiceRequest');toast('FHIR ServiceRequest written');
+  }
+  if(lo.includes('medicationrequest created')||lo.includes('medication request created')||
+     lo.includes('created a medication request')||lo.includes('prescription has been')){
+    addFhir('MedicationRequest');toast('FHIR MedicationRequest written');
+  }
   if(lo.includes('high risk')||lo.includes('contraindicated')||lo.includes('allergy conflict')){toast('Drug safety alert detected','warn');}
   const nm=text.match(/(?:Hello|Hi|Good\s+\w+),?\s+([A-Z][a-z]+(?:\s+[A-Z][a-z'-]+)?)/);
   if(nm){
@@ -794,12 +831,152 @@ async function send(){
     addMsg('ai','Could not connect to API at `http://localhost:8000`. Make sure the backend is running.','TRIAGE');
   }
   loading=false;document.getElementById('sendBtn').disabled=false;inp.focus();
+  saveSession();
 }
 
 function hk(e){if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();send();}}
 function ar(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,110)+'px';}
 
 // Theme
+
+// ── Session Persistence — localStorage ──────────────────────────────────────
+// Saves and restores chat session state across page navigation.
+// Judges can switch to Dashboard/Vitals and return without losing the conversation.
+
+const SESSION_KEY = 'fhir-agents-session';
+
+function saveSession() {
+  try {
+    const msgs = document.getElementById('msgs');
+    const state = {
+      sid,
+      turns,
+      fwc,
+      acc: {...acc},
+      sessTag: document.getElementById('sessTag').textContent,
+      msgsHTML: msgs ? msgs.innerHTML : '',
+      ptName: document.getElementById('ptName')?.textContent || '',
+      ptId: document.getElementById('ptId')?.textContent || '',
+      ptInit: document.getElementById('ptInit')?.textContent || '?',
+      ptCardVisible: !document.getElementById('ptCard')?.classList.contains('gone'),
+      statsVisible: document.getElementById('statsGrid')?.style.display !== 'none',
+      svTurn: document.getElementById('svTurn')?.textContent || '0',
+      svFhir: document.getElementById('svFhir')?.textContent || '0',
+      urgClass: document.getElementById('urgBadge')?.className || '',
+      urgTxt: document.getElementById('urgTxt')?.textContent || '',
+      urgVisible: !document.getElementById('urgBadge')?.classList.contains('gone'),
+      fhirLogVisible: !document.getElementById('fhirLog')?.classList.contains('gone'),
+      flItems: document.getElementById('flItems')?.innerHTML || '',
+      agBadgeClass: document.getElementById('agBadge')?.className || '',
+      agTxt: document.getElementById('agTxt')?.textContent || '',
+      routeHint: document.getElementById('routeHint')?.textContent || '',
+      cntTriage: document.getElementById('cnt-triage')?.textContent || '0',
+      cntSpecialist: document.getElementById('cnt-specialist')?.textContent || '0',
+      cntPharmacy: document.getElementById('cnt-pharmacy')?.textContent || '0',
+      savedAt: Date.now(),
+    };
+    localStorage.setItem(SESSION_KEY, JSON.stringify(state));
+  } catch(e) {
+    console.warn('Session save error:', e);
+  }
+}
+
+function restoreSession() {
+  try {
+    const raw = localStorage.getItem(SESSION_KEY);
+    if (!raw) return false;
+    const state = JSON.parse(raw);
+
+    // Don't restore sessions older than 2 hours
+    if (Date.now() - state.savedAt > 2 * 60 * 60 * 1000) {
+      localStorage.removeItem(SESSION_KEY);
+      return false;
+    }
+
+    // Don't restore if it's just the welcome screen
+    if (!state.sid) return false;
+
+    // Restore session variables
+    sid   = state.sid;
+    turns = state.turns || 0;
+    fwc   = state.fwc   || 0;
+    if (state.acc) Object.assign(acc, state.acc);
+
+    // Restore header
+    const sessTag = document.getElementById('sessTag');
+    if (sessTag && state.sessTag) sessTag.textContent = state.sessTag;
+
+    // Restore messages
+    const msgs = document.getElementById('msgs');
+    if (msgs && state.msgsHTML) msgs.innerHTML = state.msgsHTML;
+
+    // Restore patient card
+    if (state.ptCardVisible) {
+      const ptCard = document.getElementById('ptCard');
+      if (ptCard) ptCard.classList.remove('gone');
+      const ptName = document.getElementById('ptName');
+      if (ptName && state.ptName) ptName.textContent = state.ptName;
+      const ptId = document.getElementById('ptId');
+      if (ptId && state.ptId) ptId.textContent = state.ptId;
+      const ptInit = document.getElementById('ptInit');
+      if (ptInit && state.ptInit) ptInit.textContent = state.ptInit;
+    }
+
+    // Restore stats
+    if (state.statsVisible) {
+      const sg = document.getElementById('statsGrid');
+      if (sg) sg.style.display = 'grid';
+      const svt = document.getElementById('svTurn');
+      if (svt) svt.textContent = state.svTurn;
+      const svf = document.getElementById('svFhir');
+      if (svf) svf.textContent = state.svFhir;
+    }
+
+    // Restore urgency badge
+    if (state.urgVisible) {
+      const ub = document.getElementById('urgBadge');
+      if (ub) { ub.className = state.urgClass; document.getElementById('urgTxt').textContent = state.urgTxt; }
+    }
+
+    // Restore FHIR log
+    if (state.fhirLogVisible) {
+      const fl = document.getElementById('fhirLog');
+      if (fl) fl.classList.remove('gone');
+      const fli = document.getElementById('flItems');
+      if (fli) fli.innerHTML = state.flItems;
+    }
+
+    // Restore agent badge
+    const ab = document.getElementById('agBadge');
+    if (ab && state.agBadgeClass) ab.className = state.agBadgeClass;
+    const at = document.getElementById('agTxt');
+    if (at && state.agTxt) at.textContent = state.agTxt;
+    const rh = document.getElementById('routeHint');
+    if (rh && state.routeHint) rh.textContent = state.routeHint;
+
+    // Restore agent counters
+    const ct = document.getElementById('cnt-triage');
+    if (ct) ct.textContent = state.cntTriage;
+    const cs = document.getElementById('cnt-specialist');
+    if (cs) cs.textContent = state.cntSpecialist;
+    const cp = document.getElementById('cnt-pharmacy');
+    if (cp) cp.textContent = state.cntPharmacy;
+
+    // Scroll messages to bottom
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+
+    console.log('Session restored:', state.sid?.substring(0,8));
+    return true;
+  } catch(e) {
+    console.warn('Session restore error:', e);
+    return false;
+  }
+}
+
+function clearSavedSession() {
+  localStorage.removeItem(SESSION_KEY);
+}
+
 const TH=[{key:'dark',i:'🌙',l:'Dark'},{key:'light',i:'☀️',l:'Light'},{key:'clinical',i:'🏥',l:'Clinical'}];
 let ti=0;
 function cycleTheme(){
@@ -957,6 +1134,15 @@ window.setAgent = function(a) {
   }
   _origSetAgent(a);
 };
+
+// Restore previous session if available
+document.addEventListener('DOMContentLoaded', () => {
+  const restored = restoreSession();
+  if (!restored) {
+    // No saved session — show welcome screen (already default)
+    console.log('No saved session — showing welcome screen');
+  }
+});
 
 // Load custom agents on page load
 loadCustomAgents();
