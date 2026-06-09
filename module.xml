@@ -3,7 +3,7 @@
   <Document name="iris-fhir-agents.ZPM">
     <Module>
       <Name>iris-fhir-agents</Name>
-      <Version>1.0.0</Version>
+      <Version>2.0.0</Version>
       <Description>A multi-agent clinical AI platform powered by InterSystems IRIS for Health. Features agents for triage, specialist consultation, and pharmacy safety, grounded by IRIS Vector Search RAG.</Description>
       <Keywords>FHIR,Server,Agents,RAG</Keywords>
       <Packaging>module</Packaging>
