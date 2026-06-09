@@ -64,6 +64,12 @@ iris-fhir-template/
 ├── merge.cpf                     ← iris
 ├── module.xml                    ← ZPM 
 │
+├── iris_module/
+│   └── __init__.py               ← For Embedded python
+│
+├── src/fhirsetup/
+│   └── Setup.cls                 ← Setup FHIR server
+│
 ├── src/python/
 │   ├── api/
 │   │   └── main.py               ← FastAPI server, all HTTP routes
@@ -84,7 +90,7 @@ iris-fhir-template/
 │       ├── dashboard.html        ← Analytics Dashboard
 │       ├── vitals.html           ← Live Vitals Monitor
 │       ├── fhir_agent.html       ← FHIR Server Agent
-        └── agent_builder.html       ← Build Custom Agent
+│       └── agent_builder.html       ← Build Custom Agent
 │
 └── data/
     ├── fhir/
