@@ -146,7 +146,7 @@ This starts two containers:
 First startup takes some time while IRIS initialises and the RAG knowledge base embeds 50 guidelines into IRIS Vector Search. Watch the logs:
 
 ```bash
-docker logs fhir-triage-api --tail=50 -f
+docker logs fhir-agents-api --tail=50 -f
 ```
 
 You should see:
