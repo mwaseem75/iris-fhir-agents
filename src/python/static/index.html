@@ -780,7 +780,7 @@ function ctx(text){
     ub.className='urg ok';document.getElementById('urgTxt').textContent='🟢 ROUTINE';ub.classList.remove('gone');
   }
   // Detect FHIR writes — broad patterns to catch all agent response phrasings
-  if(lo.includes('observation created')||lo.includes('created an observation')||
+ if(lo.includes('observation created')||lo.includes('created an observation')||
      lo.includes('triage observation')||lo.includes('fhir observation')||
      lo.includes('symptom has been recorded')||lo.includes('observation has been')){
     addFhir('Observation');toast('FHIR Observation written');
@@ -1176,7 +1176,6 @@ function detectLanguage(text) {
 }
 
 function updateLangBadge(lang) {
-  if (lang === detectedLang) return;
   detectedLang = lang;
   const badge = document.getElementById('langBadge');
   const txt   = document.getElementById('langTxt');
@@ -1190,10 +1189,18 @@ function updateLangBadge(lang) {
 }
 
 // Hook into the send function — detect language before sending
+// Re-detects on EVERY message so switching back to English resets correctly
 const _origSend = window.send;
 window.send = async function() {
   const txt = document.getElementById('inp').value.trim();
-  if (txt) updateLangBadge(detectLanguage(txt));
+  if (txt) {
+    const lang = detectLanguage(txt);
+    updateLangBadge(lang);
+    if (window._recognition) {
+      const VOICE_LANGS = { en:'en-US', es:'es-US', fr:'fr-FR', zh:'zh-CN' };
+      window._recognition.lang = VOICE_LANGS[lang] || 'en-US';
+    }
+  }
   return _origSend.apply(this, arguments);
 };
 

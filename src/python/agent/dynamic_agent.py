@@ -19,6 +19,7 @@ on next startup or hot-reload.
 import os
 import json
 from pathlib import Path
+from typing import Optional
 from config import LLM_MODEL
 from langchain_openai import ChatOpenAI
 from langchain.agents import AgentExecutor, create_openai_tools_agent
@@ -56,7 +57,7 @@ AGENTS_FILE = Path(__file__).parent.parent / "data" / "custom_agents.json"
 #  CONFIG MANAGEMENT
 # ═══════════════════════════════════════════════════════════════════════════════
 
-def load_all_agents() -> list[dict]:
+def load_all_agents() -> list:
     """
     Load all custom agent configurations from custom_agents.json.
     Returns an empty list if the file does not exist yet — this is the normal
@@ -75,7 +76,7 @@ def save_all_agents(agents: list[dict]) -> None:
         json.dump(agents, f, indent=2)
 
 
-def get_agent_config(agent_id: str) -> dict | None:
+def get_agent_config(agent_id: str) -> Optional[dict]:
     """Return the config dict for a single agent by its ID, or None if not found."""
     return next((a for a in load_all_agents() if a["id"] == agent_id), None)
 
@@ -118,7 +119,7 @@ def delete_agent(agent_id: str) -> bool:
 
 # Session-scoped executor cache — key: "{agent_id}:{session_id}"
 # This mirrors the per-session memory pattern used in the built-in agents.
-_executor_cache: dict[str, AgentExecutor] = {}
+_executor_cache: dict = {}
 
 
 def _build_executor(config: dict) -> AgentExecutor:
@@ -152,7 +153,8 @@ CRITICAL RULES — ALWAYS FOLLOW:
 - Cite every guideline source explicitly in your response
 
 LANGUAGE RULE:
-- Respond in the same language the user writes in
+- Detect the language of the CURRENT message and respond in THAT language
+- If the user writes in English, ALWAYS respond in English — even if previous messages were in another language
 - Clinical warnings must appear in BOTH English and the user's language
 - Always include an English summary at the end for clinical staff handoff
 """
@@ -183,7 +185,7 @@ LANGUAGE RULE:
     )
 
 
-def get_executor(agent_id: str, session_id: str) -> AgentExecutor | None:
+def get_executor(agent_id: str, session_id: str) -> Optional[AgentExecutor]:
     """
     Return a cached executor for this agent+session combination.
     Creates a new executor if one does not exist yet.
