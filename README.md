@@ -186,10 +186,13 @@ INFO:     Uvicorn running on http://0.0.0.0:8000
 
 Click on Browse patients to select the patient OR Type `My patient ID is demo-010` to start.
 <img width="1625"  alt="image" src="https://github.com/user-attachments/assets/636468fc-e15d-43c1-9725-1060de238506" />
+
 Triage Agent reads the data from the FHIR server and responds
 <img width="1632"  alt="image" src="https://github.com/user-attachments/assets/1974fe19-cb6a-4fdc-a7d4-b54c6c9b24d5" />
+
 The user enters the condition, and the Agent will respond accordingly
 <img width="1635"  alt="image" src="https://github.com/user-attachments/assets/9f36f573-c432-457c-bbf5-483ddeafc609" />
+
 New FHIR resources created by the Triage Agent can be viewed in the Analytics Dashboard.
 <img width="1627"  alt="image" src="https://github.com/user-attachments/assets/546d58d0-8e3d-4b17-bb69-2de0c09d55d0" />
 
