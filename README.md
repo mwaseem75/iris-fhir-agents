@@ -197,7 +197,7 @@ New FHIR resources created by the Triage Agent can be viewed in the Analytics Da
 <img width="1627"  alt="image" src="https://github.com/user-attachments/assets/546d58d0-8e3d-4b17-bb69-2de0c09d55d0" />
 
 New FHIR resource can be verified using Postman.
-<img width="1477" height="847" alt="image" src="https://github.com/user-attachments/assets/e8f0af66-64d5-4a4d-99cb-1501794d5a90" />
+<img width="1477" alt="image" src="https://github.com/user-attachments/assets/e8f0af66-64d5-4a4d-99cb-1501794d5a90" />
 
 
 ## Analytics Dashboard
