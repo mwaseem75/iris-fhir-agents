@@ -158,9 +158,10 @@ RAG: Initialisation complete — 50 new guidelines embedded and stored
 INFO:     Uvicorn running on http://0.0.0.0:8000
 ```
 
-### 4. Demo patient data
+### 4. Clinical Conversation flow
 
-Synthetic FHIR data is loaded during container build from the data/fhir/demo_patients.json file.
+<img width="1625"  alt="image" src="https://github.com/user-attachments/assets/a246dd4c-3b35-4edf-85d1-e0d89b92e9e1" />
+
 
 ### 5. Open the application
 
